@@ -1019,7 +1019,8 @@ Internet-Draft   Active Queue Management Recommendations    October 2013
    [Jacobson88]
               Jacobson, V., "Congestion Avoidance and Control", SIGCOMM
               Symposium proceedings on Communications architectures and
-              protocols , August 1988.
+              protocols , August 1988,
+	      <"http://wwwp.cord.edu/faculty/zhang/cs345/assignments/researchPapers/congavoid.pdf">
 
    [Jain94]   Jain, Raj., Ramakrishnan, KK., and Chiu. Dah-Ming,
               "Congestion avoidance scheme for computer networks", US
