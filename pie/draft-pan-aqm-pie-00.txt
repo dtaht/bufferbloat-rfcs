@@ -1,7 +1,3 @@
- 
-
-
-
 Internet Draft                                                    R. Pan
 Network Working Group               P. Natarajan, C. Piglione, M. Prabhu
 Intended Status: Informational     V. Subramanian, F. Baker, B. V. Steeg
@@ -608,9 +604,9 @@ There are no actions for IANA.
 9.3  Other References
 
    [CoDel]    	Nichols, K., Jacobson, V., "Controlling Queue Delay", ACM
-                  Queue. ACM Publishing. doi:10.1145/2209249.22W.09264. 
-		<http://snapon.lab.bufferbloat.net/~docmirror/AM4DT-Research/controlqueue.aqm.pdf">
- 
+                  Queue. ACM Publishing. doi:10.1145/2209249.22W.09264,
+		<http://queue.acm.org/detail.cfm?id=2209336>
+
 
 
 Pan et al.              Expires December 5, 2013               [Page 11]
@@ -623,12 +619,12 @@ INTERNET DRAFT                    PIE                       June 3, 2013
 
    [TCP-Models] 	Misra, V., Gong, W., and Towsley, D., "Fluid-based 	   
                   Analysis of a Network of AQM Routers Supporting TCP   
-                  Flows with an Application to RED", SIGCOMM 2000.
-
+                  Flows with an Application to RED", SIGCOMM 2000,
+		  <http://eeweb.poly.edu/el933/papers/mgt.pdf>
    [PI]		Hollot, C.V., Misra, V., Towsley, D. and Gong, W.,
    		"On Designing Improved Controller for AQM Routers
-   		Supporting TCP Flows", Infocom 2001.
-
+   		Supporting TCP Flows", Infocom 2001,
+		<ftp://ftp.cs.umass.edu/pub/net/pub/MisraInfocom01-AQM-Controller.pdf
    [QCN]		"Data Center Bridging - Congestion Notification",
    		http://www.ieee802.org/1/pages/802.1au.html.
 
