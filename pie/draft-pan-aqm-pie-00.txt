@@ -610,7 +610,7 @@ There are no actions for IANA.
    [CoDel]    	Nichols, K., Jacobson, V., "Controlling Queue Delay", ACM
                   Queue. ACM Publishing. doi:10.1145/2209249.22W.09264,
 		<http://queue.acm.org/detail.cfm?id=2209336>
- 
+
 
 
 Pan et al.              Expires December 5, 2013               [Page 11]
