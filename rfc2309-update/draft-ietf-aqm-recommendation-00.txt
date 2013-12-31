@@ -1066,7 +1066,7 @@ Internet-Draft   Active Queue Management Recommendations    October 2013
 
    [RFC0970]  Nagle, J., "On packet switches with infinite storage",
               RFC 970, December 1985.
-
+	      <http://tools.ietf.org/rfc/rfc970.txt>
 
 
 Baker & Fairhurst        Expires April 13, 2014                [Page 19]
