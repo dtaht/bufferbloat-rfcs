@@ -870,6 +870,7 @@ Internet-Draft  Controlled Delay Active Queue Management   February 2013
              2011.
    [BB2011] Gettys, J. and K. Nichols, "Bufferbloat: Dark Buffers in
              the Internet", Communications of the ACM 9(11) pp. 57-65.
+	    <http://queue.acm.org/detail.cfm?id=2071893>
 
    [BMPFQ] Suter, B., et. al., "Buffer Management Schemes for
              Supporting TCP in Gigabit Routers with Per-flow Queueing",
