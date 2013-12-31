@@ -608,8 +608,8 @@ There are no actions for IANA.
 9.3  Other References
 
    [CoDel]    	Nichols, K., Jacobson, V., "Controlling Queue Delay", ACM
-                  Queue. ACM Publishing. doi:10.1145/2209249.22W.09264.
-
+                  Queue. ACM Publishing. doi:10.1145/2209249.22W.09264. 
+		<http://snapon.lab.bufferbloat.net/~docmirror/AM4DT-Research/controlqueue.aqm.pdf">
  
 
 
