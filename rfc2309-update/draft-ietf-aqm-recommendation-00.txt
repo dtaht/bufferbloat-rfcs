@@ -1026,6 +1026,7 @@ Internet-Draft   Active Queue Management Recommendations    October 2013
    [Jain94]   Jain, Raj., Ramakrishnan, KK., and Chiu. Dah-Ming,
               "Congestion avoidance scheme for computer networks", US
               Patent Office 5377327, December 1994.
+	      <http://arxiv.org/pdf/cs/9809095.pdf>
 
    [Lakshman96]
               Lakshman, TV., Neidhardt, A., and T. Ott, "The Drop From
