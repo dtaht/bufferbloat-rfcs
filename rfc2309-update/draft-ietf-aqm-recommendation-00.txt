@@ -1015,6 +1015,7 @@ Internet-Draft   Active Queue Management Recommendations    October 2013
    [Floyd95]  Floyd, S. and V. Jacobson, "Link-sharing and Resource
               Management Models for Packet Networks", IEEE/ACM
               Transactions on Networking , August 1995.
+	     <http://ee.lbl.gov/papers/link.pdf>
 
    [Jacobson88]
               Jacobson, V., "Congestion Avoidance and Control", SIGCOMM
