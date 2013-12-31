@@ -1039,6 +1039,7 @@ Internet-Draft   Active Queue Management Recommendations    October 2013
               the Self-Similar Nature of Ethernet Traffic (Extended
               Version)", IEEE/ACM Transactions on Networking ,
               February 1994.
+	      <http://snapon.lab.bufferbloat.net/~docmirror/AM4DT-Research/Leland94.pdf>
 
    [Papagiannaki]
               Sprint ATL, KAIST, University of Minnesota, Sprint ATL,
