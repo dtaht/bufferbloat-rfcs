@@ -917,6 +917,7 @@ Internet-Draft  Controlled Delay Active Queue Management   February 2013
              Behavior of the TCP Congestion Avoidance Algorithm", ACM
              SIGCOMM Computer Communications Review, Vol. 27 no. 1,
              Jan. 2007.
+	     <https://www.cs.auckland.ac.nz/courses/compsci742s2c/resources/mathis-tcpmodel-ccr97.pdf>
 
    [SFQ1990] McKenney, P., "Stochastic Fairness Queuing", Proceedings
              of IEEE INFOCOMM'90, San Francisco, 1990.
