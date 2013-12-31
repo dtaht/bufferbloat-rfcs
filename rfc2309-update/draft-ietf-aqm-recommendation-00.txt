@@ -1032,6 +1032,7 @@ Internet-Draft   Active Queue Management Recommendations    October 2013
               Lakshman, TV., Neidhardt, A., and T. Ott, "The Drop From
               Front Strategy in TCP Over ATM and Its Interworking with
               Other Control Features", IEEE Infocomm , 1996.
+	     <http://snapon.lab.bufferbloat.net/~docmirror/AM4DT-Research/lakshman.atm.pdf>
 
    [Leland94]
               Leland, W., Taqqu, M., Willinger, W., and D. Wilson, "On
