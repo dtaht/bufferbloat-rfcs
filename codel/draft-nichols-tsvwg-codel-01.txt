@@ -892,6 +892,7 @@ Internet-Draft  Controlled Delay Active Queue Management   February 2013
    [VANQ2006] Jacobson, V., "A Rant on Queues", talk at MIT Lincoln
              Labs, Lexington, MA, July, 2006, http://www.pollere.net/
              Pdfdocs/QrantJul06.pdf
+
    [REDL1998] Jacobson, V., K. Nichols and K. Poduri, "RED in a
              Different Light",September, 1999, http://
              www.cnaf.infn.it/~ferrari/papers/ispn/red_light_9_30.pdf
@@ -899,6 +900,7 @@ Internet-Draft  Controlled Delay Active Queue Management   February 2013
    [NETAL2010] Kreibich, C., et. al., "Netalyzr: Illuminating the Edge
              Network", Proceedings of the Internet Measurement
              Conference, Melbourne, Australia, 2010.
+	     <https://www.hiit.fi/u/nechaev/papers/netalyzr-imc10.pdf>
 
    [TSV84] Jacobson, V., slides and talk at TSV meeting IETF 84,
              http://www.ietf.org/proceedings/84/slides/slides-84-
