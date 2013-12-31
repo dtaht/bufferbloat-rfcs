@@ -1,0 +1,4106 @@
+<!-- This document was prepared using Pandoc2rfc, https://github.com/miekg/pandoc2rfc -->
+
+  
+<section title="This is the Pandoc README" anchor="this-is-the-pandoc-readme">
+  
+  <t>
+  </t>
+</section>
+<section title="Synopsis" anchor="synopsis">
+  
+  <t>
+    pandoc [<spanx style="emph">options</spanx>]
+    [<spanx style="emph">input-file</spanx>]...
+  </t>
+</section>
+<section title="Description" anchor="description">
+  
+  <t>
+    Pandoc is a <eref target="http://www.haskell.org/">Haskell</eref>
+    library for converting from one markup format to another, and a
+    command-line tool that uses this library. It can read
+    <eref target="http://daringfireball.net/projects/markdown/">markdown</eref>
+    and (subsets of)
+    <eref target="http://redcloth.org/textile">Textile</eref>,
+    <eref target="http://docutils.sourceforge.net/docs/ref/rst/introduction.html">reStructuredText</eref>,
+    <eref target="http://www.w3.org/TR/html40/">HTML</eref>,
+    <eref target="http://www.latex-project.org/">LaTeX</eref>,
+    <eref target="http://www.mediawiki.org/wiki/Help:Formatting">MediaWiki
+    markup</eref>,
+    <eref target="http://www.haskell.org/haddock/doc/html/ch03s08.html">Haddock
+    markup</eref>,
+    <eref target="http://dev.opml.org/spec2.html">OPML</eref>, and
+    <eref target="http://www.docbook.org/">DocBook</eref>; and it can
+    write plain text,
+    <eref target="http://daringfireball.net/projects/markdown/">markdown</eref>,
+    <eref target="http://docutils.sourceforge.net/docs/ref/rst/introduction.html">reStructuredText</eref>,
+    <eref target="http://www.w3.org/TR/xhtml1/">XHTML</eref>,
+    <eref target="http://www.w3.org/TR/html5/">HTML 5</eref>,
+    <eref target="http://www.latex-project.org/">LaTeX</eref> (including
+    <eref target="http://www.tex.ac.uk/CTAN/macros/latex/contrib/beamer">beamer</eref>
+    slide shows),
+    <eref target="http://www.pragma-ade.nl/">ConTeXt</eref>,
+    <eref target="http://en.wikipedia.org/wiki/Rich_Text_Format">RTF</eref>,
+    <eref target="http://dev.opml.org/spec2.html">OPML</eref>,
+    <eref target="http://www.docbook.org/">DocBook</eref>,
+    <eref target="http://opendocument.xml.org/">OpenDocument</eref>,
+    <eref target="http://en.wikipedia.org/wiki/OpenDocument">ODT</eref>,
+    <eref target="http://www.microsoft.com/interop/openup/openxml/default.aspx">Word
+    docx</eref>, <eref target="http://www.gnu.org/software/texinfo/">GNU
+    Texinfo</eref>,
+    <eref target="http://www.mediawiki.org/wiki/Help:Formatting">MediaWiki
+    markup</eref>, <eref target="http://www.idpf.org/">EPUB</eref> (v2
+    or v3),
+    <eref target="http://www.fictionbook.org/index.php/Eng:XML_Schema_Fictionbook_2.1">FictionBook2</eref>,
+    <eref target="http://redcloth.org/textile">Textile</eref>,
+    <eref target="http://developer.apple.com/DOCUMENTATION/Darwin/Reference/ManPages/man7/groff_man.7.html">groff
+    man</eref> pages, <eref target="http://orgmode.org">Emacs
+    Org-Mode</eref>,
+    <eref target="http://www.methods.co.nz/asciidoc/">AsciiDoc</eref>,
+    and <eref target="http://www.w3.org/Talks/Tools/Slidy/">Slidy</eref>,
+    <eref target="http://goessner.net/articles/slideous/">Slideous</eref>,
+    <eref target="http://paulrouget.com/dzslides/">DZSlides</eref>,
+    <eref target="http://lab.hakim.se/reveal-js/">reveal.js</eref> or
+    <eref target="http://meyerweb.com/eric/tools/s5/">S5</eref> HTML
+    slide shows. It can also produce
+    <eref target="http://www.adobe.com/pdf/">PDF</eref> output on systems
+    where LaTeX is installed.
+  </t>
+  <t>
+    Pandoc's enhanced version of markdown includes syntax for footnotes,
+    tables, flexible ordered lists, definition lists, fenced code
+    blocks, superscript, subscript, strikeout, title blocks, automatic
+    tables of contents, embedded LaTeX math, citations, and markdown
+    inside HTML block elements. (These enhancements, described below
+    under <xref target="pandocs-markdown">Pandoc's markdown</xref>, can
+    be disabled using the <spanx style="verb">markdown_strict</spanx> input or
+    output format.)
+  </t>
+  <t>
+    In contrast to most existing tools for converting markdown to HTML,
+    which use regex substitutions, Pandoc has a modular design: it
+    consists of a set of readers, which parse text in a given format and
+    produce a native representation of the document, and a set of
+    writers, which convert this native representation into a target
+    format. Thus, adding an input or output format requires only adding
+    a reader or writer.
+  </t>
+  <section title="Using pandoc" anchor="using-pandoc">
+    
+    <t>
+      If no <spanx style="emph">input-file</spanx> is specified, input is read
+      from <spanx style="emph">stdin</spanx>. Otherwise, the
+      <spanx style="emph">input-files</spanx> are concatenated (with a blank
+      line between each) and used as input. Output goes to
+      <spanx style="emph">stdout</spanx> by default (though output to
+      <spanx style="emph">stdout</spanx> is disabled for the
+      <spanx style="verb">odt</spanx>, <spanx style="verb">docx</spanx>,
+      <spanx style="verb">epub</spanx>, and <spanx style="verb">epub3</spanx> output
+      formats). For output to a file, use the <spanx style="verb">-o</spanx>
+      option:
+    </t>
+    <figure><artwork>
+pandoc -o output.html input.txt
+</artwork></figure>
+    <t>
+      Instead of a file, an absolute URI may be given. In this case
+      pandoc will fetch the content using HTTP:
+    </t>
+    <figure><artwork>
+pandoc -f html -t markdown http://www.fsf.org
+</artwork></figure>
+    <t>
+      If multiple input files are given, <spanx style="verb">pandoc</spanx> will
+      concatenate them all (with blank lines between them) before
+      parsing.
+    </t>
+    <t>
+      The format of the input and output can be specified explicitly
+      using command-line options. The input format can be specified
+      using the <spanx style="verb">-r/--read</spanx> or
+      <spanx style="verb">-f/--from</spanx> options, the output format using the
+      <spanx style="verb">-w/--write</spanx> or <spanx style="verb">-t/--to</spanx>
+      options. Thus, to convert <spanx style="verb">hello.txt</spanx> from
+      markdown to LaTeX, you could type:
+    </t>
+    <figure><artwork>
+pandoc -f markdown -t latex hello.txt
+</artwork></figure>
+    <t>
+      To convert <spanx style="verb">hello.html</spanx> from html to markdown:
+    </t>
+    <figure><artwork>
+pandoc -f html -t markdown hello.html
+</artwork></figure>
+    <t>
+      Supported output formats are listed below under the
+      <spanx style="verb">-t/--to</spanx> option. Supported input formats are
+      listed below under the <spanx style="verb">-f/--from</spanx> option. Note
+      that the <spanx style="verb">rst</spanx>, <spanx style="verb">textile</spanx>,
+      <spanx style="verb">latex</spanx>, and <spanx style="verb">html</spanx> readers are
+      not complete; there are some constructs that they do not parse.
+    </t>
+    <t>
+      If the input or output format is not specified explicitly,
+      <spanx style="verb">pandoc</spanx> will attempt to guess it from the
+      extensions of the input and output filenames. Thus, for example,
+    </t>
+    <figure><artwork>
+pandoc -o hello.tex hello.txt
+</artwork></figure>
+    <t>
+      will convert <spanx style="verb">hello.txt</spanx> from markdown to LaTeX.
+      If no output file is specified (so that output goes to
+      <spanx style="emph">stdout</spanx>), or if the output file's extension is
+      unknown, the output format will default to HTML. If no input file
+      is specified (so that input comes from
+      <spanx style="emph">stdin</spanx>), or if the input files' extensions are
+      unknown, the input format will be assumed to be markdown unless
+      explicitly specified.
+    </t>
+    <t>
+      Pandoc uses the UTF-8 character encoding for both input and
+      output. If your local character encoding is not UTF-8, you should
+      pipe input and output through <spanx style="verb">iconv</spanx>:
+    </t>
+    <figure><artwork>
+iconv -t utf-8 input.txt | pandoc | iconv -f utf-8
+</artwork></figure>
+  </section>
+  <section title="Creating a PDF" anchor="creating-a-pdf">
+    
+    <t>
+      Earlier versions of pandoc came with a program,
+      <spanx style="verb">markdown2pdf</spanx>, that used pandoc and pdflatex to
+      produce a PDF. This is no longer needed, since
+      <spanx style="verb">pandoc</spanx> can now produce <spanx style="verb">pdf</spanx>
+      output itself. To produce a PDF, simply specify an output file
+      with a <spanx style="verb">.pdf</spanx> extension. Pandoc will create a
+      latex file and use pdflatex (or another engine, see
+      <spanx style="verb">--latex-engine</spanx>) to convert it to PDF:
+    </t>
+    <figure><artwork>
+pandoc test.txt -o test.pdf
+</artwork></figure>
+    <t>
+      Production of a PDF requires that a LaTeX engine be installed (see
+      <spanx style="verb">--latex-engine</spanx>, below), and assumes that the
+      following LaTeX packages are available:
+      <spanx style="verb">amssymb</spanx>, <spanx style="verb">amsmath</spanx>,
+      <spanx style="verb">ifxetex</spanx>, <spanx style="verb">ifluatex</spanx>,
+      <spanx style="verb">listings</spanx> (if the <spanx style="verb">--listings</spanx>
+      option is used), <spanx style="verb">fancyvrb</spanx>,
+      <spanx style="verb">longtable</spanx>, <spanx style="verb">url</spanx>,
+      <spanx style="verb">graphicx</spanx>, <spanx style="verb">hyperref</spanx>,
+      <spanx style="verb">ulem</spanx>, <spanx style="verb">babel</spanx> (if the
+      <spanx style="verb">lang</spanx> variable is set),
+      <spanx style="verb">fontspec</spanx> (if <spanx style="verb">xelatex</spanx> or
+      <spanx style="verb">lualatex</spanx> is used as the LaTeX engine),
+      <spanx style="verb">xltxtra</spanx> and <spanx style="verb">xunicode</spanx> (if
+      <spanx style="verb">xelatex</spanx> is used).
+    </t>
+  </section>
+  <section title="hsmarkdown" anchor="hsmarkdown">
+    
+    <t>
+      A user who wants a drop-in replacement for
+      <spanx style="verb">Markdown.pl</spanx> may create a symbolic link to the
+      <spanx style="verb">pandoc</spanx> executable called
+      <spanx style="verb">hsmarkdown</spanx>. When invoked under the name
+      <spanx style="verb">hsmarkdown</spanx>, <spanx style="verb">pandoc</spanx> will
+      behave as if invoked with
+      <spanx style="verb">-f markdown_strict --email-obfuscation=references</spanx>,
+      and all command-line options will be treated as regular arguments.
+      However, this approach does not work under Cygwin, due to problems
+      with its simulation of symbolic links.
+    </t>
+  </section>
+</section>
+<section title="Options" anchor="options">
+  
+  <section title="General options" anchor="general-options">
+    
+    <t><list style="hanging">
+      <t hangText="-f FORMAT, -r FORMAT, --from=FORMAT, --read=FORMAT">
+          
+            Specify input format. <spanx style="emph">FORMAT</spanx> can be
+            <spanx style="verb">native</spanx> (native Haskell),
+            <spanx style="verb">json</spanx> (JSON version of native AST),
+            <spanx style="verb">markdown</spanx> (pandoc's extended markdown),
+            <spanx style="verb">markdown_strict</spanx> (original unextended
+            markdown), <spanx style="verb">markdown_phpextra</spanx> (PHP
+            Markdown Extra extended markdown),
+            <spanx style="verb">markdown_github</spanx> (github extended
+            markdown), <spanx style="verb">textile</spanx> (Textile),
+            <spanx style="verb">rst</spanx> (reStructuredText),
+            <spanx style="verb">html</spanx> (HTML), <spanx style="verb">docbook</spanx>
+            (DocBook), <spanx style="verb">opml</spanx> (OPML),
+            <spanx style="verb">mediawiki</spanx> (MediaWiki markup),
+            <spanx style="verb">haddock</spanx> (Haddock markup), or
+            <spanx style="verb">latex</spanx> (LaTeX). If <spanx style="verb">+lhs</spanx>
+            is appended to <spanx style="verb">markdown</spanx>,
+            <spanx style="verb">rst</spanx>, <spanx style="verb">latex</spanx>, or
+            <spanx style="verb">html</spanx>, the input will be treated as
+            literate Haskell source: see
+            <xref target="literate-haskell-support">Literate Haskell
+            support</xref>, below. Markdown syntax extensions can be
+            individually enabled or disabled by appending
+            <spanx style="verb">+EXTENSION</spanx> or
+            <spanx style="verb">-EXTENSION</spanx> to the format name. So, for
+            example,
+            <spanx style="verb">markdown_strict+footnotes+definition_lists</spanx>
+            is strict markdown with footnotes and definition lists
+            enabled, and
+            <spanx style="verb">markdown-pipe_tables+hard_line_breaks</spanx> is
+            pandoc's markdown without pipe tables and with hard line
+            breaks. See <xref target="pandocs-markdown">Pandoc's
+            markdown</xref>, below, for a list of extensions and their
+            names.
+          
+        </t>
+      <t hangText="-t FORMAT, -w FORMAT, --to=FORMAT, --write=FORMAT">
+          
+            Specify output format. <spanx style="emph">FORMAT</spanx> can be
+            <spanx style="verb">native</spanx> (native Haskell),
+            <spanx style="verb">json</spanx> (JSON version of native AST),
+            <spanx style="verb">plain</spanx> (plain text),
+            <spanx style="verb">markdown</spanx> (pandoc's extended markdown),
+            <spanx style="verb">markdown_strict</spanx> (original unextended
+            markdown), <spanx style="verb">markdown_phpextra</spanx> (PHP
+            Markdown extra extended markdown),
+            <spanx style="verb">markdown_github</spanx> (github extended
+            markdown), <spanx style="verb">rst</spanx> (reStructuredText),
+            <spanx style="verb">html</spanx> (XHTML 1), <spanx style="verb">html5</spanx>
+            (HTML 5), <spanx style="verb">latex</spanx> (LaTeX),
+            <spanx style="verb">beamer</spanx> (LaTeX beamer slide show),
+            <spanx style="verb">context</spanx> (ConTeXt), <spanx style="verb">man</spanx>
+            (groff man), <spanx style="verb">mediawiki</spanx> (MediaWiki
+            markup), <spanx style="verb">textile</spanx> (Textile),
+            <spanx style="verb">org</spanx> (Emacs Org-Mode),
+            <spanx style="verb">texinfo</spanx> (GNU Texinfo),
+            <spanx style="verb">opml</spanx> (OPML), <spanx style="verb">docbook</spanx>
+            (DocBook), <spanx style="verb">opendocument</spanx> (OpenDocument),
+            <spanx style="verb">odt</spanx> (OpenOffice text document),
+            <spanx style="verb">docx</spanx> (Word docx), <spanx style="verb">rtf</spanx>
+            (rich text format), <spanx style="verb">epub</spanx> (EPUB v2 book),
+            <spanx style="verb">epub3</spanx> (EPUB v3), <spanx style="verb">fb2</spanx>
+            (FictionBook2 e-book), <spanx style="verb">asciidoc</spanx>
+            (AsciiDoc), <spanx style="verb">slidy</spanx> (Slidy HTML and
+            javascript slide show), <spanx style="verb">slideous</spanx>
+            (Slideous HTML and javascript slide show),
+            <spanx style="verb">dzslides</spanx> (DZSlides HTML5 + javascript
+            slide show), <spanx style="verb">revealjs</spanx> (reveal.js HTML5 +
+            javascript slide show), <spanx style="verb">s5</spanx> (S5 HTML and
+            javascript slide show), or the path of a custom lua writer
+            (see <xref target="custom-writers">Custom writers</xref>,
+            below). Note that <spanx style="verb">odt</spanx>,
+            <spanx style="verb">epub</spanx>, and <spanx style="verb">epub3</spanx> output
+            will not be directed to <spanx style="emph">stdout</spanx>; an
+            output filename must be specified using the
+            <spanx style="verb">-o/--output</spanx> option. If
+            <spanx style="verb">+lhs</spanx> is appended to
+            <spanx style="verb">markdown</spanx>, <spanx style="verb">rst</spanx>,
+            <spanx style="verb">latex</spanx>, <spanx style="verb">beamer</spanx>,
+            <spanx style="verb">html</spanx>, or <spanx style="verb">html5</spanx>, the
+            output will be rendered as literate Haskell source: see
+            <xref target="literate-haskell-support">Literate Haskell
+            support</xref>, below. Markdown syntax extensions can be
+            individually enabled or disabled by appending
+            <spanx style="verb">+EXTENSION</spanx> or
+            <spanx style="verb">-EXTENSION</spanx> to the format name, as
+            described above under <spanx style="verb">-f</spanx>.
+          
+        </t>
+      <t hangText="-o FILE, --output=FILE">
+          
+            Write output to <spanx style="emph">FILE</spanx> instead of
+            <spanx style="emph">stdout</spanx>. If <spanx style="emph">FILE</spanx> is
+            <spanx style="verb">-</spanx>, output will go to
+            <spanx style="emph">stdout</spanx>. (Exception: if the output
+            format is <spanx style="verb">odt</spanx>, <spanx style="verb">docx</spanx>,
+            <spanx style="verb">epub</spanx>, or <spanx style="verb">epub3</spanx>, output
+            to stdout is disabled.)
+          
+        </t>
+      <t hangText="--data-dir=DIRECTORY">
+          
+            Specify the user data directory to search for pandoc data
+            files. If this option is not specified, the default user
+            data directory will be used. This is
+          
+          <figure><artwork>
+$HOME/.pandoc
+</artwork></figure>
+          <vspace blankLines="1"/>
+            in unix,
+          
+          <figure><artwork>
+C:\Documents And Settings\USERNAME\Application Data\pandoc
+</artwork></figure>
+          <vspace blankLines="1"/>
+            in Windows XP, and
+          
+          <figure><artwork>
+C:\Users\USERNAME\AppData\Roaming\pandoc
+</artwork></figure>
+          <vspace blankLines="1"/>
+            in Windows 7. (You can find the default user data directory
+            on your system by looking at the output of
+            <spanx style="verb">pandoc --version</spanx>.) A
+            <spanx style="verb">reference.odt</spanx>,
+            <spanx style="verb">reference.docx</spanx>,
+            <spanx style="verb">default.csl</spanx>, <spanx style="verb">epub.css</spanx>,
+            <spanx style="verb">templates</spanx>, <spanx style="verb">slidy</spanx>,
+            <spanx style="verb">slideous</spanx>, or <spanx style="verb">s5</spanx>
+            directory placed in this directory will override pandoc's
+            normal defaults.
+          
+        </t>
+      <t hangText="-v, --version">
+          
+            Print version.
+          
+        </t>
+      <t hangText="-h, --help">
+          
+            Show usage message.
+          
+        </t>
+    </list></t>
+  </section>
+  <section title="Reader options" anchor="reader-options">
+    
+    <t><list style="hanging">
+      <t hangText="-R, --parse-raw">
+          
+            Parse untranslatable HTML codes and LaTeX environments as
+            raw HTML or LaTeX, instead of ignoring them. Affects only
+            HTML and LaTeX input. Raw HTML can be printed in markdown,
+            reStructuredText, HTML, Slidy, Slideous, DZSlides,
+            reveal.js, and S5 output; raw LaTeX can be printed in
+            markdown, reStructuredText, LaTeX, and ConTeXt output. The
+            default is for the readers to omit untranslatable HTML codes
+            and LaTeX environments. (The LaTeX reader does pass through
+            untranslatable LaTeX <spanx style="emph">commands</spanx>, even if
+            <spanx style="verb">-R</spanx> is not specified.)
+          
+        </t>
+      <t hangText="-S, --smart">
+          
+            Produce typographically correct output, converting straight
+            quotes to curly quotes, <spanx style="verb">---</spanx> to em-dashes,
+            <spanx style="verb">--</spanx> to en-dashes, and
+            <spanx style="verb">...</spanx> to ellipses. Nonbreaking spaces are
+            inserted after certain abbreviations, such as
+            "Mr." (Note: This option is significant only when
+            the input format is <spanx style="verb">markdown</spanx>,
+            <spanx style="verb">markdown_strict</spanx>, or
+            <spanx style="verb">textile</spanx>. It is selected automatically
+            when the input format is <spanx style="verb">textile</spanx> or the
+            output format is <spanx style="verb">latex</spanx> or
+            <spanx style="verb">context</spanx>, unless
+            <spanx style="verb">--no-tex-ligatures</spanx> is used.)
+          
+        </t>
+      <t hangText="--old-dashes">
+          
+            Selects the pandoc &lt;= 1.8.2.1 behavior for parsing smart
+            dashes: <spanx style="verb">-</spanx> before a numeral is an en-dash,
+            and <spanx style="verb">--</spanx> is an em-dash. This option is
+            selected automatically for <spanx style="verb">textile</spanx> input.
+          
+        </t>
+      <t hangText="--base-header-level=NUMBER">
+          
+            Specify the base level for headers (defaults to 1).
+          
+        </t>
+      <t hangText="--indented-code-classes=CLASSES">
+          
+            Specify classes to use for indented code blocks--for
+            example, <spanx style="verb">perl,numberLines</spanx> or
+            <spanx style="verb">haskell</spanx>. Multiple classes may be
+            separated by spaces or commas.
+          
+        </t>
+      <t hangText="--default-image-extension=EXTENSION">
+          
+            Specify a default extension to use when image paths/URLs
+            have no extension. This allows you to use the same source
+            for formats that require different kinds of images.
+            Currently this option only affects the markdown and LaTeX
+            readers.
+          
+        </t>
+      <t hangText="--normalize">
+          
+            Normalize the document after reading: merge adjacent
+            <spanx style="verb">Str</spanx> or <spanx style="verb">Emph</spanx> elements,
+            for example, and remove repeated <spanx style="verb">Space</spanx>s.
+          
+        </t>
+      <t hangText="-p, --preserve-tabs">
+          
+            Preserve tabs instead of converting them to spaces (the
+            default). Note that this will only affect tabs in literal
+            code spans and code blocks; tabs in regular text will be
+            treated as spaces.
+          
+        </t>
+      <t hangText="--tab-stop=NUMBER">
+          
+            Specify the number of spaces per tab (default is 4).
+          
+        </t>
+    </list></t>
+  </section>
+  <section title="General writer options" anchor="general-writer-options">
+    
+    <t><list style="hanging">
+      <t hangText="-s, --standalone">
+          
+            Produce output with an appropriate header and footer (e.g. a
+            standalone HTML, LaTeX, or RTF file, not a fragment). This
+            option is set automatically for <spanx style="verb">pdf</spanx>,
+            <spanx style="verb">epub</spanx>, <spanx style="verb">epub3</spanx>,
+            <spanx style="verb">fb2</spanx>, <spanx style="verb">docx</spanx>, and
+            <spanx style="verb">odt</spanx> output.
+          
+        </t>
+      <t hangText="--template=FILE">
+          
+            Use <spanx style="emph">FILE</spanx> as a custom template for the
+            generated document. Implies <spanx style="verb">--standalone</spanx>.
+            See <xref target="templates">Templates</xref> below for a
+            description of template syntax. If no extension is
+            specified, an extension corresponding to the writer will be
+            added, so that <spanx style="verb">--template=special</spanx> looks
+            for <spanx style="verb">special.html</spanx> for HTML output. If the
+            template is not found, pandoc will search for it in the user
+            data directory (see <spanx style="verb">--data-dir</spanx>). If this
+            option is not used, a default template appropriate for the
+            output format will be used (see
+            <spanx style="verb">-D/--print-default-template</spanx>).
+          
+        </t>
+      <t hangText="-V KEY[=VAL], --variable=KEY[:VAL]">
+          
+            Set the template variable <spanx style="emph">KEY</spanx> to the
+            value <spanx style="emph">VAL</spanx> when rendering the document
+            in standalone mode. This is generally only useful when the
+            <spanx style="verb">--template</spanx> option is used to specify a
+            custom template, since pandoc automatically sets the
+            variables used in the default templates. If no
+            <spanx style="emph">VAL</spanx> is specified, the key will be given
+            the value <spanx style="verb">true</spanx>.
+          
+        </t>
+      <t hangText="-D FORMAT, --print-default-template=FORMAT">
+          
+            Print the default template for an output
+            <spanx style="emph">FORMAT</spanx>. (See <spanx style="verb">-t</spanx> for
+            a list of possible <spanx style="emph">FORMAT</spanx>s.)
+          
+        </t>
+      <t hangText="--print-sample-lua-writer">
+          
+            Print a sample lua custom writer (see
+            <xref target="custom-writers">Custom writers</xref>, below.
+          
+        </t>
+      <t hangText="--no-wrap">
+          
+            Disable text wrapping in output. By default, text is wrapped
+            appropriately for the output format.
+          
+        </t>
+      <t hangText="--columns=NUMBER">
+          
+            Specify length of lines in characters (for text wrapping).
+          
+        </t>
+      <t hangText="--toc, --table-of-contents">
+          
+            Include an automatically generated table of contents (or, in
+            the case of <spanx style="verb">latex</spanx>,
+            <spanx style="verb">context</spanx>, and <spanx style="verb">rst</spanx>, an
+            instruction to create one) in the output document. This
+            option has no effect on <spanx style="verb">man</spanx>,
+            <spanx style="verb">docbook</spanx>, <spanx style="verb">slidy</spanx>,
+            <spanx style="verb">slideous</spanx>, or <spanx style="verb">s5</spanx>
+            output.
+          
+        </t>
+      <t hangText="--toc-depth=NUMBER">
+          
+            Specify the number of section levels to include in the table
+            of contents. The default is 3 (which means that level 1, 2,
+            and 3 headers will be listed in the contents). Implies
+            <spanx style="verb">--toc</spanx>.
+          
+        </t>
+      <t hangText="--no-highlight">
+          
+            Disables syntax highlighting for code blocks and inlines,
+            even when a language attribute is given.
+          
+        </t>
+      <t hangText="--highlight-style=STYLE">
+          
+            Specifies the coloring style to be used in highlighted
+            source code. Options are <spanx style="verb">pygments</spanx> (the
+            default), <spanx style="verb">kate</spanx>,
+            <spanx style="verb">monochrome</spanx>, <spanx style="verb">espresso</spanx>,
+            <spanx style="verb">zenburn</spanx>, <spanx style="verb">haddock</spanx>, and
+            <spanx style="verb">tango</spanx>.
+          
+        </t>
+      <t hangText="-H FILE, --include-in-header=FILE">
+          
+            Include contents of <spanx style="emph">FILE</spanx>, verbatim, at
+            the end of the header. This can be used, for example, to
+            include special CSS or javascript in HTML documents. This
+            option can be used repeatedly to include multiple files in
+            the header. They will be included in the order specified.
+            Implies <spanx style="verb">--standalone</spanx>.
+          
+        </t>
+      <t hangText="-B FILE, --include-before-body=FILE">
+          
+            Include contents of <spanx style="emph">FILE</spanx>, verbatim, at
+            the beginning of the document body (e.g. after the
+            <spanx style="verb">&lt;body&gt;</spanx> tag in HTML, or the
+            <spanx style="verb">\begin{document}</spanx> command in LaTeX). This
+            can be used to include navigation bars or banners in HTML
+            documents. This option can be used repeatedly to include
+            multiple files. They will be included in the order
+            specified. Implies <spanx style="verb">--standalone</spanx>.
+          
+        </t>
+      <t hangText="-A FILE, --include-after-body=FILE">
+          
+            Include contents of <spanx style="emph">FILE</spanx>, verbatim, at
+            the end of the document body (before the
+            <spanx style="verb">&lt;/body&gt;</spanx> tag in HTML, or the
+            <spanx style="verb">\end{document}</spanx> command in LaTeX). This
+            option can be be used repeatedly to include multiple files.
+            They will be included in the order specified. Implies
+            <spanx style="verb">--standalone</spanx>.
+          
+        </t>
+    </list></t>
+  </section>
+  <section title="Options affecting specific writers" anchor="options-affecting-specific-writers">
+    
+    <t><list style="hanging">
+      <t hangText="--self-contained">
+          
+            Produce a standalone HTML file with no external
+            dependencies, using <spanx style="verb">data:</spanx> URIs to
+            incorporate the contents of linked scripts, stylesheets,
+            images, and videos. The resulting file should be
+            "self-contained," in the sense that it needs no
+            external files and no net access to be displayed properly by
+            a browser. This option works only with HTML output formats,
+            including <spanx style="verb">html</spanx>, <spanx style="verb">html5</spanx>,
+            <spanx style="verb">html+lhs</spanx>, <spanx style="verb">html5+lhs</spanx>,
+            <spanx style="verb">s5</spanx>, <spanx style="verb">slidy</spanx>,
+            <spanx style="verb">slideous</spanx>, <spanx style="verb">dzslides</spanx>,
+            and <spanx style="verb">revealjs</spanx>. Scripts, images, and
+            stylesheets at absolute URLs will be downloaded; those at
+            relative URLs will be sought first relative to the working
+            directory, then relative to the user data directory (see
+            <spanx style="verb">--data-dir</spanx>), and finally relative to
+            pandoc's default data directory.
+            <spanx style="verb">--self-contained</spanx> does not work with
+            <spanx style="verb">--mathjax</spanx>.
+          
+        </t>
+      <t hangText="--offline">
+          
+            Deprecated synonym for <spanx style="verb">--self-contained</spanx>.
+          
+        </t>
+      <t hangText="-5, --html5">
+          
+            Produce HTML5 instead of HTML4. This option has no effect
+            for writers other than <spanx style="verb">html</spanx>.
+            (<spanx style="emph">Deprecated:</spanx> Use the
+            <spanx style="verb">html5</spanx> output format instead.)
+          
+        </t>
+      <t hangText="--html-q-tags">
+          
+            Use <spanx style="verb">&lt;q&gt;</spanx> tags for quotes in HTML.
+          
+        </t>
+      <t hangText="--ascii">
+          
+            Use only ascii characters in output. Currently supported
+            only for HTML output (which uses numerical entities instead
+            of UTF-8 when this option is selected).
+          
+        </t>
+      <t hangText="--reference-links">
+          
+            Use reference-style links, rather than inline links, in
+            writing markdown or reStructuredText. By default inline
+            links are used.
+          
+        </t>
+      <t hangText="--atx-headers">
+          
+            Use ATX style headers in markdown and asciidoc output. The
+            default is to use setext-style headers for levels 1-2, and
+            then ATX headers.
+          
+        </t>
+      <t hangText="--chapters">
+          
+            Treat top-level headers as chapters in LaTeX, ConTeXt, and
+            DocBook output. When the LaTeX template uses the report,
+            book, or memoir class, this option is implied. If
+            <spanx style="verb">--beamer</spanx> is used, top-level headers will
+            become <spanx style="verb">\part{..}</spanx>.
+          
+        </t>
+      <t hangText="-N, --number-sections">
+          
+            Number section headings in LaTeX, ConTeXt, HTML, or EPUB
+            output. By default, sections are not numbered. Sections with
+            class <spanx style="verb">unnumbered</spanx> will never be numbered,
+            even if <spanx style="verb">--number-sections</spanx> is specified.
+          
+        </t>
+      <t hangText="--number-offset=NUMBER[,NUMBER,...],">
+          
+            Offset for section headings in HTML output (ignored in other
+            output formats). The first number is added to the section
+            number for top-level headers, the second for second-level
+            headers, and so on. So, for example, if you want the first
+            top-level header in your document to be numbered
+            "6", specify <spanx style="verb">--number-offset=5</spanx>.
+            If your document starts with a level-2 header which you want
+            to be numbered "1.5", specify
+            <spanx style="verb">--number-offset=1,4</spanx>. Offsets are 0 by
+            default. Implies <spanx style="verb">--number-sections</spanx>.
+          
+        </t>
+      <t hangText="--no-tex-ligatures">
+          
+            Do not convert quotation marks, apostrophes, and dashes to
+            the TeX ligatures when writing LaTeX or ConTeXt. Instead,
+            just use literal unicode characters. This is needed for
+            using advanced OpenType features with XeLaTeX and LuaLaTeX.
+            Note: normally <spanx style="verb">--smart</spanx> is selected
+            automatically for LaTeX and ConTeXt output, but it must be
+            specified explicitly if
+            <spanx style="verb">--no-tex-ligatures</spanx> is selected. If you
+            use literal curly quotes, dashes, and ellipses in your
+            source, then you may want to use
+            <spanx style="verb">--no-tex-ligatures</spanx> without
+            <spanx style="verb">--smart</spanx>.
+          
+        </t>
+      <t hangText="--listings">
+          
+            Use listings package for LaTeX code blocks
+          
+        </t>
+      <t hangText="-i, --incremental">
+          
+            Make list items in slide shows display incrementally (one by
+            one). The default is for lists to be displayed all at once.
+          
+        </t>
+      <t hangText="--slide-level=NUMBER">
+          
+            Specifies that headers with the specified level create
+            slides (for <spanx style="verb">beamer</spanx>,
+            <spanx style="verb">s5</spanx>, <spanx style="verb">slidy</spanx>,
+            <spanx style="verb">slideous</spanx>, <spanx style="verb">dzslides</spanx>).
+            Headers above this level in the hierarchy are used to divide
+            the slide show into sections; headers below this level
+            create subheads within a slide. The default is to set the
+            slide level based on the contents of the document; see
+            <xref target="structuring-the-slide-show">Structuring the
+            slide show</xref>, below.
+          
+        </t>
+      <t hangText="--section-divs">
+          
+            Wrap sections in <spanx style="verb">&lt;div&gt;</spanx> tags (or
+            <spanx style="verb">&lt;section&gt;</spanx> tags in HTML5), and
+            attach identifiers to the enclosing
+            <spanx style="verb">&lt;div&gt;</spanx> (or
+            <spanx style="verb">&lt;section&gt;</spanx>) rather than the header
+            itself. See
+            <xref target="header-identifiers-in-html-latex-and-context">Section
+            identifiers</xref>, below.
+          
+        </t>
+      <t hangText="--email-obfuscation=none|javascript|references">
+          
+            Specify a method for obfuscating <spanx style="verb">mailto:</spanx>
+            links in HTML documents. <spanx style="emph">none</spanx> leaves
+            <spanx style="verb">mailto:</spanx> links as they are.
+            <spanx style="emph">javascript</spanx> obfuscates them using
+            javascript. <spanx style="emph">references</spanx> obfuscates them
+            by printing their letters as decimal or hexadecimal
+            character references.
+          
+        </t>
+      <t hangText="--id-prefix=STRING">
+          
+            Specify a prefix to be added to all automatically generated
+            identifiers in HTML and DocBook output, and to footnote
+            numbers in markdown output. This is useful for preventing
+            duplicate identifiers when generating fragments to be
+            included in other pages.
+          
+        </t>
+      <t hangText="-T STRING, --title-prefix=STRING">
+          
+            Specify <spanx style="emph">STRING</spanx> as a prefix at the
+            beginning of the title that appears in the HTML header (but
+            not in the title as it appears at the beginning of the HTML
+            body). Implies <spanx style="verb">--standalone</spanx>.
+          
+        </t>
+      <t hangText="-c URL, --css=URL">
+          
+            Link to a CSS style sheet. This option can be be used
+            repeatedly to include multiple files. They will be included
+            in the order specified.
+          
+        </t>
+      <t hangText="--reference-odt=FILE">
+          
+            Use the specified file as a style reference in producing an
+            ODT. For best results, the reference ODT should be a
+            modified version of an ODT produced using pandoc. The
+            contents of the reference ODT are ignored, but its
+            stylesheets are used in the new ODT. If no reference ODT is
+            specified on the command line, pandoc will look for a file
+            <spanx style="verb">reference.odt</spanx> in the user data directory
+            (see <spanx style="verb">--data-dir</spanx>). If this is not found
+            either, sensible defaults will be used.
+          
+        </t>
+      <t hangText="--reference-docx=FILE">
+          
+            Use the specified file as a style reference in producing a
+            docx file. For best results, the reference docx should be a
+            modified version of a docx file produced using pandoc. The
+            contents of the reference docx are ignored, but its
+            stylesheets are used in the new docx. If no reference docx
+            is specified on the command line, pandoc will look for a
+            file <spanx style="verb">reference.docx</spanx> in the user data
+            directory (see <spanx style="verb">--data-dir</spanx>). If this is
+            not found either, sensible defaults will be used. The
+            following styles are used by pandoc: [paragraph] Normal,
+            Compact, Title, Authors, Date, Heading 1, Heading 2, Heading
+            3, Heading 4, Heading 5, Block Quote, Definition Term,
+            Definition, Body Text, Table Caption, Image Caption;
+            [character] Default Paragraph Font, Body Text Char, Verbatim
+            Char, Footnote Ref, Link.
+          
+        </t>
+      <t hangText="--epub-stylesheet=FILE">
+          
+            Use the specified CSS file to style the EPUB. If no
+            stylesheet is specified, pandoc will look for a file
+            <spanx style="verb">epub.css</spanx> in the user data directory (see
+            <spanx style="verb">--data-dir</spanx>). If it is not found there,
+            sensible defaults will be used.
+          
+        </t>
+      <t hangText="--epub-cover-image=FILE">
+          
+            Use the specified image as the EPUB cover. It is recommended
+            that the image be less than 1000px in width and height.
+          
+        </t>
+      <t hangText="--epub-metadata=FILE">
+          
+            Look in the specified XML file for metadata for the EPUB.
+            The file should contain a series of Dublin Core elements, as
+            documented at
+            <eref target="http://dublincore.org/documents/dces/">http://dublincore.org/documents/dces/</eref>.
+            For example:
+          
+          <figure><artwork>
+ &lt;dc:rights&gt;Creative Commons&lt;/dc:rights&gt;
+ &lt;dc:language&gt;es-AR&lt;/dc:language&gt;
+</artwork></figure>
+          <vspace blankLines="1"/>
+            By default, pandoc will include the following metadata
+            elements: <spanx style="verb">&lt;dc:title&gt;</spanx> (from the
+            document title), <spanx style="verb">&lt;dc:creator&gt;</spanx> (from
+            the document authors), <spanx style="verb">&lt;dc:date&gt;</spanx>
+            (from the document date, which should be in
+            <eref target="http://www.w3.org/TR/NOTE-datetime">ISO 8601
+            format</eref>), <spanx style="verb">&lt;dc:language&gt;</spanx>
+            (from the <spanx style="verb">lang</spanx> variable, or, if is not
+            set, the locale), and
+            <spanx style="verb">&lt;dc:identifier id="BookId"&gt;</spanx>
+            (a randomly generated UUID). Any of these may be overridden
+            by elements in the metadata file.
+          
+        </t>
+      <t hangText="--epub-embed-font=FILE">
+          
+            Embed the specified font in the EPUB. This option can be
+            repeated to embed multiple fonts. To use embedded fonts, you
+            will need to add declarations like the following to your CSS
+            (see <spanx style="verb">--epub-stylesheet</spanx>):
+          
+          <figure><artwork>
+@font-face {
+font-family: DejaVuSans;
+font-style: normal;
+font-weight: normal;
+src:url("DejaVuSans-Regular.ttf");
+}
+@font-face {
+font-family: DejaVuSans;
+font-style: normal;
+font-weight: bold;
+src:url("DejaVuSans-Bold.ttf");
+}
+@font-face {
+font-family: DejaVuSans;
+font-style: italic;
+font-weight: normal;
+src:url("DejaVuSans-Oblique.ttf");
+}
+@font-face {
+font-family: DejaVuSans;
+font-style: italic;
+font-weight: bold;
+src:url("DejaVuSans-BoldOblique.ttf");
+}
+body { font-family: "DejaVuSans"; }
+</artwork></figure>
+        </t>
+      <t hangText="--epub-chapter-level=NUMBER">
+          
+            Specify the header level at which to split the EPUB into
+            separate "chapter" files. The default is to split
+            into chapters at level 1 headers. This option only affects
+            the internal composition of the EPUB, not the way chapters
+            and sections are displayed to users. Some readers may be
+            slow if the chapter files are too large, so for large
+            documents with few level 1 headers, one might want to use a
+            chapter level of 2 or 3.
+          
+        </t>
+      <t hangText="--latex-engine=pdflatex|lualatex|xelatex">
+          
+            Use the specified LaTeX engine when producing PDF output.
+            The default is <spanx style="verb">pdflatex</spanx>. If the engine is
+            not in your PATH, the full path of the engine may be
+            specified here.
+          
+        </t>
+    </list></t>
+  </section>
+  <section title="Citation rendering" anchor="citation-rendering">
+    
+    <t><list style="hanging">
+      <t hangText="--bibliography=FILE">
+          
+            Specify bibliography database to be used in resolving
+            citations. The database type will be determined from the
+            extension of <spanx style="emph">FILE</spanx>, which may be
+            <spanx style="verb">.mods</spanx> (MODS format),
+            <spanx style="verb">.bib</spanx> (BibLaTeX format, which will
+            normally work for BibTeX files as well),
+            <spanx style="verb">.bibtex</spanx> (BibTeX format),
+            <spanx style="verb">.ris</spanx> (RIS format),
+            <spanx style="verb">.enl</spanx> (EndNote format),
+            <spanx style="verb">.xml</spanx> (EndNote XML format),
+            <spanx style="verb">.wos</spanx> (ISI format),
+            <spanx style="verb">.medline</spanx> (MEDLINE format),
+            <spanx style="verb">.copac</spanx> (Copac format), or
+            <spanx style="verb">.json</spanx> (citeproc JSON). If you want to use
+            multiple bibliographies, just use this option repeatedly.
+          
+        </t>
+      <t hangText="--csl=FILE">
+          
+            Specify <eref target="http://CitationStyles.org">CSL</eref>
+            style to be used in formatting citations and the
+            bibliography. If <spanx style="emph">FILE</spanx> is not found,
+            pandoc will look for it in
+          
+          <figure><artwork>
+$HOME/.csl
+</artwork></figure>
+          <vspace blankLines="1"/>
+            in unix,
+          
+          <figure><artwork>
+C:\Documents And Settings\USERNAME\Application Data\csl
+</artwork></figure>
+          <vspace blankLines="1"/>
+            in Windows XP, and
+          
+          <figure><artwork>
+C:\Users\USERNAME\AppData\Roaming\csl
+</artwork></figure>
+          <vspace blankLines="1"/>
+            in Windows 7. If the <spanx style="verb">--csl</spanx> option is not
+            specified, pandoc will use a default style: either
+            <spanx style="verb">default.csl</spanx> in the user data directory
+            (see <spanx style="verb">--data-dir</spanx>), or, if that is not
+            present, the Chicago author-date style.
+          
+        </t>
+      <t hangText="--citation-abbreviations=FILE">
+          
+            Specify a file containing abbreviations for journal titles
+            and other bibliographic fields (indicated by setting
+            <spanx style="verb">form="short"</spanx> in the CSL node
+            for the field). The format is described at
+            <eref target="http://citationstylist.org/2011/10/19/abbreviations-for-zotero-test-release/">http://citationstylist.org/2011/10/19/abbreviations-for-zotero-test-release/</eref>.
+            Here is a short example:
+          
+          <figure><artwork>
+{ "default": {
+    "container-title": {
+            "Lloyd's Law Reports": "Lloyd's Rep",
+            "Estates Gazette": "EG",
+            "Scots Law Times": "SLT"
+    }
+  }
+}
+</artwork></figure>
+        </t>
+      <t hangText="--natbib">
+          
+            Use natbib for citations in LaTeX output.
+          
+        </t>
+      <t hangText="--biblatex">
+          
+            Use biblatex for citations in LaTeX output.
+          
+        </t>
+    </list></t>
+  </section>
+  <section title="Math rendering in HTML" anchor="math-rendering-in-html">
+    
+    <t><list style="hanging">
+      <t hangText="-m [URL], --latexmathml[=URL]">
+          
+            Use the
+            <eref target="http://math.etsu.edu/LaTeXMathML/">LaTeXMathML</eref>
+            script to display embedded TeX math in HTML output. To
+            insert a link to a local copy of the
+            <spanx style="verb">LaTeXMathML.js</spanx> script, provide a
+            <spanx style="emph">URL</spanx>. If no <spanx style="emph">URL</spanx> is
+            provided, the contents of the script will be inserted
+            directly into the HTML header, preserving portability at the
+            price of efficiency. If you plan to use math on several
+            pages, it is much better to link to a copy of the script, so
+            it can be cached.
+          
+        </t>
+      <t hangText="--mathml[=URL]">
+          
+            Convert TeX math to MathML (in <spanx style="verb">docbook</spanx> as
+            well as <spanx style="verb">html</spanx> and
+            <spanx style="verb">html5</spanx>). In standalone
+            <spanx style="verb">html</spanx> output, a small javascript (or a
+            link to such a script if a <spanx style="emph">URL</spanx> is
+            supplied) will be inserted that allows the MathML to be
+            viewed on some browsers.
+          
+        </t>
+      <t hangText="--jsmath[=URL]">
+          
+            Use
+            <eref target="http://www.math.union.edu/~dpvc/jsmath/">jsMath</eref>
+            to display embedded TeX math in HTML output. The
+            <spanx style="emph">URL</spanx> should point to the jsMath load
+            script (e.g. <spanx style="verb">jsMath/easy/load.js</spanx>); if
+            provided, it will be linked to in the header of standalone
+            HTML documents. If a <spanx style="emph">URL</spanx> is not
+            provided, no link to the jsMath load script will be
+            inserted; it is then up to the author to provide such a link
+            in the HTML template.
+          
+        </t>
+      <t hangText="--mathjax[=URL]">
+          
+            Use <eref target="http://www.mathjax.org/">MathJax</eref> to
+            display embedded TeX math in HTML output. The
+            <spanx style="emph">URL</spanx> should point to the
+            <spanx style="verb">MathJax.js</spanx> load script. If a
+            <spanx style="emph">URL</spanx> is not provided, a link to the
+            MathJax CDN will be inserted.
+          
+        </t>
+      <t hangText="--gladtex">
+          
+            Enclose TeX math in <spanx style="verb">&lt;eq&gt;</spanx> tags in
+            HTML output. These can then be processed by
+            <eref target="http://ans.hsh.no/home/mgg/gladtex/">gladTeX</eref>
+            to produce links to images of the typeset formulas.
+          
+        </t>
+      <t hangText="--mimetex[=URL]">
+          
+            Render TeX math using the
+            <eref target="http://www.forkosh.com/mimetex.html">mimeTeX</eref>
+            CGI script. If <spanx style="emph">URL</spanx> is not specified, it
+            is assumed that the script is at
+            <spanx style="verb">/cgi-bin/mimetex.cgi</spanx>.
+          
+        </t>
+      <t hangText="--webtex[=URL]">
+          
+            Render TeX formulas using an external script that converts
+            TeX formulas to images. The formula will be concatenated
+            with the URL provided. If <spanx style="emph">URL</spanx> is not
+            specified, the Google Chart API will be used.
+          
+        </t>
+    </list></t>
+  </section>
+  <section title="Options for wrapper scripts" anchor="options-for-wrapper-scripts">
+    
+    <t><list style="hanging">
+      <t hangText="--dump-args">
+          
+            Print information about command-line arguments to
+            <spanx style="emph">stdout</spanx>, then exit. This option is
+            intended primarily for use in wrapper scripts. The first
+            line of output contains the name of the output file
+            specified with the <spanx style="verb">-o</spanx> option, or
+            <spanx style="verb">-</spanx> (for <spanx style="emph">stdout</spanx>) if no
+            output file was specified. The remaining lines contain the
+            command-line arguments, one per line, in the order they
+            appear. These do not include regular Pandoc options and
+            their arguments, but do include any options appearing after
+            a <spanx style="verb">--</spanx> separator at the end of the line.
+          
+        </t>
+      <t hangText="--ignore-args">
+          
+            Ignore command-line arguments (for use in wrapper scripts).
+            Regular Pandoc options are not ignored. Thus, for example,
+          
+          <figure><artwork>
+pandoc --ignore-args -o foo.html -s foo.txt -- -e latin1
+</artwork></figure>
+          <vspace blankLines="1"/>
+            is equivalent to
+          
+          <figure><artwork>
+pandoc -o foo.html -s
+</artwork></figure>
+        </t>
+    </list></t>
+  </section>
+</section>
+<section title="Templates" anchor="templates">
+  
+  <t>
+    When the <spanx style="verb">-s/--standalone</spanx> option is used, pandoc
+    uses a template to add header and footer material that is needed for
+    a self-standing document. To see the default template that is used,
+    just type
+  </t>
+  <figure><artwork>
+pandoc -D FORMAT
+</artwork></figure>
+  <t>
+    where <spanx style="verb">FORMAT</spanx> is the name of the output format. A
+    custom template can be specified using the
+    <spanx style="verb">--template</spanx> option. You can also override the
+    system default templates for a given output format
+    <spanx style="verb">FORMAT</spanx> by putting a file
+    <spanx style="verb">templates/default.FORMAT</spanx> in the user data
+    directory (see <spanx style="verb">--data-dir</spanx>, above).
+    <spanx style="emph">Exceptions:</spanx> For <spanx style="verb">odt</spanx> output,
+    customize the <spanx style="verb">default.opendocument</spanx> template. For
+    <spanx style="verb">pdf</spanx> output, customize the
+    <spanx style="verb">default.latex</spanx> template.
+  </t>
+  <t>
+    Templates may contain <spanx style="emph">variables</spanx>. Variable names
+    are sequences of alphanumerics, <spanx style="verb">-</spanx>, and
+    <spanx style="verb">_</spanx>, starting with a letter. A variable name
+    surrounded by <spanx style="verb">$</spanx> signs will be replaced by its
+    value. For example, the string <spanx style="verb">$title$</spanx> in
+  </t>
+  <figure><artwork>
+&lt;title&gt;$title$&lt;/title&gt;
+</artwork></figure>
+  <t>
+    will be replaced by the document title.
+  </t>
+  <t>
+    To write a literal <spanx style="verb">$</spanx> in a template, use
+    <spanx style="verb">$$</spanx>.
+  </t>
+  <t>
+    Some variables are set automatically by pandoc. These vary somewhat
+    depending on the output format, but include:
+  </t>
+  <t><list style="hanging">
+    <t hangText="header-includes">
+        
+          contents specified by
+          <spanx style="verb">-H/--include-in-header</spanx> (may have multiple
+          values)
+        
+      </t>
+    <t hangText="toc">
+        
+          non-null value if <spanx style="verb">--toc/--table-of-contents</spanx>
+          was specified
+        
+      </t>
+    <t hangText="include-before">
+        
+          contents specified by
+          <spanx style="verb">-B/--include-before-body</spanx> (may have multiple
+          values)
+        
+      </t>
+    <t hangText="include-after">
+        
+          contents specified by
+          <spanx style="verb">-A/--include-after-body</spanx> (may have multiple
+          values)
+        
+      </t>
+    <t hangText="body">
+        
+          body of document
+        
+      </t>
+    <t hangText="title">
+        
+          title of document, as specified in title block
+        
+      </t>
+    <t hangText="author">
+        
+          author of document, as specified in title block (may have
+          multiple values)
+        
+      </t>
+    <t hangText="date">
+        
+          date of document, as specified in title block
+        
+      </t>
+    <t hangText="lang">
+        
+          language code for HTML or LaTeX documents
+        
+      </t>
+    <t hangText="slidy-url">
+        
+          base URL for Slidy documents (defaults to
+          <spanx style="verb">http://www.w3.org/Talks/Tools/Slidy2</spanx>)
+        
+      </t>
+    <t hangText="slideous-url">
+        
+          base URL for Slideous documents (defaults to
+          <spanx style="verb">default</spanx>)
+        
+      </t>
+    <t hangText="s5-url">
+        
+          base URL for S5 documents (defaults to
+          <spanx style="verb">ui/default</spanx>)
+        
+      </t>
+    <t hangText="revealjs-url">
+        
+          base URL for reveal.js documents (defaults to
+          <spanx style="verb">reveal.js</spanx>)
+        
+      </t>
+    <t hangText="theme">
+        
+          reveal.js theme
+        
+      </t>
+    <t hangText="transition">
+        
+          reveal.js transition
+        
+      </t>
+    <t hangText="fontsize">
+        
+          font size (10pt, 11pt, 12pt) for LaTeX documents
+        
+      </t>
+    <t hangText="documentclass">
+        
+          document class for LaTeX documents
+        
+      </t>
+    <t hangText="geometry">
+        
+          options for LaTeX <spanx style="verb">geometry</spanx> class, e.g.
+          <spanx style="verb">margin=1in</spanx>; may be repeated for multiple
+          options
+        
+      </t>
+    <t hangText="mainfont, sansfont, monofont, mathfont">
+        
+          fonts for LaTeX documents (works only with xelatex and
+          lualatex)
+        
+      </t>
+    <t hangText="theme">
+        
+          theme for LaTeX beamer documents
+        
+      </t>
+    <t hangText="colortheme">
+        
+          colortheme for LaTeX beamer documents
+        
+      </t>
+    <t hangText="linkcolor">
+        
+          color for internal links in LaTeX documents
+          (<spanx style="verb">red</spanx>, <spanx style="verb">green</spanx>,
+          <spanx style="verb">magenta</spanx>, <spanx style="verb">cyan</spanx>,
+          <spanx style="verb">blue</spanx>, <spanx style="verb">black</spanx>)
+        
+      </t>
+    <t hangText="urlcolor">
+        
+          color for external links in LaTeX documents
+        
+      </t>
+    <t hangText="links-as-notes">
+        
+          causes links to be printed as footnotes in LaTeX documents
+        
+      </t>
+  </list></t>
+  <t>
+    Variables may be set at the command line using the
+    <spanx style="verb">-V/--variable</spanx> option. This allows users to
+    include custom variables in their templates.
+  </t>
+  <t>
+    Templates may contain conditionals. The syntax is as follows:
+  </t>
+  <figure><artwork>
+$if(variable)$
+X
+$else$
+Y
+$endif$
+</artwork></figure>
+  <t>
+    This will include <spanx style="verb">X</spanx> in the template if
+    <spanx style="verb">variable</spanx> has a non-null value; otherwise it will
+    include <spanx style="verb">Y</spanx>. <spanx style="verb">X</spanx> and
+    <spanx style="verb">Y</spanx> are placeholders for any valid template text,
+    and may include interpolated variables or other conditionals. The
+    <spanx style="verb">$else$</spanx> section may be omitted.
+  </t>
+  <t>
+    When variables can have multiple values (for example,
+    <spanx style="verb">author</spanx> in a multi-author document), you can use
+    the <spanx style="verb">$for$</spanx> keyword:
+  </t>
+  <figure><artwork>
+$for(author)$
+&lt;meta name="author" content="$author$" /&gt;
+$endfor$
+</artwork></figure>
+  <t>
+    You can optionally specify a separator to be used between
+    consecutive items:
+  </t>
+  <figure><artwork>
+$for(author)$$author$$sep$, $endfor$
+</artwork></figure>
+  <t>
+    If you use custom templates, you may need to revise them as pandoc
+    changes. We recommend tracking the changes in the default templates,
+    and modifying your custom templates accordingly. An easy way to do
+    this is to fork the pandoc-templates repository
+    (<eref target="http://github.com/jgm/pandoc-templates">http://github.com/jgm/pandoc-templates</eref>)
+    and merge in changes after each pandoc release.
+  </t>
+</section>
+<section title="Pandoc's markdown" anchor="pandocs-markdown">
+  
+  <t>
+    Pandoc understands an extended and slightly revised version of John
+    Gruber's
+    <eref target="http://daringfireball.net/projects/markdown/">markdown</eref>
+    syntax. This document explains the syntax, noting differences from
+    standard markdown. Except where noted, these differences can be
+    suppressed by using the <spanx style="verb">markdown_strict</spanx> format
+    instead of <spanx style="verb">markdown</spanx>. An extensions can be enabled
+    by adding <spanx style="verb">+EXTENSION</spanx> to the format name and
+    disabled by adding <spanx style="verb">-EXTENSION</spanx>. For example,
+    <spanx style="verb">markdown_strict+footnotes</spanx> is strict markdown with
+    footnotes enabled, while
+    <spanx style="verb">markdown-footnotes-pipe_tables</spanx> is pandoc's
+    markdown without footnotes or pipe tables.
+  </t>
+  <section title="Philosophy" anchor="philosophy">
+    
+    <t>
+      Markdown is designed to be easy to write, and, even more
+      importantly, easy to read:
+    </t>
+    <t><list style="empty">
+      <t>
+        A Markdown-formatted document should be publishable as-is, as
+        plain text, without looking like it's been marked up with tags
+        or formatting instructions. --
+        <eref target="http://daringfireball.net/projects/markdown/syntax#philosophy">John
+        Gruber</eref>
+      </t>
+    </list></t>
+    <t>
+      This principle has guided pandoc's decisions in finding syntax for
+      tables, footnotes, and other extensions.
+    </t>
+    <t>
+      There is, however, one respect in which pandoc's aims are
+      different from the original aims of markdown. Whereas markdown was
+      originally designed with HTML generation in mind, pandoc is
+      designed for multiple output formats. Thus, while pandoc allows
+      the embedding of raw HTML, it discourages it, and provides other,
+      non-HTMLish ways of representing important document elements like
+      definition lists, tables, mathematics, and footnotes.
+    </t>
+  </section>
+  <section title="Paragraphs" anchor="paragraphs">
+    
+    <t>
+      A paragraph is one or more lines of text followed by one or more
+      blank line. Newlines are treated as spaces, so you can reflow your
+      paragraphs as you like. If you need a hard line break, put two or
+      more spaces at the end of a line.
+    </t>
+    <t>
+      <spanx style="strong">Extension:
+      escaped_line_breaks</spanx>
+    </t>
+    <t>
+      A backslash followed by a newline is also a hard line break.
+    </t>
+  </section>
+  <section title="Headers" anchor="headers">
+    
+    <t>
+      There are two kinds of headers, Setext and atx.
+    </t>
+    <section title="Setext-style headers" anchor="setext-style-headers">
+      
+      <t>
+        A setext-style header is a line of text "underlined"
+        with a row of <spanx style="verb">=</spanx> signs (for a level one
+        header) of <spanx style="verb">-</spanx> signs (for a level two header):
+      </t>
+      <figure><artwork>
+A level-one header
+==================
+
+A level-two header
+------------------
+</artwork></figure>
+      <t>
+        The header text can contain inline formatting, such as emphasis
+        (see <xref target="inline-formatting">Inline formatting</xref>,
+        below).
+      </t>
+    </section>
+    <section title="Atx-style headers" anchor="atx-style-headers">
+      
+      <t>
+        An Atx-style header consists of one to six <spanx style="verb">#</spanx>
+        signs and a line of text, optionally followed by any number of
+        <spanx style="verb">#</spanx> signs. The number of <spanx style="verb">#</spanx>
+        signs at the beginning of the line is the header level:
+      </t>
+      <figure><artwork>
+## A level-two header
+
+### A level-three header ###
+</artwork></figure>
+      <t>
+        As with setext-style headers, the header text can contain
+        formatting:
+      </t>
+      <figure><artwork>
+# A level-one header with a [link](/url) and *emphasis*
+</artwork></figure>
+      <t>
+        <spanx style="strong">Extension:
+        blank_before_header</spanx>
+      </t>
+      <t>
+        Standard markdown syntax does not require a blank line before a
+        header. Pandoc does require this (except, of course, at the
+        beginning of the document). The reason for the requirement is
+        that it is all too easy for a <spanx style="verb">#</spanx> to end up at
+        the beginning of a line by accident (perhaps through line
+        wrapping). Consider, for example:
+      </t>
+      <figure><artwork>
+I like several of their flavors of ice cream:
+#22, for example, and #5.
+</artwork></figure>
+    </section>
+    <section title="Header identifiers in HTML, LaTeX, and ConTeXt" anchor="header-identifiers-in-html-latex-and-context">
+      
+      <t>
+        <spanx style="strong">Extension:
+        header_attributes</spanx>
+      </t>
+      <t>
+        Headers can be assigned attributes using this syntax at the end
+        of the line containing the header text:
+      </t>
+      <figure><artwork>
+{#identifier .class .class key=value key=value}
+</artwork></figure>
+      <t>
+        Although this syntax allows assignment of classes and key/value
+        attributes, only identifiers currently have any affect in the
+        writers (and only in some writers: HTML, LaTeX, ConTeXt,
+        Textile, AsciiDoc). Thus, for example, the following headers
+        will all be assigned the identifier <spanx style="verb">foo</spanx>:
+      </t>
+      <figure><artwork>
+# My header {#foo}
+
+## My header ##    {#foo}
+
+My other header   {#foo}
+---------------
+</artwork></figure>
+      <t>
+        (This syntax is compatible with
+        <eref target="http://www.michelf.com/projects/php-markdown/extra/">PHP
+        Markdown Extra</eref>.)
+      </t>
+      <t>
+        Headers with the class <spanx style="verb">unnumbered</spanx> will not be
+        numbered, even if <spanx style="verb">--number-sections</spanx> is
+        specified. A single hyphen (<spanx style="verb">-</spanx>) in an
+        attribute context is equivalent to
+        <spanx style="verb">.unnumbered</spanx>, and preferable in non-English
+        documents. So,
+      </t>
+      <figure><artwork>
+# My header {-}
+</artwork></figure>
+      <t>
+        is just the same as
+      </t>
+      <figure><artwork>
+# My header {.unnumbered}
+</artwork></figure>
+      <t>
+        <spanx style="strong">Extension:
+        auto_identifiers</spanx>
+      </t>
+      <t>
+        A header without an explicitly specified identifier will be
+        automatically assigned a unique identifier based on the header
+        text. To derive the identifier from the header text,
+      </t>
+      <t><list style="symbols">
+        <t>
+          
+            Remove all formatting, links, etc.
+          
+        </t>
+        <t>
+          
+            Remove all punctuation, except underscores, hyphens, and
+            periods.
+          
+        </t>
+        <t>
+          
+            Replace all spaces and newlines with hyphens.
+          
+        </t>
+        <t>
+          
+            Convert all alphabetic characters to lowercase.
+          
+        </t>
+        <t>
+          
+            Remove everything up to the first letter (identifiers may
+            not begin with a number or punctuation mark).
+          
+        </t>
+        <t>
+          
+            If nothing is left after this, use the identifier
+            <spanx style="verb">section</spanx>.
+          
+        </t>
+      </list></t>
+      <t>
+        Thus, for example,
+      </t>
+      <texttable>
+        
+          
+          
+          
+            
+              <ttcol align="left">
+                Header
+              </ttcol>
+              <ttcol align="left">
+                Identifier
+              </ttcol>
+            
+          
+          
+            
+              <c>
+                Header identifiers in HTML
+              </c>
+              <c>
+                <spanx style="verb">header-identifiers-in-html</spanx>
+              </c>
+            
+            
+              <c>
+                <spanx style="emph">Dogs</spanx>?--in <spanx style="emph">my</spanx>
+                house?
+              </c>
+              <c>
+                <spanx style="verb">dogs--in-my-house</spanx>
+              </c>
+            
+            
+              <c>
+                <eref target="http://www.w3.org/TR/html40/">HTML</eref>,
+                <eref target="http://meyerweb.com/eric/tools/s5/">S5</eref>,
+                or
+                <eref target="http://en.wikipedia.org/wiki/Rich_Text_Format">RTF</eref>?
+              </c>
+              <c>
+                <spanx style="verb">html-s5-or-rtf</spanx>
+              </c>
+            
+            
+              <c>
+                3. Applications
+              </c>
+              <c>
+                <spanx style="verb">applications</spanx>
+              </c>
+            
+            
+              <c>
+                33
+              </c>
+              <c>
+                <spanx style="verb">section</spanx>
+              </c>
+            
+          
+        
+      </texttable>
+      <t>
+        These rules should, in most cases, allow one to determine the
+        identifier from the header text. The exception is when several
+        headers have the same text; in this case, the first will get an
+        identifier as described above; the second will get the same
+        identifier with <spanx style="verb">-1</spanx> appended; the third with
+        <spanx style="verb">-2</spanx>; and so on.
+      </t>
+      <t>
+        These identifiers are used to provide link targets in the table
+        of contents generated by the
+        <spanx style="verb">--toc|--table-of-contents</spanx> option. They also
+        make it easy to provide links from one section of a document to
+        another. A link to this section, for example, might look like
+        this:
+      </t>
+      <figure><artwork>
+See the section on
+[header identifiers](#header-identifiers-in-html-latex-and-context).
+</artwork></figure>
+      <t>
+        Note, however, that this method of providing links to sections
+        works only in HTML, LaTeX, and ConTeXt formats.
+      </t>
+      <t>
+        If the <spanx style="verb">--section-divs</spanx> option is specified,
+        then each section will be wrapped in a <spanx style="verb">div</spanx>
+        (or a <spanx style="verb">section</spanx>, if <spanx style="verb">--html5</spanx>
+        was specified), and the identifier will be attached to the
+        enclosing <spanx style="verb">&lt;div&gt;</spanx> (or
+        <spanx style="verb">&lt;section&gt;</spanx>) tag rather than the header
+        itself. This allows entire sections to be manipulated using
+        javascript or treated differently in CSS.
+      </t>
+      <t>
+        <spanx style="strong">Extension:
+        implicit_header_references</spanx>
+      </t>
+      <t>
+        Pandoc behaves as if reference links have been defined for each
+        header. So, instead of
+      </t>
+      <figure><artwork>
+[header identifiers](#header-identifiers-in-html)
+</artwork></figure>
+      <t>
+        you can simply write
+      </t>
+      <figure><artwork>
+[header identifiers]
+</artwork></figure>
+      <t>
+        or
+      </t>
+      <figure><artwork>
+[header identifiers][]
+</artwork></figure>
+      <t>
+        or
+      </t>
+      <figure><artwork>
+[the section on header identifiers][header identifiers]
+</artwork></figure>
+      <t>
+        If there are multiple headers with identical text, the
+        corresponding reference will link to the first one only, and you
+        will need to use explicit links to link to the others, as
+        described above.
+      </t>
+      <t>
+        Unlike regular reference links, these references are
+        case-sensitive.
+      </t>
+      <t>
+        Note: if you have defined an explicit identifier for a header,
+        then implicit references to it will not work.
+      </t>
+    </section>
+  </section>
+  <section title="Block quotations" anchor="block-quotations">
+    
+    <t>
+      Markdown uses email conventions for quoting blocks of text. A
+      block quotation is one or more paragraphs or other block elements
+      (such as lists or headers), with each line preceded by a
+      <spanx style="verb">&gt;</spanx> character and a space. (The
+      <spanx style="verb">&gt;</spanx> need not start at the left margin, but it
+      should not be indented more than three spaces.)
+    </t>
+    <figure><artwork>
+&gt; This is a block quote. This
+&gt; paragraph has two lines.
+&gt;
+&gt; 1. This is a list inside a block quote.
+&gt; 2. Second item.
+</artwork></figure>
+    <t>
+      A "lazy" form, which requires the
+      <spanx style="verb">&gt;</spanx> character only on the first line of each
+      block, is also allowed:
+    </t>
+    <figure><artwork>
+&gt; This is a block quote. This
+paragraph has two lines.
+
+&gt; 1. This is a list inside a block quote.
+2. Second item.
+</artwork></figure>
+    <t>
+      Among the block elements that can be contained in a block quote
+      are other block quotes. That is, block quotes can be nested:
+    </t>
+    <figure><artwork>
+&gt; This is a block quote.
+&gt;
+&gt; &gt; A block quote within a block quote.
+</artwork></figure>
+    <t>
+      <spanx style="strong">Extension:
+      blank_before_blockquote</spanx>
+    </t>
+    <t>
+      Standard markdown syntax does not require a blank line before a
+      block quote. Pandoc does require this (except, of course, at the
+      beginning of the document). The reason for the requirement is that
+      it is all too easy for a <spanx style="verb">&gt;</spanx> to end up at the
+      beginning of a line by accident (perhaps through line wrapping).
+      So, unless the <spanx style="verb">markdown_strict</spanx> format is used,
+      the following does not produce a nested block quote in pandoc:
+    </t>
+    <figure><artwork>
+&gt; This is a block quote.
+&gt;&gt; Nested.
+</artwork></figure>
+  </section>
+  <section title="Verbatim (code) blocks" anchor="verbatim-code-blocks">
+    
+    <section title="Indented code blocks" anchor="indented-code-blocks">
+      
+      <t>
+        A block of text indented four spaces (or one tab) is treated as
+        verbatim text: that is, special characters do not trigger
+        special formatting, and all spaces and line breaks are
+        preserved. For example,
+      </t>
+      <figure><artwork>
+    if (a &gt; 3) {
+      moveShip(5 * gravity, DOWN);
+    }
+</artwork></figure>
+      <t>
+        The initial (four space or one tab) indentation is not
+        considered part of the verbatim text, and is removed in the
+        output.
+      </t>
+      <t>
+        Note: blank lines in the verbatim text need not begin with four
+        spaces.
+      </t>
+    </section>
+    <section title="Fenced code blocks" anchor="fenced-code-blocks">
+      
+      <t>
+        <spanx style="strong">Extension:
+        fenced_code_blocks</spanx>
+      </t>
+      <t>
+        In addition to standard indented code blocks, Pandoc supports
+        <spanx style="emph">fenced</spanx> code blocks. These begin with a row
+        of three or more tildes (<spanx style="verb">~</spanx>) or backticks
+        (<spanx style="verb">`</spanx>) and end with a row of tildes or backticks
+        that must be at least as long as the starting row. Everything
+        between these lines is treated as code. No indentation is
+        necessary:
+      </t>
+      <figure><artwork>
+~~~~~~~
+if (a &gt; 3) {
+  moveShip(5 * gravity, DOWN);
+}
+~~~~~~~
+</artwork></figure>
+      <t>
+        Like regular code blocks, fenced code blocks must be separated
+        from surrounding text by blank lines.
+      </t>
+      <t>
+        If the code itself contains a row of tildes or backticks, just
+        use a longer row of tildes or backticks at the start and end:
+      </t>
+      <figure><artwork>
+~~~~~~~~~~~~~~~~
+~~~~~~~~~~
+code including tildes
+~~~~~~~~~~
+~~~~~~~~~~~~~~~~
+</artwork></figure>
+      <t>
+        Optionally, you may attach attributes to the code block using
+        this syntax:
+      </t>
+      <figure><artwork>
+~~~~ {#mycode .haskell .numberLines startFrom="100"}
+qsort []     = []
+qsort (x:xs) = qsort (filter (&lt; x) xs) ++ [x] ++
+               qsort (filter (&gt;= x) xs)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+</artwork></figure>
+      <t>
+        Here <spanx style="verb">mycode</spanx> is an identifier,
+        <spanx style="verb">haskell</spanx> and <spanx style="verb">numberLines</spanx>
+        are classes, and <spanx style="verb">startFrom</spanx> is an attribute
+        with value <spanx style="verb">100</spanx>. Some output formats can use
+        this information to do syntax highlighting. Currently, the only
+        output formats that uses this information are HTML and LaTeX. If
+        highlighting is supported for your output format and language,
+        then the code block above will appear highlighted, with numbered
+        lines. (To see which languages are supported, do
+        <spanx style="verb">pandoc --version</spanx>.) Otherwise, the code block
+        above will appear as follows:
+      </t>
+      <figure><artwork>
+&lt;pre id="mycode" class="haskell numberLines" startFrom="100"&gt;
+  &lt;code&gt;
+  ...
+  &lt;/code&gt;
+&lt;/pre&gt;
+</artwork></figure>
+      <t>
+        A shortcut form can also be used for specifying the language of
+        the code block:
+      </t>
+      <figure><artwork>
+```haskell
+qsort [] = []
+```
+</artwork></figure>
+      <t>
+        This is equivalent to:
+      </t>
+      <figure><artwork>
+``` {.haskell}
+qsort [] = []
+```
+</artwork></figure>
+      <t>
+        To prevent all highlighting, use the
+        <spanx style="verb">--no-highlight</spanx> flag. To set the highlighting
+        style, use <spanx style="verb">--highlight-style</spanx>.
+      </t>
+    </section>
+  </section>
+  <section title="Line blocks" anchor="line-blocks">
+    
+    <t>
+      <spanx style="strong">Extension:
+      line_blocks</spanx>
+    </t>
+    <t>
+      A line block is a sequence of lines beginning with a vertical bar
+      (<spanx style="verb">|</spanx>) followed by a space. The division into
+      lines will be preserved in the output, as will any leading spaces;
+      otherwise, the lines will be formatted as markdown. This is useful
+      for verse and addresses:
+    </t>
+    <figure><artwork>
+| The limerick packs laughs anatomical
+| In space that is quite economical.
+|    But the good ones I've seen
+|    So seldom are clean
+| And the clean ones so seldom are comical
+
+| 200 Main St.
+| Berkeley, CA 94718
+</artwork></figure>
+    <t>
+      The lines can be hard-wrapped if needed, but the continuation line
+      must begin with a space.
+    </t>
+    <figure><artwork>
+| The Right Honorable Most Venerable and Righteous Samuel L.
+  Constable, Jr.
+| 200 Main St.
+| Berkeley, CA 94718
+</artwork></figure>
+    <t>
+      This syntax is borrowed from
+      <eref target="http://docutils.sourceforge.net/docs/ref/rst/introduction.html">reStructuredText</eref>.
+    </t>
+  </section>
+  <section title="Lists" anchor="lists">
+    
+    <section title="Bullet lists" anchor="bullet-lists">
+      
+      <t>
+        A bullet list is a list of bulleted list items. A bulleted list
+        item begins with a bullet (<spanx style="verb">*</spanx>,
+        <spanx style="verb">+</spanx>, or <spanx style="verb">-</spanx>). Here is a simple
+        example:
+      </t>
+      <figure><artwork>
+* one
+* two
+* three
+</artwork></figure>
+      <t>
+        This will produce a "compact" list. If you want a
+        "loose" list, in which each item is formatted as a
+        paragraph, put spaces between the items:
+      </t>
+      <figure><artwork>
+* one
+
+* two
+
+* three
+</artwork></figure>
+      <t>
+        The bullets need not be flush with the left margin; they may be
+        indented one, two, or three spaces. The bullet must be followed
+        by whitespace.
+      </t>
+      <t>
+        List items look best if subsequent lines are flush with the
+        first line (after the bullet):
+      </t>
+      <figure><artwork>
+* here is my first
+  list item.
+* and my second.
+</artwork></figure>
+      <t>
+        But markdown also allows a "lazy" format:
+      </t>
+      <figure><artwork>
+* here is my first
+list item.
+* and my second.
+</artwork></figure>
+    </section>
+    <section title="The four-space rule" anchor="the-four-space-rule">
+      
+      <t>
+        A list item may contain multiple paragraphs and other
+        block-level content. However, subsequent paragraphs must be
+        preceded by a blank line and indented four spaces or a tab. The
+        list will look better if the first paragraph is aligned with the
+        rest:
+      </t>
+      <figure><artwork>
+  * First paragraph.
+
+    Continued.
+
+  * Second paragraph. With a code block, which must be indented
+    eight spaces:
+
+        { code }
+</artwork></figure>
+      <t>
+        List items may include other lists. In this case the preceding
+        blank line is optional. The nested list must be indented four
+        spaces or one tab:
+      </t>
+      <figure><artwork>
+* fruits
+    + apples
+        - macintosh
+        - red delicious
+    + pears
+    + peaches
+* vegetables
+    + brocolli
+    + chard
+</artwork></figure>
+      <t>
+        As noted above, markdown allows you to write list items
+        "lazily," instead of indenting continuation lines.
+        However, if there are multiple paragraphs or other blocks in a
+        list item, the first line of each must be indented.
+      </t>
+      <figure><artwork>
++ A lazy, lazy, list
+item.
+
++ Another one; this looks
+bad but is legal.
+
+    Second paragraph of second
+list item.
+</artwork></figure>
+      <t>
+        <spanx style="strong">Note:</spanx> Although the four-space
+        rule for continuation paragraphs comes from the official
+        <eref target="http://daringfireball.net/projects/markdown/syntax#list">markdown
+        syntax guide</eref>, the reference implementation,
+        <spanx style="verb">Markdown.pl</spanx>, does not follow it. So pandoc
+        will give different results than <spanx style="verb">Markdown.pl</spanx>
+        when authors have indented continuation paragraphs fewer than
+        four spaces.
+      </t>
+      <t>
+        The
+        <eref target="http://daringfireball.net/projects/markdown/syntax#list">markdown
+        syntax guide</eref> is not explicit whether the four-space rule
+        applies to <spanx style="emph">all</spanx> block-level content in a
+        list item; it only mentions paragraphs and code blocks. But it
+        implies that the rule applies to all block-level content
+        (including nested lists), and pandoc interprets it that way.
+      </t>
+    </section>
+    <section title="Ordered lists" anchor="ordered-lists">
+      
+      <t>
+        Ordered lists work just like bulleted lists, except that the
+        items begin with enumerators rather than bullets.
+      </t>
+      <t>
+        In standard markdown, enumerators are decimal numbers followed
+        by a period and a space. The numbers themselves are ignored, so
+        there is no difference between this list:
+      </t>
+      <figure><artwork>
+1.  one
+2.  two
+3.  three
+</artwork></figure>
+      <t>
+        and this one:
+      </t>
+      <figure><artwork>
+5.  one
+7.  two
+1.  three
+</artwork></figure>
+      <t>
+        <spanx style="strong">Extension:
+        fancy_lists</spanx>
+      </t>
+      <t>
+        Unlike standard markdown, Pandoc allows ordered list items to be
+        marked with uppercase and lowercase letters and roman numerals,
+        in addition to arabic numerals. List markers may be enclosed in
+        parentheses or followed by a single right-parentheses or period.
+        They must be separated from the text that follows by at least
+        one space, and, if the list marker is a capital letter with a
+        period, by at least two spaces.
+      </t>
+      <t>
+        <spanx style="strong">Extension:
+        startnum</spanx>
+      </t>
+      <t>
+        Pandoc also pays attention to the type of list marker used, and
+        to the starting number, and both of these are preserved where
+        possible in the output format. Thus, the following yields a list
+        with numbers followed by a single parenthesis, starting with 9,
+        and a sublist with lowercase roman numerals:
+      </t>
+      <figure><artwork>
+ 9)  Ninth
+10)  Tenth
+11)  Eleventh
+       i. subone
+      ii. subtwo
+     iii. subthree
+</artwork></figure>
+      <t>
+        Pandoc will start a new list each time a different type of list
+        marker is used. So, the following will create three lists:
+      </t>
+      <figure><artwork>
+(2) Two
+(5) Three
+1.  Four
+*   Five
+</artwork></figure>
+      <t>
+        If default list markers are desired, use <spanx style="verb">#.</spanx>:
+      </t>
+      <figure><artwork>
+#.  one
+#.  two
+#.  three
+</artwork></figure>
+    </section>
+    <section title="Definition lists" anchor="definition-lists">
+      
+      <t>
+        <spanx style="strong">Extension:
+        definition_lists</spanx>
+      </t>
+      <t>
+        Pandoc supports definition lists, using a syntax inspired by
+        <eref target="http://www.michelf.com/projects/php-markdown/extra/">PHP
+        Markdown Extra</eref> and
+        <eref target="http://docutils.sourceforge.net/docs/ref/rst/introduction.html">reStructuredText</eref>:
+      </t>
+      <figure><artwork>
+Term 1
+
+:   Definition 1
+
+Term 2 with *inline markup*
+
+:   Definition 2
+
+        { some code, part of Definition 2 }
+
+    Third paragraph of definition 2.
+</artwork></figure>
+      <t>
+        Each term must fit on one line, which may optionally be followed
+        by a blank line, and must be followed by one or more
+        definitions. A definition begins with a colon or tilde, which
+        may be indented one or two spaces. The body of the definition
+        (including the first line, aside from the colon or tilde) should
+        be indented four spaces. A term may have multiple definitions,
+        and each definition may consist of one or more block elements
+        (paragraph, code block, list, etc.), each indented four spaces
+        or one tab stop.
+      </t>
+      <t>
+        If you leave space after the definition (as in the example
+        above), the blocks of the definitions will be considered
+        paragraphs. In some output formats, this will mean greater
+        spacing between term/definition pairs. For a compact definition
+        list, do not leave space between the definition and the next
+        term:
+      </t>
+      <figure><artwork>
+Term 1
+  ~ Definition 1
+Term 2
+  ~ Definition 2a
+  ~ Definition 2b
+</artwork></figure>
+    </section>
+    <section title="Numbered example lists" anchor="numbered-example-lists">
+      
+      <t>
+        <spanx style="strong">Extension:
+        example_lists</spanx>
+      </t>
+      <t>
+        The special list marker <spanx style="verb">@</spanx> can be used for
+        sequentially numbered examples. The first list item with a
+        <spanx style="verb">@</spanx> marker will be numbered '1', the next '2',
+        and so on, throughout the document. The numbered examples need
+        not occur in a single list; each new list using
+        <spanx style="verb">@</spanx> will take up where the last stopped. So,
+        for example:
+      </t>
+      <figure><artwork>
+(@)  My first example will be numbered (1).
+(@)  My second example will be numbered (2).
+
+Explanation of examples.
+
+(@)  My third example will be numbered (3).
+</artwork></figure>
+      <t>
+        Numbered examples can be labeled and referred to elsewhere in
+        the document:
+      </t>
+      <figure><artwork>
+(@good)  This is a good example.
+
+As (@good) illustrates, ...
+</artwork></figure>
+      <t>
+        The label can be any string of alphanumeric characters,
+        underscores, or hyphens.
+      </t>
+    </section>
+    <section title="Compact and loose lists" anchor="compact-and-loose-lists">
+      
+      <t>
+        Pandoc behaves differently from <spanx style="verb">Markdown.pl</spanx>
+        on some "edge cases" involving lists. Consider this
+        source:
+      </t>
+      <figure><artwork>
++   First
++   Second:
+    -   Fee
+    -   Fie
+    -   Foe
+
++   Third
+</artwork></figure>
+      <t>
+        Pandoc transforms this into a "compact list" (with no
+        <spanx style="verb">&lt;p&gt;</spanx> tags around "First",
+        "Second", or "Third"), while markdown puts
+        <spanx style="verb">&lt;p&gt;</spanx> tags around "Second" and
+        "Third" (but not "First"), because of the
+        blank space around "Third". Pandoc follows a simple
+        rule: if the text is followed by a blank line, it is treated as
+        a paragraph. Since "Second" is followed by a list, and
+        not a blank line, it isn't treated as a paragraph. The fact that
+        the list is followed by a blank line is irrelevant. (Note:
+        Pandoc works this way even when the
+        <spanx style="verb">markdown_strict</spanx> format is specified. This
+        behavior is consistent with the official markdown syntax
+        description, even though it is different from that of
+        <spanx style="verb">Markdown.pl</spanx>.)
+      </t>
+    </section>
+    <section title="Ending a list" anchor="ending-a-list">
+      
+      <t>
+        What if you want to put an indented code block after a list?
+      </t>
+      <figure><artwork>
+-   item one
+-   item two
+
+    { my code block }
+</artwork></figure>
+      <t>
+        Trouble! Here pandoc (like other markdown implementations) will
+        treat <spanx style="verb">{ my code block }</spanx> as the second
+        paragraph of item two, and not as a code block.
+      </t>
+      <t>
+        To "cut off" the list after item two, you can insert
+        some non-indented content, like an HTML comment, which won't
+        produce visible output in any format:
+      </t>
+      <figure><artwork>
+-   item one
+-   item two
+
+&lt;!-- end of list --&gt;
+
+    { my code block }
+</artwork></figure>
+      <t>
+        You can use the same trick if you want two consecutive lists
+        instead of one big list:
+      </t>
+      <figure><artwork>
+1.  one
+2.  two
+3.  three
+
+&lt;!-- --&gt;
+
+1.  uno
+2.  dos
+3.  tres
+</artwork></figure>
+    </section>
+  </section>
+  <section title="Horizontal rules" anchor="horizontal-rules">
+    
+    <t>
+      A line containing a row of three or more <spanx style="verb">*</spanx>,
+      <spanx style="verb">-</spanx>, or <spanx style="verb">_</spanx> characters
+      (optionally separated by spaces) produces a horizontal rule:
+    </t>
+    <figure><artwork>
+*  *  *  *
+
+---------------
+</artwork></figure>
+  </section>
+  <section title="Tables" anchor="tables">
+    
+    <t>
+      Four kinds of tables may be used. The first three kinds presuppose
+      the use of a fixed-width font, such as Courier. The fourth kind
+      can be used with proportionally spaced fonts, as it does not
+      require lining up columns.
+    </t>
+    <section title="Simple tables" anchor="simple-tables">
+      
+      <t>
+        <spanx style="strong">Extension:
+        simple_tables,
+        table_captions</spanx>
+      </t>
+      <t>
+        Simple tables look like this:
+      </t>
+      <figure><artwork>
+  Right     Left     Center     Default
+-------     ------ ----------   -------
+     12     12        12            12
+    123     123       123          123
+      1     1          1             1
+
+Table:  Demonstration of simple table syntax.
+</artwork></figure>
+      <t>
+        The headers and table rows must each fit on one line. Column
+        alignments are determined by the position of the header text
+        relative to the dashed line below it:
+      </t>
+      <t><list style="symbols">
+        <t>
+          
+            If the dashed line is flush with the header text on the
+            right side but extends beyond it on the left, the column is
+            right-aligned.
+          
+        </t>
+        <t>
+          
+            If the dashed line is flush with the header text on the left
+            side but extends beyond it on the right, the column is
+            left-aligned.
+          
+        </t>
+        <t>
+          
+            If the dashed line extends beyond the header text on both
+            sides, the column is centered.
+          
+        </t>
+        <t>
+          
+            If the dashed line is flush with the header text on both
+            sides, the default alignment is used (in most cases, this
+            will be left).
+          
+        </t>
+      </list></t>
+      <t>
+        The table must end with a blank line, or a line of dashes
+        followed by a blank line. A caption may optionally be provided
+        (as illustrated in the example above). A caption is a paragraph
+        beginning with the string <spanx style="verb">Table:</spanx> (or just
+        <spanx style="verb">:</spanx>), which will be stripped off. It may appear
+        either before or after the table.
+      </t>
+      <t>
+        The column headers may be omitted, provided a dashed line is
+        used to end the table. For example:
+      </t>
+      <figure><artwork>
+-------     ------ ----------   -------
+     12     12        12             12
+    123     123       123           123
+      1     1          1              1
+-------     ------ ----------   -------
+</artwork></figure>
+      <t>
+        When headers are omitted, column alignments are determined on
+        the basis of the first line of the table body. So, in the tables
+        above, the columns would be right, left, center, and right
+        aligned, respectively.
+      </t>
+    </section>
+    <section title="Multiline tables" anchor="multiline-tables">
+      
+      <t>
+        <spanx style="strong">Extension:
+        multiline_tables,
+        table_captions</spanx>
+      </t>
+      <t>
+        Multiline tables allow headers and table rows to span multiple
+        lines of text (but cells that span multiple columns or rows of
+        the table are not supported). Here is an example:
+      </t>
+      <figure><artwork>
+-------------------------------------------------------------
+ Centered   Default           Right Left
+  Header    Aligned         Aligned Aligned
+----------- ------- --------------- -------------------------
+   First    row                12.0 Example of a row that
+                                    spans multiple lines.
+
+  Second    row                 5.0 Here's another one. Note
+                                    the blank line between
+                                    rows.
+-------------------------------------------------------------
+
+Table: Here's the caption. It, too, may span
+multiple lines.
+</artwork></figure>
+      <t>
+        These work like simple tables, but with the following
+        differences:
+      </t>
+      <t><list style="symbols">
+        <t>
+          
+            They must begin with a row of dashes, before the header text
+            (unless the headers are omitted).
+          
+        </t>
+        <t>
+          
+            They must end with a row of dashes, then a blank line.
+          
+        </t>
+        <t>
+          
+            The rows must be separated by blank lines.
+          
+        </t>
+      </list></t>
+      <t>
+        In multiline tables, the table parser pays attention to the
+        widths of the columns, and the writers try to reproduce these
+        relative widths in the output. So, if you find that one of the
+        columns is too narrow in the output, try widening it in the
+        markdown source.
+      </t>
+      <t>
+        Headers may be omitted in multiline tables as well as simple
+        tables:
+      </t>
+      <figure><artwork>
+----------- ------- --------------- -------------------------
+   First    row                12.0 Example of a row that
+                                    spans multiple lines.
+
+  Second    row                 5.0 Here's another one. Note
+                                    the blank line between
+                                    rows.
+----------- ------- --------------- -------------------------
+
+: Here's a multiline table without headers.
+</artwork></figure>
+      <t>
+        It is possible for a multiline table to have just one row, but
+        the row should be followed by a blank line (and then the row of
+        dashes that ends the table), or the table may be interpreted as
+        a simple table.
+      </t>
+    </section>
+    <section title="Grid tables" anchor="grid-tables">
+      
+      <t>
+        <spanx style="strong">Extension:
+        grid_tables,
+        table_captions</spanx>
+      </t>
+      <t>
+        Grid tables look like this:
+      </t>
+      <figure><artwork>
+: Sample grid table.
+
++---------------+---------------+--------------------+
+| Fruit         | Price         | Advantages         |
++===============+===============+====================+
+| Bananas       | $1.34         | - built-in wrapper |
+|               |               | - bright color     |
++---------------+---------------+--------------------+
+| Oranges       | $2.10         | - cures scurvy     |
+|               |               | - tasty            |
++---------------+---------------+--------------------+
+</artwork></figure>
+      <t>
+        The row of <spanx style="verb">=</spanx>s separates the header from the
+        table body, and can be omitted for a headerless table. The cells
+        of grid tables may contain arbitrary block elements (multiple
+        paragraphs, code blocks, lists, etc.). Alignments are not
+        supported, nor are cells that span multiple columns or rows.
+        Grid tables can be created easily using
+        <eref target="http://table.sourceforge.net/">Emacs table
+        mode</eref>.
+      </t>
+    </section>
+    <section title="Pipe tables" anchor="pipe-tables">
+      
+      <t>
+        <spanx style="strong">Extension:
+        pipe_tables,
+        table_captions</spanx>
+      </t>
+      <t>
+        Pipe tables look like this:
+      </t>
+      <figure><artwork>
+| Right | Left | Default | Center |
+|------:|:-----|---------|:------:|
+|   12  |  12  |    12   |    12  |
+|  123  |  123 |   123   |   123  |
+|    1  |    1 |     1   |     1  |
+
+  : Demonstration of simple table syntax.
+</artwork></figure>
+      <t>
+        The syntax is
+        <eref target="http://michelf.ca/projects/php-markdown/extra/#table">the
+        same as in PHP markdown extra</eref>. The beginning and ending
+        pipe characters are optional, but pipes are required between all
+        columns. The colons indicate column alignment as shown. The
+        header can be omitted, but the horizontal line must still be
+        included, as it defines column alignments.
+      </t>
+      <t>
+        Since the pipes indicate column boundaries, columns need not be
+        vertically aligned, as they are in the above example. So, this
+        is a perfectly legal (though ugly) pipe table:
+      </t>
+      <figure><artwork>
+fruit| price
+-----|-----:
+apple|2.05
+pear|1.37
+orange|3.09
+</artwork></figure>
+      <t>
+        The cells of pipe tables cannot contain block elements like
+        paragraphs and lists, and cannot span multiple lines.
+      </t>
+      <t>
+        Note: Pandoc also recognizes pipe tables of the following form,
+        as can produced by Emacs' orgtbl-mode:
+      </t>
+      <figure><artwork>
+| One | Two   |
+|-----+-------|
+| my  | table |
+| is  | nice  |
+</artwork></figure>
+      <t>
+        The difference is that <spanx style="verb">+</spanx> is used instead of
+        <spanx style="verb">|</spanx>. Other orgtbl features are not supported.
+        In particular, to get non-default column alignment, you'll need
+        to add colons as above.
+      </t>
+    </section>
+  </section>
+  <section title="Title block" anchor="title-block">
+    
+    <t>
+      <spanx style="strong">Extension:
+      pandoc_title_block</spanx>
+    </t>
+    <t>
+      If the file begins with a title block
+    </t>
+    <figure><artwork>
+% title
+% author(s) (separated by semicolons)
+% date
+</artwork></figure>
+    <t>
+      it will be parsed as bibliographic information, not regular text.
+      (It will be used, for example, in the title of standalone LaTeX or
+      HTML output.) The block may contain just a title, a title and an
+      author, or all three elements. If you want to include an author
+      but no title, or a title and a date but no author, you need a
+      blank line:
+    </t>
+    <figure><artwork>
+%
+% Author
+
+% My title
+%
+% June 15, 2006
+</artwork></figure>
+    <t>
+      The title may occupy multiple lines, but continuation lines must
+      begin with leading space, thus:
+    </t>
+    <figure><artwork>
+% My title
+  on multiple lines
+</artwork></figure>
+    <t>
+      If a document has multiple authors, the authors may be put on
+      separate lines with leading space, or separated by semicolons, or
+      both. So, all of the following are equivalent:
+    </t>
+    <figure><artwork>
+% Author One
+  Author Two
+
+% Author One; Author Two
+
+% Author One;
+  Author Two
+</artwork></figure>
+    <t>
+      The date must fit on one line.
+    </t>
+    <t>
+      All three metadata fields may contain standard inline formatting
+      (italics, links, footnotes, etc.).
+    </t>
+    <t>
+      Title blocks will always be parsed, but they will affect the
+      output only when the <spanx style="verb">--standalone</spanx>
+      (<spanx style="verb">-s</spanx>) option is chosen. In HTML output, titles
+      will appear twice: once in the document head -- this is the title
+      that will appear at the top of the window in a browser -- and once
+      at the beginning of the document body. The title in the document
+      head can have an optional prefix attached
+      (<spanx style="verb">--title-prefix</spanx> or <spanx style="verb">-T</spanx>
+      option). The title in the body appears as an H1 element with class
+      "title", so it can be suppressed or reformatted with
+      CSS. If a title prefix is specified with <spanx style="verb">-T</spanx> and
+      no title block appears in the document, the title prefix will be
+      used by itself as the HTML title.
+    </t>
+    <t>
+      The man page writer extracts a title, man page section number, and
+      other header and footer information from the title line. The title
+      is assumed to be the first word on the title line, which may
+      optionally end with a (single-digit) section number in
+      parentheses. (There should be no space between the title and the
+      parentheses.) Anything after this is assumed to be additional
+      footer and header text. A single pipe character
+      (<spanx style="verb">|</spanx>) should be used to separate the footer text
+      from the header text. Thus,
+    </t>
+    <figure><artwork>
+% PANDOC(1)
+</artwork></figure>
+    <t>
+      will yield a man page with the title <spanx style="verb">PANDOC</spanx> and
+      section 1.
+    </t>
+    <figure><artwork>
+% PANDOC(1) Pandoc User Manuals
+</artwork></figure>
+    <t>
+      will also have "Pandoc User Manuals" in the footer.
+    </t>
+    <figure><artwork>
+% PANDOC(1) Pandoc User Manuals | Version 4.0
+</artwork></figure>
+    <t>
+      will also have "Version 4.0" in the header.
+    </t>
+  </section>
+  <section title="Backslash escapes" anchor="backslash-escapes">
+    
+    <t>
+      <spanx style="strong">Extension:
+      all_symbols_escapable</spanx>
+    </t>
+    <t>
+      Except inside a code block or inline code, any punctuation or
+      space character preceded by a backslash will be treated literally,
+      even if it would normally indicate formatting. Thus, for example,
+      if one writes
+    </t>
+    <figure><artwork>
+*\*hello\**
+</artwork></figure>
+    <t>
+      one will get
+    </t>
+    <figure><artwork>
+&lt;em&gt;*hello*&lt;/em&gt;
+</artwork></figure>
+    <t>
+      instead of
+    </t>
+    <figure><artwork>
+&lt;strong&gt;hello&lt;/strong&gt;
+</artwork></figure>
+    <t>
+      This rule is easier to remember than standard markdown's rule,
+      which allows only the following characters to be
+      backslash-escaped:
+    </t>
+    <figure><artwork>
+\`*_{}[]()&gt;#+-.!
+</artwork></figure>
+    <t>
+      (However, if the <spanx style="verb">markdown_strict</spanx> format is
+      used, the standard markdown rule will be used.)
+    </t>
+    <t>
+      A backslash-escaped space is parsed as a nonbreaking space. It
+      will appear in TeX output as <spanx style="verb">~</spanx> and in HTML and
+      XML as <spanx style="verb">\&amp;#160;</spanx> or
+      <spanx style="verb">\&amp;nbsp;</spanx>.
+    </t>
+    <t>
+      A backslash-escaped newline (i.e. a backslash occurring at the end
+      of a line) is parsed as a hard line break. It will appear in TeX
+      output as <spanx style="verb">\\</spanx> and in HTML as
+      <spanx style="verb">&lt;br /&gt;</spanx>. This is a nice alternative to
+      markdown's "invisible" way of indicating hard line
+      breaks using two trailing spaces on a line.
+    </t>
+    <t>
+      Backslash escapes do not work in verbatim contexts.
+    </t>
+  </section>
+  <section title="Smart punctuation" anchor="smart-punctuation">
+    
+    <t>
+      <spanx style="strong">Extension</spanx>
+    </t>
+    <t>
+      If the <spanx style="verb">--smart</spanx> option is specified, pandoc will
+      produce typographically correct output, converting straight quotes
+      to curly quotes, <spanx style="verb">---</spanx> to em-dashes,
+      <spanx style="verb">--</spanx> to en-dashes, and <spanx style="verb">...</spanx> to
+      ellipses. Nonbreaking spaces are inserted after certain
+      abbreviations, such as "Mr."
+    </t>
+    <t>
+      Note: if your LaTeX template uses the <spanx style="verb">csquotes</spanx>
+      package, pandoc will detect automatically this and use
+      <spanx style="verb">\enquote{...}</spanx> for quoted text.
+    </t>
+  </section>
+  <section title="Inline formatting" anchor="inline-formatting">
+    
+    <section title="Emphasis" anchor="emphasis">
+      
+      <t>
+        To <spanx style="emph">emphasize</spanx> some text, surround it with
+        <spanx style="verb">*</spanx>s or <spanx style="verb">_</spanx>, like this:
+      </t>
+      <figure><artwork>
+This text is _emphasized with underscores_, and this
+is *emphasized with asterisks*.
+</artwork></figure>
+      <t>
+        Double <spanx style="verb">*</spanx> or <spanx style="verb">_</spanx> produces
+        <spanx style="strong">strong emphasis</spanx>:
+      </t>
+      <figure><artwork>
+This is **strong emphasis** and __with underscores__.
+</artwork></figure>
+      <t>
+        A <spanx style="verb">*</spanx> or <spanx style="verb">_</spanx> character
+        surrounded by spaces, or backslash-escaped, will not trigger
+        emphasis:
+      </t>
+      <figure><artwork>
+This is * not emphasized *, and \*neither is this\*.
+</artwork></figure>
+      <t>
+        <spanx style="strong">Extension:
+        intraword_underscores</spanx>
+      </t>
+      <t>
+        Because <spanx style="verb">_</spanx> is sometimes used inside words and
+        identifiers, pandoc does not interpret a <spanx style="verb">_</spanx>
+        surrounded by alphanumeric characters as an emphasis marker. If
+        you want to emphasize just part of a word, use
+        <spanx style="verb">*</spanx>:
+      </t>
+      <figure><artwork>
+feas*ible*, not feas*able*.
+</artwork></figure>
+    </section>
+    <section title="Strikeout" anchor="strikeout">
+      
+      <t>
+        <spanx style="strong">Extension:
+        strikeout</spanx>
+      </t>
+      <t>
+        To strikeout a section of text with a horizontal line, begin and
+        end it with <spanx style="verb">~~</spanx>. Thus, for example,
+      </t>
+      <figure><artwork>
+This ~~is deleted text.~~
+</artwork></figure>
+    </section>
+    <section title="Superscripts and subscripts" anchor="superscripts-and-subscripts">
+      
+      <t>
+        <spanx style="strong">Extension:
+        superscript,
+        subscript</spanx>
+      </t>
+      <t>
+        Superscripts may be written by surrounding the superscripted
+        text by <spanx style="verb">^</spanx> characters; subscripts may be
+        written by surrounding the subscripted text by
+        <spanx style="verb">~</spanx> characters. Thus, for example,
+      </t>
+      <figure><artwork>
+H~2~O is a liquid.  2^10^ is 1024.
+</artwork></figure>
+      <t>
+        If the superscripted or subscripted text contains spaces, these
+        spaces must be escaped with backslashes. (This is to prevent
+        accidental superscripting and subscripting through the ordinary
+        use of <spanx style="verb">~</spanx> and <spanx style="verb">^</spanx>.) Thus, if
+        you want the letter P with 'a cat' in subscripts, use
+        <spanx style="verb">P~a\ cat~</spanx>, not <spanx style="verb">P~a cat~</spanx>.
+      </t>
+    </section>
+    <section title="Verbatim" anchor="verbatim">
+      
+      <t>
+        To make a short span of text verbatim, put it inside backticks:
+      </t>
+      <figure><artwork>
+What is the difference between `&gt;&gt;=` and `&gt;&gt;`?
+</artwork></figure>
+      <t>
+        If the verbatim text includes a backtick, use double backticks:
+      </t>
+      <figure><artwork>
+Here is a literal backtick `` ` ``.
+</artwork></figure>
+      <t>
+        (The spaces after the opening backticks and before the closing
+        backticks will be ignored.)
+      </t>
+      <t>
+        The general rule is that a verbatim span starts with a string of
+        consecutive backticks (optionally followed by a space) and ends
+        with a string of the same number of backticks (optionally
+        preceded by a space).
+      </t>
+      <t>
+        Note that backslash-escapes (and other markdown constructs) do
+        not work in verbatim contexts:
+      </t>
+      <figure><artwork>
+This is a backslash followed by an asterisk: `\*`.
+</artwork></figure>
+      <t>
+        <spanx style="strong">Extension:
+        inline_code_attributes</spanx>
+      </t>
+      <t>
+        Attributes can be attached to verbatim text, just as with
+        <xref target="fenced-code-blocks">fenced code blocks</xref>:
+      </t>
+      <figure><artwork>
+`&lt;$&gt;`{.haskell}
+</artwork></figure>
+    </section>
+  </section>
+  <section title="Math" anchor="math">
+    
+    <t>
+      <spanx style="strong">Extension:
+      tex_math_dollars</spanx>
+    </t>
+    <t>
+      Anything between two <spanx style="verb">$</spanx> characters will be
+      treated as TeX math. The opening <spanx style="verb">$</spanx> must have a
+      character immediately to its right, while the closing
+      <spanx style="verb">$</spanx> must have a character immediately to its
+      left. Thus, <spanx style="verb">$20,000 and $30,000</spanx> won't parse as
+      math. If for some reason you need to enclose text in literal
+      <spanx style="verb">$</spanx> characters, backslash-escape them and they
+      won't be treated as math delimiters.
+    </t>
+    <t>
+      TeX math will be printed in all output formats. How it is rendered
+      depends on the output format:
+    </t>
+    <t><list style="hanging">
+      <t hangText="Markdown, LaTeX, Org-Mode, ConTeXt">
+          
+            It will appear verbatim between <spanx style="verb">$</spanx>
+            characters.
+          
+        </t>
+      <t hangText="reStructuredText">
+          
+            It will be rendered using an interpreted text role
+            <spanx style="verb">:math:</spanx>, as described
+            <eref target="http://www.american.edu/econ/itex2mml/mathhack.rst">here</eref>.
+          
+        </t>
+      <t hangText="AsciiDoc">
+          
+            It will be rendered as <spanx style="verb">latexmath:[...]</spanx>.
+          
+        </t>
+      <t hangText="Texinfo">
+          
+            It will be rendered inside a <spanx style="verb">@math</spanx>
+            command.
+          
+        </t>
+      <t hangText="groff man">
+          
+            It will be rendered verbatim without <spanx style="verb">$</spanx>'s.
+          
+        </t>
+      <t hangText="MediaWiki">
+          
+            It will be rendered inside <spanx style="verb">&lt;math&gt;</spanx>
+            tags.
+          
+        </t>
+      <t hangText="Textile">
+          
+            It will be rendered inside
+            <spanx style="verb">&lt;span class="math"&gt;</spanx> tags.
+          
+        </t>
+      <t hangText="RTF, OpenDocument, ODT">
+          
+            It will be rendered, if possible, using unicode characters,
+            and will otherwise appear verbatim.
+          
+        </t>
+      <t hangText="Docbook">
+          
+            If the <spanx style="verb">--mathml</spanx> flag is used, it will be
+            rendered using mathml in an
+            <spanx style="verb">inlineequation</spanx> or
+            <spanx style="verb">informalequation</spanx> tag. Otherwise it will
+            be rendered, if possible, using unicode characters.
+          
+        </t>
+      <t hangText="Docx">
+          
+            It will be rendered using OMML math markup.
+          
+        </t>
+      <t hangText="FictionBook2">
+          
+            If the <spanx style="verb">--webtex</spanx> option is used, formulas
+            are rendered as images using Google Charts or other
+            compatible web service, downloaded and embedded in the
+            e-book. Otherwise, they will appear verbatim.
+          
+        </t>
+      <t hangText="HTML, Slidy, DZSlides, S5, EPUB">
+          
+            The way math is rendered in HTML will depend on the
+            command-line options selected:
+          
+          <list style="numbers">
+            <t>
+              
+                The default is to render TeX math as far as possible
+                using unicode characters, as with RTF, DocBook, and
+                OpenDocument output. Formulas are put inside a
+                <spanx style="verb">span</spanx> with
+                <spanx style="verb">class="math"</spanx>, so that they
+                may be styled differently from the surrounding text if
+                needed.
+              
+            </t>
+            <t>
+              
+                If the <spanx style="verb">--latexmathml</spanx> option is used,
+                TeX math will be displayed between <spanx style="verb">$</spanx>
+                or <spanx style="verb">$$</spanx> characters and put in
+                <spanx style="verb">&lt;span&gt;</spanx> tags with class
+                <spanx style="verb">LaTeX</spanx>. The
+                <eref target="http://math.etsu.edu/LaTeXMathML/">LaTeXMathML</eref>
+                script will be used to render it as formulas. (This
+                trick does not work in all browsers, but it works in
+                Firefox. In browsers that do not support LaTeXMathML,
+                TeX math will appear verbatim between
+                <spanx style="verb">$</spanx> characters.)
+              
+            </t>
+            <t>
+              
+                If the <spanx style="verb">--jsmath</spanx> option is used, TeX
+                math will be put inside <spanx style="verb">&lt;span&gt;</spanx>
+                tags (for inline math) or <spanx style="verb">&lt;div&gt;</spanx>
+                tags (for display math) with class
+                <spanx style="verb">math</spanx>. The
+                <eref target="http://www.math.union.edu/~dpvc/jsmath/">jsMath</eref>
+                script will be used to render it.
+              
+            </t>
+            <t>
+              
+                If the <spanx style="verb">--mimetex</spanx> option is used, the
+                <eref target="http://www.forkosh.com/mimetex.html">mimeTeX</eref>
+                CGI script will be called to generate images for each
+                TeX formula. This should work in all browsers. The
+                <spanx style="verb">--mimetex</spanx> option takes an optional
+                URL as argument. If no URL is specified, it will be
+                assumed that the mimeTeX CGI script is at
+                <spanx style="verb">/cgi-bin/mimetex.cgi</spanx>.
+              
+            </t>
+            <t>
+              
+                If the <spanx style="verb">--gladtex</spanx> option is used, TeX
+                formulas will be enclosed in
+                <spanx style="verb">&lt;eq&gt;</spanx> tags in the HTML output.
+                The resulting <spanx style="verb">htex</spanx> file may then be
+                processed by
+                <eref target="http://ans.hsh.no/home/mgg/gladtex/">gladTeX</eref>,
+                which will produce image files for each formula and an
+                <spanx style="verb">html</spanx> file with links to these images.
+                So, the procedure is:
+              
+              <figure><artwork>
+pandoc -s --gladtex myfile.txt -o myfile.htex
+gladtex -d myfile-images myfile.htex
+# produces myfile.html and images in myfile-images
+</artwork></figure>
+            </t>
+            <t>
+              
+                If the <spanx style="verb">--webtex</spanx> option is used, TeX
+                formulas will be converted to
+                <spanx style="verb">&lt;img&gt;</spanx> tags that link to an
+                external script that converts formulas to images. The
+                formula will be URL-encoded and concatenated with the
+                URL provided. If no URL is specified, the Google Chart
+                API will be used
+                (<spanx style="verb">http://chart.apis.google.com/chart?cht=tx&amp;chl=</spanx>).
+              
+            </t>
+            <t>
+              
+                If the <spanx style="verb">--mathjax</spanx> option is used, TeX
+                math will be displayed between
+                <spanx style="verb">\(...\)</spanx> (for inline math) or
+                <spanx style="verb">\[...\]</spanx> (for display math) and put in
+                <spanx style="verb">&lt;span&gt;</spanx> tags with class
+                <spanx style="verb">math</spanx>. The
+                <eref target="http://www.mathjax.org/">MathJax</eref>
+                script will be used to render it as formulas.
+              
+            </t>
+          </list>
+        </t>
+    </list></t>
+  </section>
+  <section title="Raw HTML" anchor="raw-html">
+    
+    <t>
+      <spanx style="strong">Extension:
+      raw_html</spanx>
+    </t>
+    <t>
+      Markdown allows you to insert raw HTML (or DocBook) anywhere in a
+      document (except verbatim contexts, where <spanx style="verb">&lt;</spanx>,
+      <spanx style="verb">&gt;</spanx>, and <spanx style="verb">&amp;</spanx> are
+      interpreted literally). (Techncially this is not an extension,
+      since standard markdown allows it, but it has been made an
+      extension so that it can be disabled if desired.)
+    </t>
+    <t>
+      The raw HTML is passed through unchanged in HTML, S5, Slidy,
+      Slideous, DZSlides, EPUB, Markdown, and Textile output, and
+      suppressed in other formats.
+    </t>
+    <t>
+      <spanx style="strong">Extension:
+      markdown_in_html_blocks</spanx>
+    </t>
+    <t>
+      Standard markdown allows you to include HTML "blocks":
+      blocks of HTML between balanced tags that are separated from the
+      surrounding text with blank lines, and start and end at the left
+      margin. Within these blocks, everything is interpreted as HTML,
+      not markdown; so (for example), <spanx style="verb">*</spanx> does not
+      signify emphasis.
+    </t>
+    <t>
+      Pandoc behaves this way when the
+      <spanx style="verb">markdown_strict</spanx> format is used; but by default,
+      pandoc interprets material between HTML block tags as markdown.
+      Thus, for example, Pandoc will turn
+    </t>
+    <figure><artwork>
+&lt;table&gt;
+    &lt;tr&gt;
+        &lt;td&gt;*one*&lt;/td&gt;
+        &lt;td&gt;[a link](http://google.com)&lt;/td&gt;
+    &lt;/tr&gt;
+&lt;/table&gt;
+</artwork></figure>
+    <t>
+      into
+    </t>
+    <figure><artwork>
+&lt;table&gt;
+    &lt;tr&gt;
+        &lt;td&gt;&lt;em&gt;one&lt;/em&gt;&lt;/td&gt;
+        &lt;td&gt;&lt;a href="http://google.com"&gt;a link&lt;/a&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+&lt;/table&gt;
+</artwork></figure>
+    <t>
+      whereas <spanx style="verb">Markdown.pl</spanx> will preserve it as is.
+    </t>
+    <t>
+      There is one exception to this rule: text between
+      <spanx style="verb">&lt;script&gt;</spanx> and
+      <spanx style="verb">&lt;style&gt;</spanx> tags is not interpreted as
+      markdown.
+    </t>
+    <t>
+      This departure from standard markdown should make it easier to mix
+      markdown with HTML block elements. For example, one can surround a
+      block of markdown text with <spanx style="verb">&lt;div&gt;</spanx> tags
+      without preventing it from being interpreted as markdown.
+    </t>
+  </section>
+  <section title="Raw TeX" anchor="raw-tex">
+    
+    <t>
+      <spanx style="strong">Extension:
+      raw_tex</spanx>
+    </t>
+    <t>
+      In addition to raw HTML, pandoc allows raw LaTeX, TeX, and ConTeXt
+      to be included in a document. Inline TeX commands will be
+      preserved and passed unchanged to the LaTeX and ConTeXt writers.
+      Thus, for example, you can use LaTeX to include BibTeX citations:
+    </t>
+    <figure><artwork>
+This result was proved in \cite{jones.1967}.
+</artwork></figure>
+    <t>
+      Note that in LaTeX environments, like
+    </t>
+    <figure><artwork>
+\begin{tabular}{|l|l|}\hline
+Age &amp; Frequency \\ \hline
+18--25  &amp; 15 \\
+26--35  &amp; 33 \\
+36--45  &amp; 22 \\ \hline
+\end{tabular}
+</artwork></figure>
+    <t>
+      the material between the begin and end tags will be interpreted as
+      raw LaTeX, not as markdown.
+    </t>
+    <t>
+      Inline LaTeX is ignored in output formats other than Markdown,
+      LaTeX, and ConTeXt.
+    </t>
+  </section>
+  <section title="LaTeX macros" anchor="latex-macros">
+    
+    <t>
+      <spanx style="strong">Extension:
+      latex_macros</spanx>
+    </t>
+    <t>
+      For output formats other than LaTeX, pandoc will parse LaTeX
+      <spanx style="verb">\newcommand</spanx> and
+      <spanx style="verb">\renewcommand</spanx> definitions and apply the
+      resulting macros to all LaTeX math. So, for example, the following
+      will work in all output formats, not just LaTeX:
+    </t>
+    <figure><artwork>
+\newcommand{\tuple}[1]{\langle #1 \rangle}
+
+$\tuple{a, b, c}$
+</artwork></figure>
+    <t>
+      In LaTeX output, the <spanx style="verb">\newcommand</spanx> definition
+      will simply be passed unchanged to the output.
+    </t>
+  </section>
+  <section title="Links" anchor="links">
+    
+    <t>
+      Markdown allows links to be specified in several ways.
+    </t>
+    <section title="Automatic links" anchor="automatic-links">
+      
+      <t>
+        If you enclose a URL or email address in pointy brackets, it
+        will become a link:
+      </t>
+      <figure><artwork>
+&lt;http://google.com&gt;
+&lt;sam@green.eggs.ham&gt;
+</artwork></figure>
+    </section>
+    <section title="Inline links" anchor="inline-links">
+      
+      <t>
+        An inline link consists of the link text in square brackets,
+        followed by the URL in parentheses. (Optionally, the URL can be
+        followed by a link title, in quotes.)
+      </t>
+      <figure><artwork>
+This is an [inline link](/url), and here's [one with
+a title](http://fsf.org "click here for a good time!").
+</artwork></figure>
+      <t>
+        There can be no space between the bracketed part and the
+        parenthesized part. The link text can contain formatting (such
+        as emphasis), but the title cannot.
+      </t>
+    </section>
+    <section title="Reference links" anchor="reference-links">
+      
+      <t>
+        An <spanx style="emph">explicit</spanx> reference link has two parts,
+        the link itself and the link definition, which may occur
+        elsewhere in the document (either before or after the link).
+      </t>
+      <t>
+        The link consists of link text in square brackets, followed by a
+        label in square brackets. (There can be space between the two.)
+        The link definition consists of the bracketed label, followed by
+        a colon and a space, followed by the URL, and optionally (after
+        a space) a link title either in quotes or in parentheses.
+      </t>
+      <t>
+        Here are some examples:
+      </t>
+      <figure><artwork>
+[my label 1]: /foo/bar.html  "My title, optional"
+[my label 2]: /foo
+[my label 3]: http://fsf.org (The free software foundation)
+[my label 4]: /bar#special  'A title in single quotes'
+</artwork></figure>
+      <t>
+        The URL may optionally be surrounded by angle brackets:
+      </t>
+      <figure><artwork>
+[my label 5]: &lt;http://foo.bar.baz&gt;
+</artwork></figure>
+      <t>
+        The title may go on the next line:
+      </t>
+      <figure><artwork>
+[my label 3]: http://fsf.org
+  "The free software foundation"
+</artwork></figure>
+      <t>
+        Note that link labels are not case sensitive. So, this will
+        work:
+      </t>
+      <figure><artwork>
+Here is [my link][FOO]
+
+[Foo]: /bar/baz
+</artwork></figure>
+      <t>
+        In an <spanx style="emph">implicit</spanx> reference link, the second
+        pair of brackets is empty, or omitted entirely:
+      </t>
+      <figure><artwork>
+See [my website][], or [my website].
+
+[my website]: http://foo.bar.baz
+</artwork></figure>
+      <t>
+        Note: In <spanx style="verb">Markdown.pl</spanx> and most other markdown
+        implementations, reference link definitions cannot occur in
+        nested constructions such as list items or block quotes. Pandoc
+        lifts this arbitrary seeming restriction. So the following is
+        fine in pandoc, though not in most other implementations:
+      </t>
+      <figure><artwork>
+&gt; My block [quote].
+&gt;
+&gt; [quote]: /foo
+</artwork></figure>
+    </section>
+    <section title="Internal links" anchor="internal-links">
+      
+      <t>
+        To link to another section of the same document, use the
+        automatically generated identifier (see
+        <xref target="header-identifiers-in-html-latex-and-context">Header
+        identifiers in HTML, LaTeX, and ConTeXt</xref>, below). For
+        example:
+      </t>
+      <figure><artwork>
+See the [Introduction](#introduction).
+</artwork></figure>
+      <t>
+        or
+      </t>
+      <figure><artwork>
+See the [Introduction].
+
+[Introduction]: #introduction
+</artwork></figure>
+      <t>
+        Internal links are currently supported for HTML formats
+        (including HTML slide shows and EPUB), LaTeX, and ConTeXt.
+      </t>
+    </section>
+  </section>
+  <section title="Images" anchor="images">
+    
+    <t>
+      A link immediately preceded by a <spanx style="verb">!</spanx> will be
+      treated as an image. The link text will be used as the image's alt
+      text:
+    </t>
+    <figure><artwork>
+![la lune](lalune.jpg "Voyage to the moon")
+
+![movie reel]
+
+[movie reel]: movie.gif
+</artwork></figure>
+    <section title="Pictures with captions" anchor="pictures-with-captions">
+      
+      <t>
+        <spanx style="strong">Extension:
+        implicit_figures</spanx>
+      </t>
+      <t>
+        An image occurring by itself in a paragraph will be rendered as
+        a figure with a caption. (In LaTeX, a figure environment will be used; in
+        HTML, the image will be placed in a <spanx style="verb">div</spanx> with
+        class <spanx style="verb">figure</spanx>, together with a caption in a
+        <spanx style="verb">p</spanx> with class <spanx style="verb">caption</spanx>.) The
+        image's alt text will be used as the caption.
+      </t>
+      <figure><artwork>
+![This is the caption](/url/of/image.png)
+</artwork></figure>
+      <t>
+        If you just want a regular inline image, just make sure it is
+        not the only thing in the paragraph. One way to do this is to
+        insert a nonbreaking space after the image:
+      </t>
+      <figure><artwork>
+![This image won't be a figure](/url/of/image.png)\
+</artwork></figure>
+    </section>
+  </section>
+  <section title="Footnotes" anchor="footnotes">
+    
+    <t>
+      <spanx style="strong">Extension:
+      footnotes</spanx>
+    </t>
+    <t>
+      Pandoc's markdown allows footnotes, using the following syntax:
+    </t>
+    <figure><artwork>
+Here is a footnote reference,[^1] and another.[^longnote]
+
+[^1]: Here is the footnote.
+
+[^longnote]: Here's one with multiple blocks.
+
+    Subsequent paragraphs are indented to show that they
+belong to the previous footnote.
+
+        { some.code }
+
+    The whole paragraph can be indented, or just the first
+    line.  In this way, multi-paragraph footnotes work like
+    multi-paragraph list items.
+
+This paragraph won't be part of the note, because it
+isn't indented.
+</artwork></figure>
+    <t>
+      The identifiers in footnote references may not contain spaces,
+      tabs, or newlines. These identifiers are used only to correlate
+      the footnote reference with the note itself; in the output,
+      footnotes will be numbered sequentially.
+    </t>
+    <t>
+      The footnotes themselves need not be placed at the end of the
+      document. They may appear anywhere except inside other block
+      elements (lists, block quotes, tables, etc.).
+    </t>
+    <t>
+      <spanx style="strong">Extension:
+      inline_notes</spanx>
+    </t>
+    <t>
+      Inline footnotes are also allowed (though, unlike regular notes,
+      they cannot contain multiple paragraphs). The syntax is as
+      follows:
+    </t>
+    <figure><artwork>
+Here is an inline note.^[Inlines notes are easier to write, since
+you don't have to pick an identifier and move down to type the
+note.]
+</artwork></figure>
+    <t>
+      Inline and regular footnotes may be mixed freely.
+    </t>
+  </section>
+  <section title="Citations" anchor="citations">
+    
+    <t>
+      <spanx style="strong">Extension:
+      citations</spanx>
+    </t>
+    <t>
+      Pandoc can automatically generate citations and a bibliography in
+      a number of styles (using Andrea Rossato's
+      <spanx style="verb">hs-citeproc</spanx>). In order to use this feature, you
+      will need a bibliographic database in one of the following
+      formats:
+    </t>
+    <texttable>
+      
+        
+        
+        
+          
+            <ttcol align="left">
+              Format
+            </ttcol>
+            <ttcol align="left">
+              File extension
+            </ttcol>
+          
+        
+        
+          
+            <c>
+              MODS
+            </c>
+            <c>
+              .mods
+            </c>
+          
+          
+            <c>
+              BibLaTeX
+            </c>
+            <c>
+              .bib
+            </c>
+          
+          
+            <c>
+              BibTeX
+            </c>
+            <c>
+              .bibtex
+            </c>
+          
+          
+            <c>
+              RIS
+            </c>
+            <c>
+              .ris
+            </c>
+          
+          
+            <c>
+              EndNote
+            </c>
+            <c>
+              .enl
+            </c>
+          
+          
+            <c>
+              EndNote XML
+            </c>
+            <c>
+              .xml
+            </c>
+          
+          
+            <c>
+              ISI
+            </c>
+            <c>
+              .wos
+            </c>
+          
+          
+            <c>
+              MEDLINE
+            </c>
+            <c>
+              .medline
+            </c>
+          
+          
+            <c>
+              Copac
+            </c>
+            <c>
+              .copac
+            </c>
+          
+          
+            <c>
+              JSON citeproc
+            </c>
+            <c>
+              .json
+            </c>
+          
+        
+      
+    </texttable>
+    <t>
+      Note that <spanx style="verb">.bib</spanx> can generally be used with both
+      BibTeX and BibLaTeX files, but you can use
+      <spanx style="verb">.bibtex</spanx> to force BibTeX.
+    </t>
+    <t>
+      You will need to specify the bibliography file using the
+      <spanx style="verb">--bibliography</spanx> command-line option (which may
+      be repeated if you have several bibliographies).
+    </t>
+    <t>
+      By default, pandoc will use a Chicago author-date format for
+      citations and references. To use another style, you will need to
+      use the <spanx style="verb">--csl</spanx> option to specify a
+      <eref target="http://CitationStyles.org">CSL</eref> 1.0 style file.
+      A primer on creating and modifying CSL styles can be found at
+      <eref target="http://citationstyles.org/downloads/primer.html">http://citationstyles.org/downloads/primer.html</eref>.
+      A repository of CSL styles can be found at
+      <eref target="https://github.com/citation-style-language/styles">https://github.com/citation-style-language/styles</eref>.
+      See also
+      <eref target="http://zotero.org/styles">http://zotero.org/styles</eref>
+      for easy browsing.
+    </t>
+    <t>
+      Citations go inside square brackets and are separated by
+      semicolons. Each citation must have a key, composed of '@' + the
+      citation identifier from the database, and may optionally have a
+      prefix, a locator, and a suffix. Here are some examples:
+    </t>
+    <figure><artwork>
+Blah blah [see @doe99, pp. 33-35; also @smith04, ch. 1].
+
+Blah blah [@doe99, pp. 33-35, 38-39 and *passim*].
+
+Blah blah [@smith04; @doe99].
+</artwork></figure>
+    <t>
+      A minus sign (<spanx style="verb">-</spanx>) before the
+      <spanx style="verb">@</spanx> will suppress mention of the author in the
+      citation. This can be useful when the author is already mentioned
+      in the text:
+    </t>
+    <figure><artwork>
+Smith says blah [-@smith04].
+</artwork></figure>
+    <t>
+      You can also write an in-text citation, as follows:
+    </t>
+    <figure><artwork>
+@smith04 says blah.
+
+@smith04 [p. 33] says blah.
+</artwork></figure>
+    <t>
+      If the style calls for a list of works cited, it will be placed at
+      the end of the document. Normally, you will want to end your
+      document with an appropriate header:
+    </t>
+    <figure><artwork>
+last paragraph...
+
+# References
+</artwork></figure>
+    <t>
+      The bibliography will be inserted after this header.
+    </t>
+  </section>
+  <section title="Non-pandoc extensions" anchor="non-pandoc-extensions">
+    
+    <t>
+      The following markdown syntax extensions are not enabled by
+      default in pandoc, but may be enabled by adding
+      <spanx style="verb">+EXTENSION</spanx> to the format name, where
+      <spanx style="verb">EXTENSION</spanx> is the name of the extension. Thus,
+      for example, <spanx style="verb">markdown+hard_line_breaks</spanx> is
+      markdown with hard line breaks.
+    </t>
+    <t>
+      <spanx style="strong">Extension:
+      hard_line_breaks</spanx>
+<vspace/>Causes all newlines within a paragraph to be interpreted
+      as hard line breaks instead of spaces.
+    </t>
+    <t>
+      <spanx style="strong">Extension:
+      tex_math_single_backslash</spanx>
+<vspace/>Causes anything between <spanx style="verb">\(</spanx> and
+      <spanx style="verb">\)</spanx> to be interpreted as inline TeX math, and
+      anything between <spanx style="verb">\[</spanx> and <spanx style="verb">\]</spanx>
+      to be interpreted as display TeX math. Note: a drawback of this
+      extension is that it precludes escaping <spanx style="verb">(</spanx> and
+      <spanx style="verb">[</spanx>.
+    </t>
+    <t>
+      <spanx style="strong">Extension:
+      tex_math_double_backslash</spanx>
+<vspace/>Causes anything between <spanx style="verb">\\(</spanx> and
+      <spanx style="verb">\\)</spanx> to be interpreted as inline TeX math, and
+      anything between <spanx style="verb">\\[</spanx> and <spanx style="verb">\\]</spanx>
+      to be interpreted as display TeX math.
+    </t>
+    <t>
+      <spanx style="strong">Extension:
+      markdown_attribute</spanx>
+<vspace/>By default, pandoc interprets material inside
+      block-level tags as markdown. This extension changes the behavior
+      so that markdown is only parsed inside block-level tags if the
+      tags have the attribute <spanx style="verb">markdown=1</spanx>.
+    </t>
+    <t>
+      <spanx style="strong">Extension:
+      mmd_title_block</spanx>
+<vspace/>Enables a
+      <eref target="http://fletcherpenney.net/multimarkdown/">MultiMarkdown</eref>
+      style title block at the top of the document, for example:
+    </t>
+    <figure><artwork>
+Title:   My title
+Author:  John Doe
+Date:    September 1, 2008
+Comment: This is a sample mmd title block, with
+         a field spanning multiple lines.
+</artwork></figure>
+    <t>
+      See the MultiMarkdown documentation for details. Note that only
+      title, author, and date are recognized; other fields are simply
+      ignored by pandoc. If <spanx style="verb">pandoc_title_block</spanx> is
+      enabled, it will take precedence over
+      <spanx style="verb">mmd_title_block</spanx>.
+    </t>
+    <t>
+      <spanx style="strong">Extension:
+      abbreviations</spanx>
+<vspace/>Parses PHP Markdown Extra abbreviation keys, like
+    </t>
+    <figure><artwork>
+*[HTML]: Hyper Text Markup Language
+</artwork></figure>
+    <t>
+      Note that the pandoc document model does not support
+      abbreviations, so if this extension is enabled, abbreviation keys
+      are simply skipped (as opposed to being parsed as paragraphs).
+    </t>
+    <t>
+      <spanx style="strong">Extension:
+      autolink_bare_uris</spanx>
+<vspace/>Makes all absolute URIs into links, even when not
+      surrounded by pointy braces <spanx style="verb">&lt;...&gt;</spanx>.
+    </t>
+    <t>
+      <spanx style="strong">Extension:
+      ascii_identifiers</spanx>
+<vspace/>Causes the identifiers produced by
+      <spanx style="verb">auto_identifiers</spanx> to be pure ASCII. Accents are
+      stripped off of accented latin letters, and non-latin letters are
+      omitted.
+    </t>
+    <t>
+      <spanx style="strong">Extension:
+      link_attributes</spanx>
+<vspace/>Parses multimarkdown style key-value attributes on link
+      and image references. Note that pandoc's internal document model
+      provides nowhere to put these, so they are presently just ignored.
+    </t>
+    <t>
+      <spanx style="strong">Extension:
+      mmd_header_identifiers</spanx>
+<vspace/>Parses multimarkdown style header identifiers (in square
+      brackets, after the header but before any trailing
+      <spanx style="verb">#</spanx>s in an ATX header).
+    </t>
+  </section>
+  <section title="Markdown variants" anchor="markdown-variants">
+    
+    <t>
+      In addition to pandoc's extended markdown, the following markdown
+      variants are supported:
+    </t>
+    <t><list style="hanging">
+      <t hangText="markdown_phpextra (PHP Markdown Extra)">
+          
+            <spanx style="verb">footnotes</spanx>,
+            <spanx style="verb">pipe_tables</spanx>, <spanx style="verb">raw_html</spanx>,
+            <spanx style="verb">markdown_attribute</spanx>,
+            <spanx style="verb">fenced_code_blocks</spanx>,
+            <spanx style="verb">definition_lists</spanx>,
+            <spanx style="verb">intraword_underscores</spanx>,
+            <spanx style="verb">header_attributes</spanx>,
+            <spanx style="verb">abbreviations</spanx>.
+          
+        </t>
+      <t hangText="markdown_github (Github-flavored Markdown)">
+          
+            <spanx style="verb">pipe_tables</spanx>, <spanx style="verb">raw_html</spanx>,
+            <spanx style="verb">tex_math_single_backslash</spanx>,
+            <spanx style="verb">fenced_code_blocks</spanx>,
+            <spanx style="verb">fenced_code_attributes</spanx>,
+            <spanx style="verb">auto_identifiers</spanx>,
+            <spanx style="verb">ascii_identifiers</spanx>,
+            <spanx style="verb">backtick_code_blocks</spanx>,
+            <spanx style="verb">autolink_bare_uris</spanx>,
+            <spanx style="verb">intraword_underscores</spanx>,
+            <spanx style="verb">strikeout</spanx>,
+            <spanx style="verb">hard_line_breaks</spanx>
+          
+        </t>
+      <t hangText="markdown_mmd (MultiMarkdown)">
+          
+            <spanx style="verb">pipe_tables</spanx> <spanx style="verb">raw_html</spanx>,
+            <spanx style="verb">markdown_attribute</spanx>,
+            <spanx style="verb">link_attributes</spanx>,
+            <spanx style="verb">raw_tex</spanx>,
+            <spanx style="verb">tex_math_double_backslash</spanx>,
+            <spanx style="verb">intraword_underscores</spanx>,
+            <spanx style="verb">mmd_title_block</spanx>,
+            <spanx style="verb">footnotes</spanx>,
+            <spanx style="verb">definition_lists</spanx>,
+            <spanx style="verb">all_symbols_escapable</spanx>,
+            <spanx style="verb">implicit_header_references</spanx>,
+            <spanx style="verb">auto_identifiers</spanx>,
+            <spanx style="verb">mmd_header_identifiers</spanx>
+          
+        </t>
+      <t hangText="markdown_strict (Markdown.pl)">
+          
+            <spanx style="verb">raw_html</spanx>
+          
+        </t>
+    </list></t>
+  </section>
+</section>
+<section title="Producing slide shows with Pandoc" anchor="producing-slide-shows-with-pandoc">
+  
+  <t>
+    You can use Pandoc to produce an HTML + javascript slide
+    presentation that can be viewed via a web browser. There are five
+    ways to do this, using
+    <eref target="http://meyerweb.com/eric/tools/s5/">S5</eref>,
+    <eref target="http://paulrouget.com/dzslides/">DZSlides</eref>,
+    <eref target="http://www.w3.org/Talks/Tools/Slidy/">Slidy</eref>,
+    <eref target="http://goessner.net/articles/slideous/">Slideous</eref>,
+    or <eref target="http://lab.hakim.se/reveal-js/">reveal.js</eref>.
+    You can also produce a PDF slide show using LaTeX
+    <eref target="http://www.tex.ac.uk/CTAN/macros/latex/contrib/beamer">beamer</eref>.
+  </t>
+  <t>
+    Here's the markdown source for a simple slide show,
+    <spanx style="verb">habits.txt</spanx>:
+  </t>
+  <figure><artwork>
+% Habits
+% John Doe
+% March 22, 2005
+
+# In the morning
+
+## Getting up
+
+- Turn off alarm
+- Get out of bed
+
+## Breakfast
+
+- Eat eggs
+- Drink coffee
+
+# In the evening
+
+## Dinner
+
+- Eat spaghetti
+- Drink wine
+
+------------------
+
+![picture of spaghetti](images/spaghetti.jpg)
+
+## Going to sleep
+
+- Get in bed
+- Count sheep
+</artwork></figure>
+  <t>
+    To produce an HTML/javascript slide show, simply type
+  </t>
+  <figure><artwork>
+pandoc -t FORMAT -s habits.txt -o habits.html
+</artwork></figure>
+  <t>
+    where <spanx style="verb">FORMAT</spanx> is either <spanx style="verb">s5</spanx>,
+    <spanx style="verb">slidy</spanx>, <spanx style="verb">slideous</spanx>,
+    <spanx style="verb">dzslides</spanx>, or <spanx style="verb">revealjs</spanx>.
+  </t>
+  <t>
+    For Slidy, Slideous, reveal.js, and S5, the file produced by pandoc
+    with the <spanx style="verb">-s/--standalone</spanx> option embeds a link to
+    javascripts and CSS files, which are assumed to be available at the
+    relative path <spanx style="verb">s5/default</spanx> (for S5),
+    <spanx style="verb">slideous</spanx> (for Slideous),
+    <spanx style="verb">reveal.js</spanx> (for reveal.js), or at the Slidy
+    website at <spanx style="verb">w3.org</spanx> (for Slidy). (These paths can
+    be changed by setting the <spanx style="verb">slidy-url</spanx>,
+    <spanx style="verb">slideous-url</spanx>, <spanx style="verb">revealjs-url</spanx>, or
+    <spanx style="verb">s5-url</spanx> variables; see
+    <spanx style="verb">--variable</spanx>, above.) For DZSlides, the (relatively
+    short) javascript and css are included in the file by default.
+  </t>
+  <t>
+    With all HTML slide formats, the <spanx style="verb">--self-contained</spanx>
+    option can be used to produce a single file that contains all of the
+    data necessary to display the slide show, including linked scripts,
+    stylesheets, images, and videos.
+  </t>
+  <t>
+    To produce a PDF slide show using beamer, type
+  </t>
+  <figure><artwork>
+pandoc -t beamer habits.txt -o habits.pdf
+</artwork></figure>
+  <t>
+    Note that a reveal.js slide show can also be converted to a PDF by
+    printing it to a file from the browser.
+  </t>
+  <section title="Structuring the slide show" anchor="structuring-the-slide-show">
+    
+    <t>
+      By default, the <spanx style="emph">slide level</spanx> is the highest
+      header level in the hierarchy that is followed immediately by
+      content, and not another header, somewhere in the document. In the
+      example above, level 1 headers are always followed by level 2
+      headers, which are followed by content, so 2 is the slide level.
+      This default can be overridden using the
+      <spanx style="verb">--slide-level</spanx> option.
+    </t>
+    <t>
+      The document is carved up into slides according to the following
+      rules:
+    </t>
+    <t><list style="symbols">
+      <t>
+        
+          A horizontal rule always starts a new slide.
+        
+      </t>
+      <t>
+        
+          A header at the slide level always starts a new slide.
+        
+      </t>
+      <t>
+        
+          Headers <spanx style="emph">below</spanx> the slide level in the
+          hierarchy create headers <spanx style="emph">within</spanx> a slide.
+        
+      </t>
+      <t>
+        
+          Headers <spanx style="emph">above</spanx> the slide level in the
+          hierarchy create "title slides," which just contain
+          the section title and help to break the slide show into
+          sections.
+        
+      </t>
+      <t>
+        
+          A title page is constructed automatically from the document's
+          title block, if present. (In the case of beamer, this can be
+          disabled by commenting out some lines in the default
+          template.)
+        
+      </t>
+    </list></t>
+    <t>
+      These rules are designed to support many different styles of slide
+      show. If you don't care about structuring your slides into
+      sections and subsections, you can just use level 1 headers for all
+      each slide. (In that case, level 1 will be the slide level.) But
+      you can also structure the slide show into sections, as in the
+      example above.
+    </t>
+    <t>
+      Note: in reveal.js slide shows, if slide level is 2, a
+      two-dimensional layout will be produced, with level 1 headers
+      building horizontally and level 2 headers building vertically. It
+      is not recommended that you use deeper nesting of section levels
+      with reveal.js.
+    </t>
+  </section>
+  <section title="Incremental lists" anchor="incremental-lists">
+    
+    <t>
+      By default, these writers produces lists that display "all at
+      once." If you want your lists to display incrementally (one
+      item at a time), use the <spanx style="verb">-i</spanx> option. If you want
+      a particular list to depart from the default (that is, to display
+      incrementally without the <spanx style="verb">-i</spanx> option and all at
+      once with the <spanx style="verb">-i</spanx> option), put it in a block
+      quote:
+    </t>
+    <figure><artwork>
+&gt; - Eat spaghetti
+&gt; - Drink wine
+</artwork></figure>
+    <t>
+      In this way incremental and nonincremental lists can be mixed in a
+      single document.
+    </t>
+  </section>
+  <section title="Inserting pauses" anchor="inserting-pauses">
+    
+    <t>
+      In reveal.js and beamer slide shows, you can add
+      "pauses" within a slide by including a paragraph
+      containing three dots, separated by spaces:
+    </t>
+    <figure><artwork>
+# Slide with a pause
+
+content before the pause
+
+. . .
+
+content after the pause
+</artwork></figure>
+  </section>
+  <section title="Styling the slides" anchor="styling-the-slides">
+    
+    <t>
+      You can change the style of HTML slides by putting customized CSS
+      files in <spanx style="verb">$DATADIR/s5/default</spanx> (for S5),
+      <spanx style="verb">$DATADIR/slidy</spanx> (for Slidy), or
+      <spanx style="verb">$DATADIR/slideous</spanx> (for Slideous), where
+      <spanx style="verb">$DATADIR</spanx> is the user data directory (see
+      <spanx style="verb">--data-dir</spanx>, above). The originals may be found
+      in pandoc's system data directory (generally
+      <spanx style="verb">$CABALDIR/pandoc-VERSION/s5/default</spanx>). Pandoc
+      will look there for any files it does not find in the user data
+      directory.
+    </t>
+    <t>
+      For dzslides, the CSS is included in the HTML file itself, and may
+      be modified there.
+    </t>
+    <t>
+      For reveal.js, themes can be used by setting the
+      <spanx style="verb">theme</spanx> variable, for example:
+    </t>
+    <figure><artwork>
+-V theme=moon
+</artwork></figure>
+    <t>
+      Or you can specify a custom stylesheet using the
+      <spanx style="verb">--css</spanx> option.
+    </t>
+    <t>
+      To style beamer slides, you can specify a beamer "theme"
+      or "colortheme" using the <spanx style="verb">-V</spanx> option:
+    </t>
+    <figure><artwork>
+pandoc -t beamer habits.txt -V theme:Warsaw -o habits.pdf
+</artwork></figure>
+  </section>
+</section>
+<section title="Literate Haskell support" anchor="literate-haskell-support">
+  
+  <t>
+    If you append <spanx style="verb">+lhs</spanx> (or
+    <spanx style="verb">+literate_haskell</spanx>) to an appropriate input or
+    output format (<spanx style="verb">markdown</spanx>,
+    <spanx style="verb">mardkown_strict</spanx>, <spanx style="verb">rst</spanx>, or
+    <spanx style="verb">latex</spanx> for input or output;
+    <spanx style="verb">beamer</spanx>, <spanx style="verb">html</spanx> or
+    <spanx style="verb">html5</spanx> for output only), pandoc will treat the
+    document as literate Haskell source. This means that
+  </t>
+  <t><list style="symbols">
+    <t>
+      
+        In markdown input, "bird track" sections will be
+        parsed as Haskell code rather than block quotations. Text
+        between <spanx style="verb">\begin{code}</spanx> and
+        <spanx style="verb">\end{code}</spanx> will also be treated as Haskell
+        code.
+      
+    </t>
+    <t>
+      
+        In markdown output, code blocks with classes
+        <spanx style="verb">haskell</spanx> and <spanx style="verb">literate</spanx> will
+        be rendered using bird tracks, and block quotations will be
+        indented one space, so they will not be treated as Haskell code.
+        In addition, headers will be rendered setext-style (with
+        underlines) rather than atx-style (with '#' characters). (This
+        is because ghc treats '#' characters in column 1 as introducing
+        line numbers.)
+      
+    </t>
+    <t>
+      
+        In restructured text input, "bird track" sections will
+        be parsed as Haskell code.
+      
+    </t>
+    <t>
+      
+        In restructured text output, code blocks with class
+        <spanx style="verb">haskell</spanx> will be rendered using bird tracks.
+      
+    </t>
+    <t>
+      
+        In LaTeX input, text in <spanx style="verb">code</spanx> environments
+        will be parsed as Haskell code.
+      
+    </t>
+    <t>
+      
+        In LaTeX output, code blocks with class
+        <spanx style="verb">haskell</spanx> will be rendered inside
+        <spanx style="verb">code</spanx> environments.
+      
+    </t>
+    <t>
+      
+        In HTML output, code blocks with class
+        <spanx style="verb">haskell</spanx> will be rendered with class
+        <spanx style="verb">literatehaskell</spanx> and bird tracks.
+      
+    </t>
+  </list></t>
+  <t>
+    Examples:
+  </t>
+  <figure><artwork>
+pandoc -f markdown+lhs -t html
+</artwork></figure>
+  <t>
+    reads literate Haskell source formatted with markdown conventions
+    and writes ordinary HTML (without bird tracks).
+  </t>
+  <figure><artwork>
+pandoc -f markdown+lhs -t html+lhs
+</artwork></figure>
+  <t>
+    writes HTML with the Haskell code in bird tracks, so it can be
+    copied and pasted as literate Haskell source.
+  </t>
+</section>
+<section title="Custom writers" anchor="custom-writers">
+  
+  <t>
+    Pandoc can be extended with custom writers written in
+    <eref target="TODO">lua</eref>. (Pandoc includes a lua interpreter,
+    so lua need not be installed separately.)
+  </t>
+  <t>
+    To use a custom writer, simply specify the path to the lua script in
+    place of the output format. For example:
+  </t>
+  <figure><artwork>
+pandoc -t data/sample.lua
+</artwork></figure>
+  <t>
+    Creating a custom writer requires writing a lua function for each
+    possible element in a pandoc document. To get a documented example
+    which you can modify according to your needs, do
+  </t>
+  <figure><artwork>
+pandoc --print-sample-lua-writer
+</artwork></figure>
+</section>
+<section title="Authors" anchor="authors">
+  
+  <t>
+    © 2006-2013 John MacFarlane (jgm at berkeley dot edu). Released
+    under the
+    <eref target="http://www.gnu.org/copyleft/gpl.html">GPL</eref>,
+    version 2 or greater. This software carries no warranty of any kind.
+    (See COPYRIGHT for full copyright and warranty notices.) Other
+    contributors include Recai Oktaş, Paulo Tanimoto, Peter Wang, Andrea
+    Rossato, Eric Kow, infinity0x, Luke Plant, shreevatsa.public,
+    Puneeth Chaganti, Paul Rivier, rodja.trappe, Bradley Kuhn, thsutton,
+    Nathan Gass, Jonathan Daugherty, Jérémy Bobbio, Justin Bogner,
+    qerub, Christopher Sawicki, Kelsey Hightower, Masayoshi Takahashi,
+    Antoine Latter, Ralf Stephan, Eric Seidel, B. Scott Michel, Gavin
+    Beatty, Sergey Astanin, Arlo O'Keeffe, Denis Laxalde, Brent Yorgey.
+  </t>
+</section>
+
