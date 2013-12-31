@@ -887,6 +887,8 @@ Internet-Draft  Controlled Delay Active Queue Management   February 2013
    [CODEL2012] Nichols, K. and V. Jacobson, "Controlling Queue Delay",
              Communications of the ACM Vol. 55 No. 11, July, 2012, pp.
              42-50.
+	     <http://delivery.acm.org/10.1145/2210000/2209336/p20-nichols.pdf?ip=108.67.145.139&id=2209336&acc=OPEN&key=BF13D071DEA4D3F3B0AA4BA89B4BCA5B&CFID=391992573&CFTOKEN=79280983&__acm__=1388525739_e4b44ba719a42e5b3f0453bc780938c4>
+
    [VANQ2006] Jacobson, V., "A Rant on Queues", talk at MIT Lincoln
              Labs, Lexington, MA, July, 2006, http://www.pollere.net/
              Pdfdocs/QrantJul06.pdf
