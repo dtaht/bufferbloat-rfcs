@@ -911,6 +911,8 @@ Internet-Draft  Controlled Delay Active Queue Management   February 2013
    [CHARB2007] Dischinger, M., et. al, "Characterizing Residential
              Broadband Networks", Proceedings of the Internet
              Measurement Conference, San Diego, CA, 2007.
+	    <https://research.microsoft.com/en-us/um/people/ssaroiu/publications/imc/2007/imc2007-dischinger.pdf>
+
    [MACTCP1997] Mathis, M., J. Semke, J. Mahdavi, "The Macroscopic
              Behavior of the TCP Congestion Avoidance Algorithm", ACM
              SIGCOMM Computer Communications Review, Vol. 27 no. 1,
