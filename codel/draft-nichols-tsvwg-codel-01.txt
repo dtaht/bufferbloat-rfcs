@@ -882,6 +882,7 @@ Internet-Draft  Controlled Delay Active Queue Management   February 2013
    [CMNTS] Allman, M., "Comments on Bufferbloat", Computer
              Communication Review Vol. 43 No. 1, January, 2013, pp.
              31-37.
+	   <http://www.sigcomm.org/sites/default/files/ccr/papers/2013/January/2427036-2427041.pdf>
 
    [CODEL2012] Nichols, K. and V. Jacobson, "Controlling Queue Delay",
              Communications of the ACM Vol. 55 No. 11, July, 2012, pp.
