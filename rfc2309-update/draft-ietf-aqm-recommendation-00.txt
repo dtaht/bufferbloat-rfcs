@@ -1062,6 +1062,7 @@ Internet-Draft   Active Queue Management Recommendations    October 2013
 
    [RFC0896]  Nagle, J., "Congestion control in IP/TCP internetworks",
               RFC 896, January 1984.
+	      <http://tools.ietf.org/rfc/rfc896.txt>
 
    [RFC0970]  Nagle, J., "On packet switches with infinite storage",
               RFC 970, December 1985.
