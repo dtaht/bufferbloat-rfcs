@@ -921,6 +921,7 @@ Internet-Draft  Controlled Delay Active Queue Management   February 2013
 
    [SFQ1990] McKenney, P., "Stochastic Fairness Queuing", Proceedings
              of IEEE INFOCOMM'90, San Francisco, 1990.
+	    <http://www.rdrop.com/~paulmck/scalability/paper/sfq.2002.06.04.pdf>
 
 Nichols & Jacobson     Expires August 24, 2013                [Page 17]
 
