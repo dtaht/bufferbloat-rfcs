@@ -1076,6 +1076,7 @@ Internet-Draft   Active Queue Management Recommendations    October 2013
 
    [RFC1122]  Braden, R., "Requirements for Internet Hosts -
               Communication Layers", STD 3, RFC 1122, October 1989.
+	      <http://tools.ietf.org/rfc/rfc1122.txt>
 
    [RFC1633]  Braden, B., Clark, D., and S. Shenker, "Integrated
               Services in the Internet Architecture: an Overview",
