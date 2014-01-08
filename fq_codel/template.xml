@@ -9,7 +9,7 @@
 
 <rfc ipr="trust200902" category="info" docName="draft-taht-fq_codel-00">
  <front>
-        <title abbrev="Fq_Codel">Implementing FQ_Codel</title>
+        <title abbrev="Fq_Codel">FlowQueue_Codel</title>
 
         <author initials="D." surname="Taht"
                 fullname="Dave Taht">
@@ -42,17 +42,9 @@
         <keyword>Pandoc</keyword>
         <keyword>Extensible Markup Language</keyword>
         <abstract>
-            <t>This memo presents a technique for using Pandoc 
-            syntax as a source format
-            for documents in the Internet-Drafts (I-Ds) and
-            Request for Comments (RFC) series.
-            </t>
+            <t>This memo presents a technique for utilizing "Flow Queuing" and the codel AQM algorithm together on home gateways.</t>
             <t>
-            This version is adapted to work with "xml2rfc" version 2.x.
-            </t>
-            <t>
-                The text you reading now is mostly for testing Pandoc2rfc, the
-                canonical documention is draft-gieben-pandoc2rfc-XX.txt.
+                On bandwith constrained home gateways the need for some form of rate limitation and packet scheduling has been embedded in many devices.
             </t>
         </abstract>
 </front>
