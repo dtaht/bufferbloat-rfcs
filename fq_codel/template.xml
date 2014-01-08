@@ -3,6 +3,8 @@
 <!ENTITY pandocMiddle PUBLIC '' 'middle.xml'>
 
 <!ENTITY pandocRef2119  PUBLIC '' '../bib/reference.RFC.2119.xml'>
+<!ENTITY pandocRef4641  PUBLIC '' '../bib/reference.RFC.4641.xml'>
+<!ENTITY pandocRefVIM  PUBLIC '' '../bib/reference.github.vim.xml'>
 ]>
 
 <rfc ipr="trust200902" category="info" docName="draft-taht-fq_codel-00">
@@ -62,6 +64,8 @@
 <back>
     <references title="Normative References">
         &pandocRef2119;
+        &pandocRef4641;
+        &pandocRefVIM;
     </references>
 </back>
 </rfc>
