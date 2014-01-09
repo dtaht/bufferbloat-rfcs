@@ -33,8 +33,10 @@ the Ethernet MTU plus the hardware header length of 14 bytes.
 
 The flows is the number of flows into which the incoming packets are
 classified. Due to the stochastic nature of hashing, multiple flows
-may end up being hashed into the same slot. Newer flows have priority
-over older ones. This parameter can be set only at load time since
+may end up being hashed into the same slot. FIXME: "Newer flows have priority
+over older ones."
+
+This parameter can be set only at load time since
 memory has to be allocated for the hash table.  Default value is 1024.
 
 ### About ECN

@@ -11,4 +11,4 @@ draft.xml: back.mkd middle.mkd pandoc-readme.mkd
 
 .PHONY: clean
 clean:
-	rm -f draft.txt
+	rm -f draft.txt draft.xml draft.html
