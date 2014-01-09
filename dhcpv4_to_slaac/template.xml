@@ -78,7 +78,7 @@
         <abstract>
             <t>This memo presents a technique for utilizing DHCPv4 DNS naming information and DHCPv4 requests to supply a DNS name for SLAAC enabled hosts</t>
             <t>
-                In the IPv4 to IPv6 transition there is a need to transparently name a device that may or may not be using DHCPv6 also. While SLAAC automatically takes care of supplying an IPv6 address in many cases, it does not register a name in the DNS database by default. By leveraging DHCPv4 information and suitably using ICMPv6 messages, a dhcpv4 server can automatically also associate the same DNS name with the supplied SLAAC address.
+                In the IPv4 to IPv6 transition there is a need to transparently name a device that may not be using DHCPv6 also. While SLAAC automatically takes care of supplying an IPv6 address in many cases, it does not register a name in the DNS database by default. By leveraging DHCPv4 information and suitably using ICMPv6 messages, a DHCPv6 server can automatically also associate the same DNS name with the supplied SLAAC address.
             </t>
         </abstract>
 </front>
