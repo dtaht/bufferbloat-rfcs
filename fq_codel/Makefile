@@ -1,4 +1,4 @@
-all:	draft.txt
+all:	draft.txt draft.html draft.xml
 
 draft.txt: back.mkd middle.mkd pandoc-readme.mkd
 	bash pandoc2rfc -t template.xml -x ../transform.xsl back.mkd middle.mkd pandoc-readme.mkd

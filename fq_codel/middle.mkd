@@ -6,7 +6,6 @@
 <?rfc subcompact="no"?>
 <?rfc compact="yes"?>
 <?rfc comments="yes"?>
-# Introduction
 
 # Conventions
 
@@ -14,19 +13,44 @@
 
 ## Overview of FQ_CoDel's algorithm
 
+FQ_Codel is a *hybrid* of DRR and Codel, with an optimization for sparse flows similar to SQF.
+
 ### About the interval
 
 ### About the target
 
+### About the packet limit
+
+Drop from the biggest queue (in bytes) happens once the limit is hit.
+
 ### About the quantum
 
+The quantum is the number of bytes used as 'deficit' in the fair
+queuing algorithm. Default is set to 1514 bytes which corresponds to
+the Ethernet MTU plus the hardware header length of 14 bytes.
+
+### About flows
+
+The flows is the number of flows into which the incoming packets are
+classified. Due to the stochastic nature of hashing, multiple flows
+may end up being hashed into the same slot. Newer flows have priority
+over older ones. This parameter can be set only at load time since
+memory has to be allocated for the hash table.  Default value is 1024.
+
 ### About ECN
+
+ECN is *enabled* by default. Rather than do anything special with
+misbehaved ECN flows, FQ_CoDel relies on the packet scheduling system
+to minimize their impact, thus unresponsive packets in a flow being
+marked with ECN can grow to the overall packet limit.
 
 # Data Types
 
 ## Per-queue state
 
 ## Constants
+
+## Hash routine
 
 ## Enqueue routine
 
@@ -50,8 +74,8 @@ This document has no actions for IANA.
 # Conclusions
 
 FQ_CoDel is a very general, efficient, nearly parameterless active queue
-management approach that applies on top of CoDel. It is a critical tool in solving bufferbloat. FQ_CoDel's settings MAY be modified
-for other special-purpose networkin applications.
+management approach that applies on top of CoDel. It is a critical tool in solving bufferbloat. FQ_CoDel's settings MAY be modified for other special-purpose networkin applications.
 
-On-going projects are improving fq_codel with reduced DRR-like behavior for lower
-bandwidth systems (NFQ_CODEL):http://www.bufferbloat.net/projects/cerowrt/wiki/nfq_codel
+On-going projects are: improving fq_codel with more SFQ-like behavior for lower
+bandwidth systems [NFQCODEL](http://www.bufferbloat.net/projects/cerowrt/wiki/nfq_codel).
+ns2 and ns3 models
