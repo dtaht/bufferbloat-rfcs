@@ -1,13 +1,15 @@
 all:	draft.txt
 
-draft.txt: back.mkd middle.mkd pandoc-readme.mkd
-	bash pandoc2rfc -t template.xml -x ../transform.xsl back.mkd middle.mkd pandoc-readme.mkd
+FILES=back.mkd middle.mkd template.xml
 
-draft.html: back.mkd middle.mkd pandoc-readme.mkd
-	bash pandoc2rfc -t template.xml -x ../transform.xsl -M back.mkd middle.mkd pandoc-readme.mkd
+draft.txt: $(FILES) 
+	bash pandoc2rfc -t template.xml -x ../transform.xsl -T back.mkd middle.mkd 
 
-draft.xml: back.mkd middle.mkd pandoc-readme.mkd
-	bash pandoc2rfc -t template.xml -x ../transform.xsl -X back.mkd middle.mkd pandoc-readme.mkd
+draft.html: $(FILES)
+	bash pandoc2rfc -t template.xml -x ../transform.xsl -M back.mkd middle.mkd 
+
+draft.xml: $(FILES)
+	bash pandoc2rfc -t template.xml -x ../transform.xsl -X back.mkd middle.mkd 
 
 .PHONY: clean
 clean:
