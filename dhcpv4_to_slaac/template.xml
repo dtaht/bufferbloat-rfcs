@@ -8,7 +8,7 @@
 
 <rfc ipr="trust200902" category="info" docName="draft-taht-dhcpv4-to-slaac-naming-00">
  <front>
-        <title abbrev="SLAAC2DNS">DHCPv4 to SLAAC DNS naming<title>
+        <title abbrev="SLAACTODNS">DHCPv4 to SLAAC DNS naming</title>
 
         <author initials="D." surname="Taht"
                 fullname="Dave Taht">
