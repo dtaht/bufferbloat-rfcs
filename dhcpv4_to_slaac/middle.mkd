@@ -12,15 +12,14 @@
 # Resources and Additional Information
 
 # Security Considerations
-This document describes an hybrid packet scheduling and active queue management
-algorithm for implementation in networked devices. There are no specific security
-exposures associated with FQ_CoDel. Some exposures are in fact reduced (simpleminded
-packet floods).
+This document describes a hybrid packet scheduling and active queue
+management algorithm for implementation in networked devices. There are no
+specific security exposures associated with FQ_CoDel. Some exposures are in
+fact reduced (simpleminded packet floods).
 
 # IANA Considerations
 This document has no actions for IANA.
 
 # Conclusions
-
-This document outlines a simple method for co-joining the DHCPv4 and SLAAC assigned
-namespace. It is lightweight, simple, and as robust as possible.
+This document outlines a simple method for co-joining the DHCPv4 and SLAAC
+assigned namespace. It is lightweight, simple, and as robust as possible.
