@@ -25,7 +25,7 @@ Drop from the biggest queue (in bytes) happens once the limit is hit.
 
 ### About the quantum
 
-The quantum is the number of bytes used as 'deficit' in the fair
+The quantum is the number of bytes used as 'deficit' in the flow
 queuing algorithm. Default is set to 1514 bytes which corresponds to
 the Ethernet MTU plus the hardware header length of 14 bytes.
 
@@ -36,15 +36,16 @@ classified. Due to the stochastic nature of hashing, multiple flows
 may end up being hashed into the same slot. FIXME: "Newer flows have priority
 over older ones."
 
-This parameter can be set only at load time since
-memory has to be allocated for the hash table.  Default value is 1024.
+This parameter can be set only at load time since memory has to be
+allocated for the hash table.  Default value is 1024.
 
 ### About ECN
 
 ECN is *enabled* by default. Rather than do anything special with
 misbehaved ECN flows, FQ_CoDel relies on the packet scheduling system
 to minimize their impact, thus unresponsive packets in a flow being
-marked with ECN can grow to the overall packet limit.
+marked with ECN can grow to the overall packet limit, but will not
+otherwise affect the performance of the system.
 
 # Data Types
 
@@ -72,6 +73,8 @@ packet floods).
 
 # IANA Considerations
 This document has no actions for IANA.
+
+# Acknowlegements
 
 # Conclusions
 
