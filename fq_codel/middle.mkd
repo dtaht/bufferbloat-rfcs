@@ -125,5 +125,4 @@ FQ_CoDel is a very general, efficient, nearly parameterless active queue
 management approach that applies on top of CoDel. It is a critical tool in solving bufferbloat. FQ_CoDel's settings MAY be modified for other special-purpose networking applications.
 
 On-going projects are: improving fq_codel with more SFQ-like behavior for lower
-bandwidth systems [NFQCODEL](http://www.bufferbloat.net/projects/cerowrt/wiki/nfq_codel).
-ns2 and ns3 models
+bandwidth systems [NFQCODEL](http://www.bufferbloat.net/projects/cerowrt/wiki/nfq_codel).  ns2 and ns3 models are available.
