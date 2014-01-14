@@ -9,6 +9,58 @@
 
 # Conventions
 
+# Overview
+
+As the DHCPv4 state machine moves to "lease complete" it spits a (MAC
+address, hostname, broadcast domain) tuple over to the IPv6 side.
+The broadcast domain plus configuration yields a list of prefixes, and
+the MAC address gets turned into a SLAAC host-identifier. The two make a
+set of putative addresses. The state machine then sends an ICMP6 echo
+request to each putative address. If it responds then that address is
+added as an AAAA record with the hostname.
+
+There are some implementation details involving timeouts and retries and
+sending speculative router advertisements to ensure that a
+new-on-the-network host is ready to reply to the pings.
+
+If they have only privacy addresses, it doesn't work. If they have
+both a SLAAC address and a privacy address, and use the privacy
+address when initiating connections (for privacy), but accept
+connections to the SLAAC address, then it still works.
+
+I would argue that if they have only privacy addresses, it _does_
+work, because privacy addresses ought not to be published in the DNS.
+- ted lemon
+
+But.. if you're learning the IPv6 addresses based on the assumption that
+they are the traditional SLAAC addresses (that embed IEEE identifiers),
+you'd be missing IPv6 addresses of Windows nodes (which do not generate
+IIDs according to traditional SLAAC), any nodes using CGAs, etc.
+
+On my network, the Windows nodes use stateful DHCPv6. I don't see this
+technique as a universal panacea or something to necessarily rely on
+going forward, but it does make naming work
+_for_existing_deployed_systems. It works, for instance, with hundreds
+of millions of existing Android phones and tablets, 99.99% of which
+will never be upgraded.
+
+The practice is that it always works, even a smartphone moving slowly
+into a dodgy Wifi network. If the client can get a DHPCv4 lease, the
+IPv6 SLAAC address gets a name too.
+
+The AAAA-from-DHCv4 is working well. I was concerned that It might miss
+getting a valid ping reply without aggressive retries But in fact my
+Android phone has never faield to confirm the AAAA record within 20s or
+so of getting a DHCPv4 lease when ever I arrive home. I figure that's a
+good test as the phone is passing through marginal signal strength first
+and is partially shielded in my pocket.
+
+Once the DHCPv4 lease is done, dnsmasq is sending RAs every 5-10s for a
+minute, and pings with exponential backoff, 1s ,2s, 4s, etc. It bottoms
+out at a ping every 2048s which is trivial load for hosts which are
+never going to reply (No IPv6, privacy extensions, etc) but will still
+eventually find hosts which do.
+
 # Resources and Additional Information
 
 # Security Considerations
