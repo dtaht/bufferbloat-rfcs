@@ -64,10 +64,9 @@ eventually find hosts which do.
 # Resources and Additional Information
 
 # Security Considerations
-This document describes a hybrid packet scheduling and active queue
-management algorithm for implementation in networked devices. There are no
-specific security exposures associated with FQ_CoDel. Some exposures are in
-fact reduced (simpleminded packet floods).
+This document describes a simple scheme for tying dhcpv4 name requests
+to slaac generated addresses. Exposure to the DNS is limited to SLAAC
+addresses, privacy addresses remain private.
 
 # IANA Considerations
 This document has no actions for IANA.
