@@ -43,6 +43,11 @@ prio 2 -> DRR 1 Best Effort fq_codel (80% weight)
           +------------+             +---------+ 
 ^[fig:flow::This is an *inline* note for the above figure.]
 
+## Bandwidths below 
+## TCP ACKs
+
+is not recomended. By 
+
 ## Dependencies
 
 # Security Considerations
