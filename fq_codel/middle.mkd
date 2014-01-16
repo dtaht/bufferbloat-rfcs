@@ -11,26 +11,34 @@
 
 # The FQ_Codel Approach
 
-## Overview of FQ_CoDel's algorithm
+## Overview of FQ_Codel's algorithm
 
-FQ_Codel is a *hybrid* of DRR and Codel, with an optimization for sparse flows similar to SQF. Rather than call this "Fair Queueing", we call it "Flow Queuing"
-as it is *unfair* to flow that build a queue.
+FQ_Codel is a *hybrid* of DRR and Codel, with an optimization for
+sparse flows similar to SQF. We call this "Flow Queuing" as it is
+*unfair* to flows that build a queue.
 
-FQ_Codel uses a stochastic model to classify incoming packets into different flows and  is used  to  provide  a fair share of the bandwidth to all the flow building flows using the queue. Each such flow is managed by the CoDel  queuing  discipline.  Reordering  within a flow is avoided since Codel internally uses a FIFO queue.
+FQ_Codel uses a stochastic model to classify incoming packets into
+different flows and is used to provide a fair share of the bandwidth
+to all the flow building flows using the queue. Each such flow is
+managed by the CoDel queuing discipline.  Packet ordering within a flow is
+preserved since it uses a FIFO queue internally.
 
 ### About the interval
 
-The interval has the same semantics as codel and is used to ensure that the measured minimum delay does not become too stale.  The  minimum  delay  must  be
-experienced  in the last epoch of length interval.  It should be set
-on the order of the worst-case RTT through the bottleneck to give  end‐
-points sufficient time to react. 
+The interval has the same semantics as codel and is used to ensure
+that the measured minimum delay does not become too stale.  The
+minimum delay must be experienced in the last epoch of length
+interval.  It should be set on the order of the worst-case RTT through
+the bottleneck to give end‐points sufficient time to react.
 
 Default value is 100ms.
 
 ### About the target
 
-The target has the same semantics as ()[codel] and is the  acceptable  minimum  standing/persistent queue delay. This minimum delay is identified by track‐
-ing the local minimum queue delay  that  packets  experience. 
+The target has the same semantics as ()[codel] and is the acceptable
+minimum standing/persistent queue delay. This minimum delay is
+identified by track‐ing the local minimum queue delay that packets
+experience.
 
 Default value is 5ms.
 
