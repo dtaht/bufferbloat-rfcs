@@ -31,23 +31,27 @@ minimum delay must be experienced in the last epoch of length
 interval.  It should be set on the order of the worst-case RTT through
 the bottleneck to give end‐points sufficient time to react.
 
-Default value is 100ms.
+Default interval value is 100ms.
 
 ### About the target
 
 The target has the same semantics as ()[codel] and is the acceptable
 minimum standing/persistent queue delay. This minimum delay is
-identified by track‐ing the local minimum queue delay that packets
+identified by tracking the local minimum queue delay that packets
 experience.
 
-Default value is 5ms.
+Default target value is 5ms.
 
 ### About the packet limit
 
-the packet limit has the same semantics as codel and is the hard limit on the real queue size.  When  this  limit  is  reached, incoming packets from the
-largest queue (measured in bytes) are dropped.
+Embedded systems such as home routers do not have infinite memory, so some
+packet limit must be enforced.
+The packet limit has the same semantics as codel and is the hard limit
+on the real queue size.  When this limit is reached, incoming packets
+from the largest queue (measured in bytes) are dropped from the head 
+of the flow.
 
-Default is 10240 packets.
+Default packet limit is 10240 packets.
 
 ### About the quantum
 
@@ -63,7 +67,8 @@ may end up being hashed into the same slot. FIXME: "Newer flows have priority
 over older ones."
 
 This parameter can be set only at load time since memory has to be
-allocated for the hash table.  Default value is 1024.
+allocated for the hash table in the current implementation.  
+Default value is 1024.
 
 ### About ECN
 
@@ -74,6 +79,8 @@ marked with ECN can grow to the overall packet limit, but will not
 otherwise affect the performance of the system.
 
 ### Example of use
+
+FIXME: might want to be in an appendix.
 
 |   tc qdisc del dev eth0 root
 |  tc qdisc add dev eth0 root fq_codel
@@ -117,10 +124,13 @@ otherwise affect the performance of the system.
 # Resources and Additional Information
 
 # Security Considerations
-This document describes an hybrid packet scheduling and active queue management
-algorithm for implementation in networked devices. There are no specific security
-exposures associated with FQ_CoDel. Some exposures are in fact reduced (simpleminded
-packet floods).
+
+This document describes an hybrid packet scheduling and active queue
+management algorithm for implementation in networked devices. There
+are no specific security exposures associated with FQ_CoDel. Some
+exposures present in current FIFO systems are in fact reduced
+(e.g. simple minded packet floods).
+
 
 # IANA Considerations
 This document has no actions for IANA.
@@ -129,8 +139,12 @@ This document has no actions for IANA.
 
 # Conclusions
 
-FQ_CoDel is a very general, efficient, nearly parameterless active queue
-management approach that applies on top of CoDel. It is a critical tool in solving bufferbloat. FQ_CoDel's settings MAY be modified for other special-purpose networking applications.
+FQ_CoDel is a very general, efficient, nearly parameterless active
+queue management approach combining flow queuing with CoDel. It is a
+critical tool in solving bufferbloat. FQ_CoDel's settings MAY be
+modified for other special-purpose networking applications.
 
-On-going projects are: improving fq_codel with more SFQ-like behavior for lower
-bandwidth systems [NFQCODEL](http://www.bufferbloat.net/projects/cerowrt/wiki/nfq_codel).  ns2 and ns3 models are available.
+On-going projects are: improving fq_codel with more SFQ-like behavior
+for lower bandwidth systems
+[NFQCODEL](http://www.bufferbloat.net/projects/cerowrt/wiki/nfq_codel).
+ns2 and ns3 models are available.
