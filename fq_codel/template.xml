@@ -31,6 +31,24 @@
             </address>
         </author>
 
+        <author initials="J." surname="Gettys"
+                fullname="Jim Gettys">
+            <organization>Bell Labs</organization>
+
+            <address>
+                <postal>
+                    <street>21 Oak Knoll Road</street>
+                    <city>Carlisle</city> <region>MA</region>
+                    <code>01741</code>
+                    <country>USA</country>
+                </postal>
+
+                <phone></phone>
+                <email>jg@freedesktop.org</email>
+                <uri>https://en.wikipedia.org/wiki/Jim_Gettys</uri>
+            </address>
+        </author>
+
         <date month="January" year="2014"/>
 
         <area>General</area>
