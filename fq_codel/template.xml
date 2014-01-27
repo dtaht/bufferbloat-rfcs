@@ -12,6 +12,23 @@
  <front>
         <title abbrev="Fq_Codel">FlowQueue_Codel</title>
 
+        <author initials="P." surname="McKenney"
+                fullname="Paul McKenney">
+            <organization>IBM Linux Technology Center</organization>
+
+            <address>
+                <postal>
+                    <street>1385 NW Amberglen Parkway</street>
+                    <city>Hillsboro</city> <region>OR</region>
+                    <code>97006</code>
+                    <country>USA</country>
+                </postal>
+
+                <phone></phone>
+                <email>paulmck@linux.vnet.ibm.com</email>
+                <uri>http://www2.rdrop.com/~paulmck/</uri>
+            </address>
+        </author>
         <author initials="D." surname="Taht"
                 fullname="Dave Taht">
             <organization>Teklibre</organization>
