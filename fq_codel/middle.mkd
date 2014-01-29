@@ -259,7 +259,19 @@ dequeues from the first flow on the old_flows list.
 The resulting migration of flows is shown more completely and
 precisely in the following state diagram:
 
-FIXME
+    +-----------------+                +--------------------+
+    |                 |     Empty      |                    |
+    |     Empty       |<---------------+     "Elephant"     +-----+
+    |                 |                |                    |     |
+    +-------+---------+                +--------------------+     |
+            |                             ^              ^        |Quantum
+            |Arrival                      |              |        |Exceeded
+            v                             |              |        |
+    +-----------------+                   |              |        |
+    |      Low        |     Empty or      |              |        |
+    |   Bandwidth     +-------------------+              +--------+
+    |                 |  Quantum exceeded
+    +-----------------+
 
 All flows are initially empty. When a packet arrives at an empty flow,
 that flow is classified as low bandwidth, and is thus added to the
@@ -268,26 +280,27 @@ new_flows list in the implementation. This means that a new
 session is likely to persist for some time, so the fraction of time
 that it spends misclassified is usually insignificant.
 
-This initial "misclassification" of the beginning of a hog flow even has a 
-good consequence: the most time sensitive packets are usually the first 
-packet(s) in that TCP flow, so this misclassification works in our favor.  
-For example, the size of an
+This initial "misclassification" of the beginning of a hog flow even
+has a good sideffect for most TCP flows: the most time sensitive
+packets are usually the first packet(s) in that TCP flow, so this
+misclassification works in our favor.  For example, the size of an
 image is usually in the first packet of a new TCP flow, and by
-scheduling that packet in a timely fashion, web browsers are able to complete
-page layout more quickly, avoiding reflows and decreasing page load time.
+scheduling that packet in a timely fashion, web browsers are able to
+complete page layout more quickly, avoiding reflows and decreasing
+page load time.
 
 A flow on the new_flows list is guaranteed to eventually either become
 empty or exceed the quantum. If it exceeds its quantum, it is moved to
 the end of the old_flows list.
 
-Why couldn't packets arrive at just the right rate so t     hat the flow
+Why couldn't packets arrive at just the right rate so that the flow
 never emptied, but at the same time, the packets being dequeued were
 always recent arrivals? Couldn't that result in starvation of the
 old_flows? No, it cannot. The reason is that FQ-CoDel keeps dequeueing
 from the same flow until that flow either becomes empty or exceeds the
 quantum.
 
-Interestingly enough, if a new_flows flow becomes empty, it is also
+If a new_flows flow becomes empty, it is also
 moved to the end of the old_flows list. This is extremely important,
 as it prevents a constant drizzle of packets from low-bandwidth
 sessions from starving the old_flows list. Sooner or later, all flows
@@ -333,9 +346,24 @@ This faster propagation enables the transport protocols to more
 quickly adjust their offered load, resulting in faster reduction in
 queue length, which in turn results in faster reduction in network
 round-trip time, which finally improves overall network
-responsiveness, as illustrated in the following diagram.
+responsiveness, as illustrated in the following diagram.:
 
-FIXME
+                       Head           Tail
+                         |              |
+                         |              |
+                    +----|--------------|----+
+      +---------+   |  +-v+--+--+--+--+-v+   |
+      |         |   |  |  |  |  |  |  |  |   |
+      | Source  +----->|  |  |  |  |  |  |+-------------+
+      |         |   |  |  |  |  |  |  |  |   |          |
+      +---------+   |  +--+--+--+--+--+--+   |          |
+           ^        |                        |          v
+           |        |        +--+--+         |   +--------------+
+           |        |        |  |  |         |   |              |
+           +-----------------+  |  |<------------+  Destination |
+                    |        |  |  |         |   |              |
+                    |        +--+--+         |   +--------------+
+                    +------------------------+
 
 In addition, dropping from the head instead of the tail means that
 older packets are preferentially dropped, which is helpful in cases
@@ -382,6 +410,7 @@ reliability on the one hand and high bandwidth— with a queue length
 accurately computed for the available bandwidth—on the other.
 
 But is FQ-CoDel fair?
+
 Given the many different meanings of “fairness” in networking,
 you can make a case for pretty much any answer you wish. Andrew
 McGregor argues that FQ-CoDel is weighted delay jitter fair, in other
@@ -444,6 +473,9 @@ with FQ-CoDel's creators' desire that FQ-CoDel remain parameterless,
 requiring no configuration. But perhaps a compromise can be reached
 where FQ-CoDel automatically configures itself based on the expected
 bandwidth of the network device.
+
+
+FIXME the next three paragraphs.
 
 What if FQ-CoDel is configured on a high-bandwidth
 device such as 100 Mbit/s Ethernet, which then feeds into a
