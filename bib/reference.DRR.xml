@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 
-<reference anchor='DRR'>
+<reference anchor='DRR' target='http://users.ece.gatech.edu/~siva/ECE4607/presentations/DRR.pdf'>
 <front>
 <title>Efficient Fair Queueing Using Deficit Round Robin</title>
 <author initials='M.' surname='Shreedhar' fullname='M. Shreedhar'>
@@ -17,6 +17,5 @@ Fair Queuing is a technique that allows each flow passing through a network devi
 Deficit Round Robin achieves near perfect fairness, requires only O(1) work to process a packet and is simple enough to implement in hardware.
 </t></abstract></front>
 
-<seriesInfo name='PUB' value='DRR' />
 <format type='PDF' octets='1101478' target='http://users.ece.gatech.edu/~siva/ECE4607/presentations/DRR.pdf' />
 </reference>
