@@ -128,16 +128,15 @@ time. Later, when it is that packet's turn to be dequeued, CoDel
 computes its sojourn time (the current time minus the arrival
 time). If the sojourn time for packets being dequeued exceeds the
 target time for a time period of at least interval, a packet will be
-dropped (or marked, if ECN is enabled) in order to signal the source 
-endpoint to reduce its send
-rate. If the sojourn still remains above the target time, additional
-packet drops will occur on a schedule computed from an
-inverse-square-root control law until either (1) the queue becomes
-empty or (2) a packet is encountered with a sojourn time that is less
-than the target time. This target time, is normally set to about five
-milliseconds, and the interval is normally set to about 100
-milliseconds. This approach has proven to be quite effective in a wide
-variety of situations.
+dropped (or marked, if ECN is enabled) in order to signal the source
+endpoint to reduce its send rate. If the sojourn still remains above
+the target time, additional packet drops will occur on a schedule
+computed from an inverse-square-root control law until either (1) the
+queue becomes empty or (2) a packet is encountered with a sojourn time
+that is less than the target time. This target time, is normally set
+to about five milliseconds, and the interval is normally set to about
+100 milliseconds. This approach has proven to be quite effective in a
+wide variety of situations.
 
 See the CoDel document for more details about CoDel.  FIXME
 
@@ -172,51 +171,52 @@ sessions, for example, to dropbox or the scp command.
 
 ## FQ_Codel Overview
 
-It would be better to allow the low-bandwidth time-sensitive VOIP
-packets to jump ahead of the hogs, but not to the extent that the hog
-stream is in any danger of starvation—or even in danger of significant
-throughput degradation. One way to do this is to combine CoDel with
-SFQ, resulting in FQ-CoDel. This combining requires significant rework
-of SFQ, but of course Eric Dumazet was up to the job.
+Low-bandwidth time-sensitive VOIP or other interactive packet
+should jump ahead of packets in
+elephant flows, but not to the extent that the elephant stream is in any danger
+of starvation—or even in danger of significant throughput
+degradation. One way to do this is to combine CoDel with SFQ,
+resulting in FQ-CoDel. This non-trivial combination was invented by
+Eric Dumazet.
 
 A rough schematic of FQ-CoDel is shown below:
 
 FIXME:
 FQ-CoDel.png
 
-The most significant attribute of SFQ remains, namely that packets are
-hashed into multiple buckets based on their quintuple. However, each
-FQ-CoDel bucket contains a CoDel-managed queue instead of SFQ's FIFO
-queue. The group of sessions that hash to a given FQ-CoDel bucket is
-called a flow. In addition, the FQ-CoDel source code uses “flow” to
-denote the per-bucket data structure, including the queue.
+Packets are hashed into multiple buckets based on their quintuple,
+just as in SFQ, except that each FQ-CoDel bucket contains a
+CoDel-managed queue instead of SFQ's FIFO drop tail queue. The group
+of sessions that hash to a given FQ-CoDel bucket is called a flow. In
+addition, the FQ-CoDel source code uses “flow” to denote the
+per-bucket data structure, including the queue.
 
-Perhaps the next most significant change in that there are now two
-lists linking the flows together instead of just one. The first list
+FQ_Codel, however, has two lists linking the flows together 
+instead of just one. The first list
 contains flows A and D, namely the flows that with high probability
 contain packets from low-bandwidth time-sensitive sessions. The next
 flow to be dequeued from is indicated by the dash-dotted green arrow
 referencing bucket D. The second list contains all other non-empty
 flows, in this case only flow C, which with high probability contains
-“hog” sessions.
+“elephant” sessions.
 
-But mightn't flow C instead just contain a bunch of packets from a
+But might not flow C instead just contain a bunch of packets from a
 number of unlucky VOIP sessions? Wouldn't that be needlessly
 inflicting dropouts on the hapless VOIP users?
 
-Indeed it might. However, given that the Linux FQ-CoDel implementation
+Since the Linux FQ-CoDel implementation
 by default uses no fewer than 1024 hash buckets, the probabilty that
 (say) 100 VOIP sessions will all hash to the same bucket is something
 like ten to the power of minus 300. Thus, the probability that at
 least one of the VOIP sessions will hash to some other flow is very
 high indeed.
 
-But what is the probability that each of the 100 VOIP sessions will
+What is the probability that each of the 100 VOIP sessions will
 get its own flow? This is given by (1023!/(924!*1024^99)) or about
 0.007, which although much more highly probable than ten to the power
 of minus 300, is still not all that probable.
 
-Fortunately, the probability rises sharply if we are willing to accept
+The probability rises sharply if we are willing to accept
 a few collisions. For example, there is about an 86% probability that
 no more than two of the 100 VOIP sessions will be involved in any
 given collision, and about a 99% probability that no more than three
@@ -225,20 +225,24 @@ last two results were computed using Monte Carlo simulations: Oddly
 enough, the mathematics for VOIP-session collision exactly matches
 that of hardware cache overflow.
 
-The alert and historically savvy reader might note that the original
-SFQ failed to implement session segregation. There are two reasons for
-this: (1) I (Paul McKenney) didn't think of it back then, and (2) It
+The original SFQ failed to implement session segregation. 
+There are two reasons for this: (1) I (Paul McKenney) didn't 
+think of it back then, and (2) It
 might not have been a winning strategy for the low-clock-rate 68000
-CPUs that I was using at the time.
+CPUs that were available at the time.
 
-Suppose that a number of “hog” sessions are passing through a given
+Suppose that a number of “elephant” sessions are passing through a given
 instance of FQ-CoDel. Given the stochastic nature of FQ-CoDel, what
-guarantees fair treatment of the “hogs” with respect to each other?
-Unfairness among “hogs” is indeed possible, for example, if
-two “hogs” hash to the same flow, they will receive less bandwidth
-than “hogs” having their own flow. Of course, the probability of
-excessive collisions between “hog” sessions is just as low as that for
+guarantees fair treatment of the “elephant” with respect to each other?
+
+Unfairness among “elephants” is indeed possible, for example, if
+two “elephants” hash to the same flow, they will receive less bandwidth
+than “elephants” having their own flow. Of course, the probability of
+excessive collisions between “elephant” sessions is just as low as that for
 VOIP sessions.
+
+FIXME: need computation that a sparse and elephant flow will hash to the same
+bucket.
 
 Nevertheless, SFQ addresses this by allowing the hash function to be
 periodically perturbed. Providing a similar perturbation capability
@@ -248,7 +252,7 @@ for FQ-CoDel is ongoing work.  FIXME: only initial perturbation currently.
 
 FQ-CoDel operates by preferentially dequeueing from the low-bandwidth
 flows on the new_flows list. If a given flow has too much traffic for
-too long, it is presumed to contain a “hog” session, and is thus moved
+too long, it is presumed to contain a “elephant” session, and is thus moved
 to the old_flows list. If there are no new_flows flows, FQ-CoDel
 dequeues from the first flow on the old_flows list.
 
@@ -259,22 +263,24 @@ FIXME
 
 All flows are initially empty. When a packet arrives at an empty flow,
 that flow is classified as low bandwidth, and is thus added to the
-new_flows list in the implementation. Of course, this means that a new
-“hog” session will initially be misclassified. However, a “hog”
+new_flows list in the implementation. This means that a new
+“elephant" session will initially be misclassified. An actual “elephant”
 session is likely to persist for some time, so the fraction of time
 that it spends misclassified is usually insignificant.
 
-And since the packets in such flows that are most time sensitive are
-usually the first packet(s), this misclassification works in our
-favor.  For example, the size of an image is usually in the first
-packet of a new TCP flow, and by scheduling it in a timely fashion,
-web browsers are able to complete page layout more quickly.
+This initial "misclassification" of the beginning of a hog flow even has a 
+good consequence: the most time sensitive packets are usually the first 
+packet(s) in that TCP flow, so this misclassification works in our favor.  
+For example, the size of an
+image is usually in the first packet of a new TCP flow, and by
+scheduling that packet in a timely fashion, web browsers are able to complete
+page layout more quickly, avoiding reflows and decreasing page load time.
 
 A flow on the new_flows list is guaranteed to eventually either become
 empty or exceed the quantum. If it exceeds its quantum, it is moved to
 the end of the old_flows list.
 
-Why couldn't packets arrive at just the right rate so that the flow
+Why couldn't packets arrive at just the right rate so t     hat the flow
 never emptied, but at the same time, the packets being dequeued were
 always recent arrivals? Couldn't that result in starvation of the
 old_flows? No, it cannot. The reason is that FQ-CoDel keeps dequeueing
@@ -429,7 +435,7 @@ One pressing problem is that of low-bandwidth links. To see this,
 consider a 1 Mbit/s link, which requires more than 12 milliseconds to
 transmit a 1536-byte packet. Unfortunately, this time is more than
 double FQ-CoDel's typical target of 5 milliseconds, which in turn
-prevents FQ-CoDel from distinguishing between low-bandwidth and “hog”
+prevents FQ-CoDel from distinguishing between low-bandwidth and “elephant”
 sessions. This problem might be addressed by reducing the MTU or by
 increasing FQ-CoDel's quantum to (say) 30 milliseconds, for example,
 by using the target argument to the fq_codel discipline (see Dan
@@ -439,13 +445,14 @@ requiring no configuration. But perhaps a compromise can be reached
 where FQ-CoDel automatically configures itself based on the expected
 bandwidth of the network device.
 
-Quick Quiz 8: But what if FQ-CoDel is configured on a high-bandwidth
+What if FQ-CoDel is configured on a high-bandwidth
 device such as 100 Mbit/s Ethernet, which then feeds into a
 low-bandwidth ADSL line? In that case, shouldn't FQ-CoDel configure
 itself to the ADSL line's bandwidth instead of that of Ethernet?
-Answer
 
-Answer: Indeed, that could be a problem. Worse yet, suppose that the system is simultaneously communicating not only with systems across the ADSL line, but also with local systems connected to the Ethernet.
+Indeed, that is a problem. Worse yet, suppose that the
+system is simultaneously communicating not only with systems across
+the ADSL line, but also with local systems connected to the Ethernet.
 
 One way to solve this problem is to install FQ-CoDel on the Ethernet
 hubs/switches and on the ADSL modem. This would allow systems
