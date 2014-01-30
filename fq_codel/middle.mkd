@@ -204,10 +204,13 @@ A rough schematic of FQ-CoDel is shown below:
                   |     A     |     B      |      C      |      D     |
                   |           |            |             |            |
                   +--------+--+------------+-------------+----------+-+
-                     ^     |                                 ^      |
-                     |     +---------------------------------+      |
-                     |                                              |
-                     +----------------------------------------------+
+                     ^     |                      ^          ^  ^   |
+                     |     +----------------------|----------+  |   |
+                     |                            |             |   |
+                     +----------------------------|-------------|---+
+                                                  |             |
+                                                  |             |
+                                                  |             |
 
 Packets are hashed into multiple buckets based on their quintuple,
 just as in SFQ, except that each FQ-CoDel bucket contains a
