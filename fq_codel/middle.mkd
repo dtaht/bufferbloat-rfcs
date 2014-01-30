@@ -181,8 +181,33 @@ Eric Dumazet.
 
 A rough schematic of FQ-CoDel is shown below:
 
-FIXME:
-FQ-CoDel.png
+    +--------+                             +-----+
+    |   D    |                             |     |
+    |  100   |                             |     +--+
+    |        |                             +-----+  |
+    +--------+                                ^     |
+    |   C    |                                |     |
+    | 4500   |                             +--+--+  |
+    |        |                             |     |  |
+    +--------+                             |     |  |
+    |   B    |                             +-----+  |
+    |        |                                ^     |
+    +--------+                                |     |
+    |        |    +-----+                  +--+--+  |     +-----+
+    |   A    |    |     |                  |     |  |     |     |
+    |  100   |    |     +--+               |     |  |     |     |+-+
+    +--------+    +-----+  |               +-----+  |     +-----+  |
+                     ^     |                  ^     |        ^     |
+                     |     v                  |     v        |     v
+                  +--+--------+------------+--+----------+---+--------+
+                  |           |            |             |            |
+                  |     A     |     B      |      C      |      D     |
+                  |           |            |             |            |
+                  +--------+--+------------+-------------+----------+-+
+                     ^     |                                 ^      |
+                     |     +---------------------------------+      |
+                     |                                              |
+                     +----------------------------------------------+
 
 Packets are hashed into multiple buckets based on their quintuple,
 just as in SFQ, except that each FQ-CoDel bucket contains a
@@ -348,7 +373,7 @@ queue length, which in turn results in faster reduction in network
 round-trip time, which finally improves overall network
 responsiveness, as illustrated in the following diagram.:
 
-                       Head           Tail
+                       Tail           Head
                          |              |
                          |              |
                     +----|--------------|----+
