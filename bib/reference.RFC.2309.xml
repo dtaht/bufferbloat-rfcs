@@ -1,0 +1,169 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<reference anchor='RFC2309'>
+
+<front>
+<title abbrev='Internet Performance Recommendations'>Recommendations on Queue Management and Congestion Avoidance in the Internet</title>
+<author initials='B.' surname='Braden' fullname='Bob Braden'>
+<organization>USC Information Sciences Institute</organization>
+<address>
+<postal>
+<street>4676 Admiralty Way</street>
+<city>Marina del Rey</city>
+<region>CA</region>
+<code>90292</code></postal>
+<phone>310-822-1511</phone>
+<email>Braden@ISI.EDU</email></address></author>
+<author initials='D.D.' surname='Clark' fullname='David D. Clark'>
+<organization>MIT Laboratory for Computer Science</organization>
+<address>
+<postal>
+<street>545 Technology Sq.</street>
+<city>Cambridge</city>
+<region>MA</region>
+<code>02139</code></postal>
+<phone>617-253-6003</phone>
+<email>DDC@lcs.mit.edu</email></address></author>
+<author initials='J.' surname='Crowcroft' fullname='Jon Crowcroft'>
+<organization>University College London</organization>
+<address>
+<postal>
+<street>Department of Computer Science</street>
+<street>Gower Street</street>
+<street>London, WC1E 6BT</street>
+<street>ENGLAND</street></postal>
+<phone>+44 171 380 7296</phone>
+<email>Jon.Crowcroft@cs.ucl.ac.uk</email></address></author>
+<author initials='B.' surname='Davie' fullname='Bruce Davie'>
+<organization>Cisco Systems, Inc.</organization>
+<address>
+<postal>
+<street>250 Apollo Drive</street>
+<city>Chelmsford</city>
+<region>MA</region>
+<code>01824</code></postal>
+<email>bdavie@cisco.com</email></address></author>
+<author initials='S.' surname='Deering' fullname='Steve Deering'>
+<organization>Cisco Systems, Inc.</organization>
+<address>
+<postal>
+<street>170 West Tasman Drive</street>
+<city>San Jose</city>
+<region>CA</region>
+<code>95134-1706</code></postal>
+<phone>408-527-8213</phone>
+<email>deering@cisco.com</email></address></author>
+<author initials='D.' surname='Estrin' fullname='Deborah Estrin'>
+<organization>USC Information Sciences Institute</organization>
+<address>
+<postal>
+<street>4676 Admiralty Way</street>
+<city>Marina del Rey</city>
+<region>CA</region>
+<code>90292</code></postal>
+<phone>310-822-1511</phone>
+<email>Estrin@usc.edu</email></address></author>
+<author initials='S.' surname='Floyd' fullname='Sally Floyd'>
+<organization>Lawrence Berkeley National Laboratory, MS 50B-2239, One Cyclotron Road, Berkeley CA 94720</organization>
+<address>
+<phone>510-486-7518</phone>
+<email>Floyd@ee.lbl.gov</email></address></author>
+<author initials='V.' surname='Jacobson' fullname='Van Jacobson'>
+<organization>Lawrence Berkeley National Laboratory, MS 46A, One Cyclotron Road, Berkeley CA 94720</organization>
+<address>
+<phone>510-486-7519</phone>
+<email>Van@ee.lbl.gov</email></address></author>
+<author initials='G.' surname='Minshall' fullname='Greg Minshall'>
+<organization>Fiberlane Communications</organization>
+<address>
+<postal>
+<street>1399 Charleston Road</street>
+<city>Mountain View</city>
+<region>CA</region>
+<code>94043</code></postal>
+<phone>+1 650 237 3164</phone>
+<email>Minshall@fiberlane.com</email></address></author>
+<author initials='C.' surname='Partridge' fullname='Craig Partridge'>
+<organization>BBN Technologies</organization>
+<address>
+<postal>
+<street>10 Moulton St.</street>
+<street>Cambridge MA 02138</street></postal>
+<phone>510-558-8675</phone>
+<email>craig@bbn.com</email></address></author>
+<author initials='L.' surname='Peterson' fullname='Larry Peterson'>
+<organization>Department of Computer Science</organization>
+<address>
+<postal>
+<street>University of Arizona</street>
+<city>Tucson</city>
+<region>AZ</region>
+<code>85721</code></postal>
+<phone>520-621-4231</phone>
+<email>LLP@cs.arizona.edu</email></address></author>
+<author initials='K.K.' surname='Ramakrishnan' fullname='K.K. Ramakrishnan'>
+<organization>AT&amp;T Labs. Research</organization>
+<address>
+<postal>
+<street>Rm. A155</street>
+<street>180 Park Avenue</street>
+<street>Florham Park, N.J. 07932</street></postal>
+<phone>973-360-8766</phone>
+<email>KKRama@research.att.com</email></address></author>
+<author initials='S.' surname='Shenker' fullname='Scott Shenker'>
+<organization>Xerox PARC</organization>
+<address>
+<postal>
+<street>3333 Coyote Hill Road</street>
+<city>Palo Alto</city>
+<region>CA</region>
+<code>94304</code></postal>
+<phone>415-812-4840</phone>
+<email>Shenker@parc.xerox.com</email></address></author>
+<author initials='J.' surname='Wroclawski' fullname='John Wroclawski'>
+<organization>MIT Laboratory for Computer Science</organization>
+<address>
+<postal>
+<street>545 Technology Sq.</street>
+<city>Cambridge</city>
+<region>MA</region>
+<code>02139</code></postal>
+<phone>617-253-7885</phone>
+<email>JTW@lcs.mit.edu</email></address></author>
+<author initials='L.' surname='Zhang' fullname='Lixia Zhang'>
+<organization>UCLA</organization>
+<address>
+<postal>
+<street>4531G Boelter Hall</street>
+<city>Los Angeles</city>
+<region>CA</region>
+<code>90024</code></postal>
+<phone>310-825-2695</phone>
+<email>Lixia@cs.ucla.edu</email></address></author>
+<date year='1998' month='April' />
+<area>Routing</area>
+<keyword>congestion</keyword>
+<abstract>
+<t>
+
+      This memo presents two recommendations to the Internet community
+
+      concerning measures to improve and preserve Internet performance.
+
+      It presents a strong recommendation for testing, standardization,
+
+      and widespread deployment of active queue management in routers,
+
+      to improve the performance of today's Internet.  It also urges a
+
+      concerted effort of research, measurement, and ultimate deployment
+
+      of router mechanisms to protect the Internet from flows that are
+
+      not sufficiently responsive to congestion notification.
+</t></abstract></front>
+
+<seriesInfo name='RFC' value='2309' />
+<format type='TXT' octets='38079' target='http://www.rfc-editor.org/rfc/rfc2309.txt' />
+<format type='XML' octets='42517' target='http://xml.resource.org/public/rfc/xml/rfc2309.xml' />
+</reference>

@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<reference anchor='RFC0970'>
+
+<front>
+<title>On packet switches with infinite storage</title>
+<author initials='J.' surname='Nagle' fullname='John Nagle'>
+<organization>FACC Palo Alto</organization></author>
+<date year='1985' day='1' month='December' />
+<abstract>
+<t>Most prior work on congestion in datagram systems focuses on buffer management.  We find it illuminating to consider the case of a packet switch with infinite storage.  Such a packet switch can never run out of buffers. It can, however, still become congested.  The meaning of congestion in an infinite-storage system is explored.  We demonstrate the unexpected result that a datagram network with infinite storage, first-in-first-out queuing, at least two packet switches, and a finite packet lifetime will, under overload, drop all packets.  By attacking the problem of congestion for the infinite-storage case, we discover new solutions applicable to switches with finite storage.</t></abstract></front>
+
+<seriesInfo name='RFC' value='970' />
+<format type='TXT' octets='35316' target='http://www.rfc-editor.org/rfc/rfc970.txt' />
+</reference>

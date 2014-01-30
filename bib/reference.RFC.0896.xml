@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<reference anchor='RFC0896'>
+
+<front>
+<title>Congestion control in IP/TCP internetworks</title>
+<author initials='J.' surname='Nagle' fullname='John Nagle'>
+<organization>Ford Aerospace and Communications Corporation</organization></author>
+<date year='1984' month='January' day='6' />
+<abstract>
+<t>This memo discusses some aspects of congestion control in  IP/TCP Internetworks. It  is intended to stimulate thought and further discussion of this topic. While some specific  suggestions  are
+made for improved congestion  control  implementation, this memo does not specify any standards.</t></abstract></front>
+
+<seriesInfo name='RFC' value='896' />
+<format type='TXT' octets='26782' target='http://www.rfc-editor.org/rfc/rfc896.txt' />
+</reference>
