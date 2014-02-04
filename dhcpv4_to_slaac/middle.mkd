@@ -1,5 +1,10 @@
 # Introduction
 
+In an age of highly dynamic address assignment on IPv6, it is important
+to have equally dynamic and automatic DNS name assignment. This memo
+outlines a technique for co-joining the assigned-via-dhcpv4 and the
+IPv6 SLAAC DNS namespace.
+
 <?rfc toc="yes"?>
 <?rfc symrefs="yes"?>
 <?rfc sortrefs="yes"?>
@@ -7,70 +12,71 @@
 <?rfc compact="yes"?>
 <?rfc comments="yes"?>
 
-# Conventions
-
-# Overview
+# Methods
 
 As the DHCPv4 state machine moves to "lease complete" it spits a (MAC
 address, hostname, broadcast domain) tuple over to the IPv6 side.
+
 The broadcast domain plus configuration yields a list of prefixes, and
-the MAC address gets turned into a SLAAC host-identifier. The two make a
-set of putative addresses. The state machine then sends an ICMP6 echo
-request to each putative address. If it responds then that address is
-added as an AAAA record with the hostname.
+the MAC address is turned into a SLAAC host-identifier. 
 
-There are some implementation details involving timeouts and retries and
+The combination of the two make a set of putative addresses. The state
+machine then sends an ICMP6 echo request to each putative address. If
+it responds then that address is added as an AAAA record with the
+DHCPv4-assigned hostname.
+
+There are implementation details involving timeouts and retries and
 sending speculative router advertisements to ensure that a
-new-on-the-network host is ready to reply to the pings.
+new-on-the-network host is ready to reply to the pings. These aid
+not only in getting IPv6 up on a new host, but also on wireless networks
+where the odds of getting an RA before a successful DHCPv4 query
+are slim.
 
-If they have only privacy addresses, it doesn't work. If they have
-both a SLAAC address and a privacy address, and use the privacy
-address when initiating connections (for privacy), but accept
+Once the DHCPv4 lease is complete, RAs are sent every 5-10s for a
+minute, and pings, with exponential backoff, 1s ,2s, 4s, etc. It
+bottoms out at a ping every 2048s which is trivial load for hosts
+which are never going to reply (No IPv6, privacy extensions, etc) but
+will still eventually find hosts which do.
+
+# Flaws
+
+If the IPv6 enabled host has only privacy addresses, it doesn't work.
+
+If they have both a SLAAC address and a privacy address, and use the
+privacy address when initiating connections (for privacy), but accept
 connections to the SLAAC address, then it still works.
 
-I would argue that if they have only privacy addresses, it _does_
-work, because privacy addresses ought not to be published in the DNS.
-- ted lemon
+IPv6 addresses of Windows nodes (which do not generate IIDs according
+to traditional SLAAC), any nodes using CGAs, are also missed.
 
-But.. if you're learning the IPv6 addresses based on the assumption that
-they are the traditional SLAAC addresses (that embed IEEE identifiers),
-you'd be missing IPv6 addresses of Windows nodes (which do not generate
-IIDs according to traditional SLAAC), any nodes using CGAs, etc.
+Nodes using stateful DHCPv6 do not need this technique as naming
+is handled by DHCPv6.
 
-On my network, the Windows nodes use stateful DHCPv6. I don't see this
-technique as a universal panacea or something to necessarily rely on
-going forward, but it does make naming work
-_for_existing_deployed_systems. It works, for instance, with hundreds
-of millions of existing Android phones and tablets, 99.99% of which
-will never be upgraded.
-
-The practice is that it always works, even a smartphone moving slowly
-into a dodgy Wifi network. If the client can get a DHPCv4 lease, the
-IPv6 SLAAC address gets a name too.
-
-The AAAA-from-DHCv4 is working well. I was concerned that It might miss
-getting a valid ping reply without aggressive retries But in fact my
-Android phone has never faield to confirm the AAAA record within 20s or
-so of getting a DHCPv4 lease when ever I arrive home. I figure that's a
-good test as the phone is passing through marginal signal strength first
-and is partially shielded in my pocket.
-
-Once the DHCPv4 lease is done, dnsmasq is sending RAs every 5-10s for a
-minute, and pings with exponential backoff, 1s ,2s, 4s, etc. It bottoms
-out at a ping every 2048s which is trivial load for hosts which are
-never going to reply (No IPv6, privacy extensions, etc) but will still
-eventually find hosts which do.
-
-# Resources and Additional Information
+This technique makes traditional DNS naming work on IPv6 for existing
+deployed systems. It works, for instance, with hundreds of millions of
+existing Android phones and tablets, most SLAAC enabled hosts that
+supply a hostname with their DHCPv4 requests, and many printers.
 
 # Security Considerations
-This document describes a simple scheme for tying dhcpv4 name requests
-to slaac generated addresses. Exposure to the DNS is limited to SLAAC
-addresses, privacy addresses remain private.
+
+This document describes a simple and operational scheme for tying
+DHCPv4 name requests to SLAAC generated addresses. Exposure to the DNS
+is limited to SLAAC addresses. Privacy addresses remain private.
 
 # IANA Considerations
+
 This document has no actions for IANA.
 
 # Conclusions
-This document outlines a simple method for co-joining the DHCPv4 and SLAAC
-assigned namespace. It is lightweight, simple, and as robust as possible.
+
+This document outlines a simple method for co-joining the DHCPv4 and
+SLAAC assigned DNS namespace. It is lightweight, simple, and as robust
+as possible.  It has been deployed as part of DNSMASQ since version
+2.61 release 29-Apr-2012.  Scripts have been available for doing the
+equivalent with BIND9 and ISC-dhcp since 15-May-2011.
+
+# Appendix A - DNSmasq configuration
+
+# Appendix B - ISC-dhcp configuration
+
+
