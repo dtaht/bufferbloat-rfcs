@@ -80,7 +80,7 @@ been available for doing the equivalent with BIND9 and ISC-dhcp since
 
 dnsmasq is configured using simple option=value pairs. For each
 interface you care about, the "ra-names" option will enable attempts
-to leverage 
+to leverage DHCPv4 information for naming SLAAC interfaces.
 
 ## Without DHCPv6
 
