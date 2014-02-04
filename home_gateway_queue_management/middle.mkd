@@ -1,5 +1,9 @@
 # Introduction
 
+This document presents best current practice for best combining
+[](flow queuing), with [](active queue management), traffic shaping
+and packet prioritization.
+
 <?rfc toc="yes"?>
 <?rfc symrefs="yes"?>
 <?rfc sortrefs="yes"?>
@@ -7,53 +11,157 @@
 <?rfc compact="yes"?>
 <?rfc comments="yes"?>
 
-This document presents techniques for best combining flow queuing, with active queue management, traffic shaping and packet prioritization.
+While the new single queued and latency senstive AQM systems
+[PIE](PIE), [CODEL](CODEL) offer tremendous benefits standalone, they
+are insufficient to meet all needs on an edge gateway, which has
+additional needs to serve.
 
-# Shaping
+* Optimize for very high bandwidth flows to devices 
+* Prioritize DNS and timekeeping
+* Deoptimize background flows using various techniques
+
+End to End techniques, such as [](SABRE), and [](TORRENT) offer at
+best a reduction of queue latency below 100ms, leaving a side trip of
+halfway around the planet under load, on an edge gateway.
+
+Additionally, extremely large network bursts caused by IW10, TCP offloads, Wireless-n aggregation, and misbehaved applications are mitigated by using flow queueing techniques.
+
+Using flow queuing techniques make these bursts invisible to other applications.
+
+[](TAHT14)
+
+Combining AQM, with packet scheduling, and prioritization techniques
+leads to an enormous reduction in induced latency under load, to below
+5ms for queue building flows, and and nearly 0 for non-queue building
+flows.
+
+This memo does not depricate [](RFC4954). 
+
+However we note that humans slicing and dicing up bandwidth along 64 different options in general has un-expected side effects, and it seems better to do better mixing of bursts, tightly control latency, and allow for group congestion control. than
+
+# Definition of Terms
+
+## Rate Limiting
+
+## Classification
+
+Deep Packet Inspection, port analysis, 
+
+## Policing
+
+Policing as commonly defined is depricated. 
+
+## Shaping
+
+## Active Queue Management
 
 [](#RFC2309) is a specification for utilizing active queue management.
 
 [bufferbloat](http://www.bufferbloat.net)
 
-Keeping ascii art as a reference.
+# Methods of flow queueing
 
-Simple.qos is a three tier system that can use diffserv and simple
+## 1/F
+
+1/F flow queuing tries to provide fairness by allocating an equal
+portion of the bandwidth to each flow on the network.
+
+## 1/D
+
+1/D flow queueing tries to provide fairness by allocating an equal
+portion of the bandwidth to each device on the network.
+
+Unfortunately in an IPv6 world, devices can contain (far) more than a
+single ip address, and to correctly optimize on a per device basis
+requires co-joining all information about it's ip address set into a
+single lookup table.
+
+## 1/U 
+
+1/U flow queueing attempts to provide fairness over 
+
+## Mixed
+
+# Example #1 [](free.fr)
+
+The French ISP "Free", adopted fq-codel as their default Smart Queue
+Management system in August, 2011, replacing their previous SFQ based
+system.
+
+Their system uses 3 bands of priority, utilizing DRR in the second 2
+bands to avoid starvation in the background queue.
+
+The first queue is strictly admission controlled, and can starve other
+queues if needed.
+
+|  | -->  prio 1     Strict priority admission controlled fq-codel
+|  | -->  prio 2 -> DRR 1 Best Effort fq-codel (80% weight)
+|  | -->         -> DRR 2 Background fq-codel (20% weight)
+^[fig:free.fr::Description of Free.fr SQM system]
+
+Rate limiting is provided by the native line rate of their DSL
+devices, and their device drivers are tuned to create no more than 1ms
+of native latency in the hardware on egress from the home gateway
+device.
+
+There is no (despite a desire for such) system for ingress as the
+DSLAM vendor has no support for it, and rate limiting inbound does not
+currently account for the non-rate limited TV broadcast streams.
+
+()[FREEBENCHMARK]
+
+# Example #2 [](Cerowrt simple.qos)
+
+The simple.qos is a three tier system that can use diffserv and simple
 prioritization to give or remove priority to certain kinds of
-identifiable flows.  Right now it gives priority to locally generated
+identifiable flows.
+
+Right now it gives priority to locally generated
 dns and ntp packets, and a couple diffserv markings, and deprioritizes
 CS1. It would be nice if it was feature-competitive with qos-scripts,
 which have (for example) l7 inspection to find common torrent-like
 protocols, and a gui with lots of knobs to control that aspect.
 
+The first band is strictly admission controlled, and is limited to DNS and NTP queries emitted directly from the local router's DNS and NTP servers. Optionally the user can specify 
 
+It is limited to a maximum of 30% of all bandwidth by default.
 
-prio 1     Strict priority fq_codel
-prio 2 -> DRR 1 Best Effort fq_codel (80% weight)
-       -> DRR 2 Background fq_codel (20% weight)
+The second band (Best Effort)
 
-    +-------------------+   pandoc   +---------+  
-    | ALMOST PLAIN TEXT |   ------>  | DOCBOOK |  
-    +-------------------+            +---------+  
-                  |                       |
-    non-existent  |                       | xsltproc
-      faster way  |                       |
-                  v                       v
-          +------------+    xml2rfc  +---------+ 
-          | PLAIN TEXT |  <--------  | XML2RFC | 
-          +------------+             +---------+ 
-^[fig:flow::This is an *inline* note for the above figure.]
+The third band (Background) is also limt
 
-## Bandwidths below 
-## TCP ACKs
+#
 
-is not recomended. By 
+## Bandwidths below 4 Mbit 
+
+# Deprecated techniques
+
+## Policing
+
+Policing as presently used [](WSHAPER) [](CISCOSHAPER) involves setting a fixed buffer limit to inbound streams. Although this technique is simple and easy to use, it is insensitive to latency and to bandwidth changes, and can do harm [](WONDERSHAPERDIE), when used inappropriately.
+
+Conventional policing is deprecated in favor of applying Smart Queueing techniques also to inbound streams, which have a single parameter, allowable latency.
+
+## TCP ACK prioritization
+
+TCP ACK prioritization is depricated.
+
+With the movement of major protocols from TCP to others such as [](QUIC), [](SPDY), [](UTP), and wide adoption of new TCP options (timestamping, TFO), explicit optimizations for recognisable TCP acknowledgements is not advised.
+
+# Known Problems
+
+## UPnP and PCP
+
+## 
 
 ## Dependencies
 
 # Security Considerations
+
 This document raises no security issues.
 
 # IANA Considerations
+
 This document has no actions for IANA.
 
 # Normative references
