@@ -3,14 +3,14 @@
 <!ENTITY pandocMiddle PUBLIC '' 'middle.xml'>
 
 <!ENTITY pandocRef2119  PUBLIC '' '../bib/reference.RFC.2119.xml'>
-<!ENTITY pandocRef4641  PUBLIC '' '../bib/reference.RFC.4641.xml'>
+<!ENTITY pandocRef2309  PUBLIC '' '../bib/reference.RFC.4641.xml'>
 <!ENTITY pandocRef4641  PUBLIC '' '../bib/reference.RFC.2309.xml'>
 <!ENTITY pandocRefVIM  PUBLIC '' '../bib/reference.github.vim.xml'>
 ]>
 
-<rfc ipr="trust200902" category="info" docName="draft-taht-bcp-homerouter-00">
+<rfc ipr="trust200902" category="info" docName="draft-taht-bcp-queuemanagement-homerouter-00">
  <front>
-        <title abbrev="Fq_Codel">Implementing comprehensive queue management on home routers</title>
+   <title abbrev="Fq_Codel">Implementing comprehensive queue management on home routers</title>
 
         <author initials="D." surname="Taht"
                 fullname="Dave Taht">
@@ -31,7 +31,7 @@
             </address>
         </author>
 
-        <date month="January" year="2014"/>
+        <date month="Feburary" year="2014"/>
 
         <area>General</area>
         <workgroup>AQM Working Group</workgroup>
@@ -43,7 +43,7 @@
         <keyword>Pandoc</keyword>
         <keyword>Extensible Markup Language</keyword>
         <abstract>
-            <t>This memo presents a technique for utilizing "Flow Queuing" and the codel AQM algorithm together on home gateways.</t>
+            <t>This memo presents techniques for utilizing "Flow Queuing" and the Codel AQM algorithm together on home gateways.</t>
             <t>
                 On bandwith constrained home gateways the need for some form of rate limitation and packet scheduling has been embedded in many devices.
             </t>
@@ -56,9 +56,9 @@
 
 <back>
     <references title="Normative References">
+        &pandocRef2309;
         &pandocRef2119;
         &pandocRef4641;
-        &pandocRefVIM;
     </references>
 </back>
 </rfc>

@@ -1,6 +1,6 @@
 # Introduction
 
-This document presents best current practice for best combining
+This document presents best current practices for best combining
 [](flow queuing), with [](active queue management), traffic shaping
 and packet prioritization.
 
@@ -45,7 +45,7 @@ However we note that humans slicing and dicing up bandwidth along 64 different o
 
 ## Classification
 
-Deep Packet Inspection, port analysis, 
+Deep Packet Inspection, port analysis, and utilization of the Diffserv field all count as "Classification".
 
 ## Policing
 
@@ -94,9 +94,10 @@ bands to avoid starvation in the background queue.
 The first queue is strictly admission controlled, and can starve other
 queues if needed.
 
-|  | -->  prio 1     Strict priority admission controlled fq-codel
-|  | -->  prio 2 -> DRR 1 Best Effort fq-codel (80% weight)
-|  | -->         -> DRR 2 Background fq-codel (20% weight)
+|  -->  prio 1     Strict priority admission controlled fq-codel
+|  -->  prio 2 -> DRR 1 Best Effort fq-codel (80% weight)
+|  -->         -> DRR 2 Background fq-codel (20% weight)
+
 ^[fig:free.fr::Description of Free.fr SQM system]
 
 Rate limiting is provided by the native line rate of their DSL
@@ -130,9 +131,20 @@ The second band (Best Effort)
 
 The third band (Background) is also limt
 
-#
+# Overall Summary of recomendations
+
+* latency sensitive traffic (dns, ntp) should be in the priority queue
+* It is recomended that ICMP be moved to the background queue.
+
+# Known Problems
 
 ## Bandwidths below 4 Mbit 
+
+The combination of server side techniques like IW10, and large MTUs (1500 bytes), make finding any general purpose solution difficult at uplink bandwidths less than 4Mbit. While the above techniques have been applied at rates as low as 128kbit, some things simply cannot be adaquately compensated for. 
+
+## CPU usage
+
+The FQ_Codel and DRR algorithms by themselves incur very little CPU impact. However the rate limiter software (HTB and HFSC) can and do occupy a great deal of CPU, particularly at higher bandwidths, on current hardware.
 
 # Deprecated techniques
 
@@ -146,13 +158,13 @@ Conventional policing is deprecated in favor of applying Smart Queueing techniqu
 
 TCP ACK prioritization is depricated.
 
-With the movement of major protocols from TCP to others such as [](QUIC), [](SPDY), [](UTP), and wide adoption of new TCP options (timestamping, TFO), explicit optimizations for recognisable TCP acknowledgements is not advised.
+With the movement of major protocols from TCP to others such as [](QUIC), [](SPDY), [](µTP), and wide adoption of new TCP options (timestamping, TFO), explicit optimizations for recognisable TCP acknowledgements is not advised.
 
-# Known Problems
+## Port Reservation UPnP and PCP
 
-## UPnP and PCP
+## Other implementations
 
-## 
+Streamboost implements a 5 band system, which does deep packet inspection, and allows for reservation of bandwidth underneath.
 
 ## Dependencies
 
@@ -163,5 +175,3 @@ This document raises no security issues.
 # IANA Considerations
 
 This document has no actions for IANA.
-
-# Normative references
