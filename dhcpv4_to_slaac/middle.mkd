@@ -72,8 +72,9 @@ This document has no actions for IANA.
 This document outlines a simple method for co-joining the DHCPv4 and
 SLAAC assigned DNS namespace. It is lightweight, simple, and as robust
 as possible.  It has been deployed as part of DNSMASQ since version
-2.61 release 29-Apr-2012.  Scripts have been available for doing the
-equivalent with BIND9 and ISC-dhcp since 15-May-2011.
+2.61, released 29-Apr-2012 and continually improved.  Scripts have
+been available for doing the equivalent with BIND9 and ISC-dhcp since
+15-May-2011.
 
 # Appendix A - DNSmasq configuration
 
