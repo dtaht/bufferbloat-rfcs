@@ -78,6 +78,24 @@ been available for doing the equivalent with BIND9 and ISC-dhcp since
 
 # Appendix A - DNSmasq configuration
 
+dnsmasq is configured using simple option=value pairs. For each
+interface you care about, the "ra-names" option will enable attempts
+to leverage 
+
+## Without DHCPv6
+
+Use the DHCPv4 lease to derive the name, network segment and
+MAC address and assume that the host will also have an
+IPv6 address calculated using the SLAAC alogrithm.
+
+dhcp-range=1234::, ra-names
+
+## With stateless DHCPv6 & SLAAC
+
+dhcp-range=1234::, ra-stateless, ra-names
+
+For more details on configuration see the [](dnsmasq configuration examples).
+
 # Appendix B - ISC-dhcp configuration
 
 
