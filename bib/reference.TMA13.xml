@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<reference anchor='YIXI2012'
+target='http://www.enst.fr/~drossi/paper/rossi13tma-b.pdf'>
+<front>
+<title>Fighting the Bufferbloat: On the coexistences of AQM and low priority congestion control</title>
+<author initials='Y' surname='Gong' fullname='Yixi Gong'>
+<organization>LINCS</organization></author>
+<author initials='D' surname='Rossi' fullname='Dario Rossi'>
+<organization>LINCS</organization></author>
+<author initials='C ' surname='Testa' fullname='Claudio Testa'>
+<organization>LINCS</organization></author>
+<author initials='S' surname='Valenti' fullname='Silvio Valenti'>
+<organization>LINCS</organization></author>
+<author initials='D' surname='Täht' fullname='Dave Täht'>
+<organization>Bufferbloat.net</organization></author>
+<date year='2012' month='April' />
+<!-- <publication> IEEE INFOCOM Workshop on Traffic Measurement and Analysis (TMA'13), Turin, Italy, April 14-19 2013</publication>-->
+<abstract>
+<t>
+</t></abstract></front>
+<format type='PDF' octets='' target='http://www.enst.fr/~drossi/paper/rossi13tma-b.pdf' />
+</reference>

@@ -17,6 +17,7 @@
 <!ENTITY pandocRefCODEL2012  PUBLIC '' '../bib/reference.CODEL2012.xml'>
 <!ENTITY pandocRefVANQ2006  PUBLIC '' '../bib/reference.VANQ2006.xml'>
 <!ENTITY pandocRefREDL1998  PUBLIC '' '../bib/reference.REDL1998.xml'>
+<!ENTITY pandocRefYIXI2012  PUBLIC '' '../bib/reference.TMA13.xml'>
 ]>
 
 <rfc ipr="trust200902" category="info" docName="draft-taht-bcp-queuemanagement-homerouter-00">
@@ -84,6 +85,7 @@
         &pandocRefCODEL2012;
 	&pandocRefVANQ2006;
 	&pandocRefREDL1998;
+	&pandocRefYIXI2012;
     </references>
 
 </back>

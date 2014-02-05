@@ -72,7 +72,7 @@ and outbound traffic is both desirable and necessary.
 ## [FREE.FR](free.fr) Queue Management system
 
 The French ISP "Free.fr", adopted fq-codel as their default Smart Queue
-Management system for their Revolution "V6" CPE product in August, 2011,
+Management system for their Revolution "V6" CPE product in August, 2012,
 replacing their previous SFQ based system.
 
 Their system uses 3 bands of classification and priority, utilizing DRR
@@ -214,7 +214,7 @@ TBD (1/d)
 
 ## LEDBAT
 
-It has been shown (YIXI)[YIXI2012] that any form of AQM or Fair Queue-ing induces
+It has been shown [](#YIXI2012) that any form of AQM or Fair Queue-ing induces
 *reprioritization* in low priority congestion control algorithms such as LEDBAT,
 turning all known forms of delay based congestion control back into loss-based or
 ecn-based congestion control. However this is not much of a problem as queue delays
