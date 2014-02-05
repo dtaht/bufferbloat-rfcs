@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<reference anchor='RFC4594'>
+
+<front>
+<title>Configuration Guidelines for DiffServ Service Classes</title>
+<author initials='J.' surname='Babiarz' fullname='J. Babiarz'>
+<organization /></author>
+<author initials='K.' surname='Chan' fullname='K. Chan'>
+<organization /></author>
+<author initials='F.' surname='Baker' fullname='F. Baker'>
+<organization /></author>
+<date year='2006' month='August' />
+<abstract>
+<t>This document describes service classes configured with Diffserv and recommends how they can be used and how to construct them using Differentiated Services Code Points (DSCPs), traffic conditioners, Per-Hop Behaviors (PHBs), and Active Queue Management (AQM) mechanisms.  There is no intrinsic requirement that particular DSCPs, traffic conditioners, PHBs, and AQM be used for a certain service class, but as a policy and for interoperability it is useful to apply them consistently.  This memo provides information for the Internet community.</t></abstract></front>
+
+<seriesInfo name='RFC' value='4594' />
+<format type='TXT' octets='144044' target='http://www.rfc-editor.org/rfc/rfc4594.txt' />
+</reference>
