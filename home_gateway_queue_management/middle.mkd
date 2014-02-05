@@ -17,7 +17,7 @@ Yet.
 <?rfc comments="yes"?>
 
 While the new single queued and latency sensitive AQM systems
-[PIE](PIE), [CODEL](CODEL) offer tremendous benefits standalone, they
+[PIE](PIE), [CODEL](#CODEL2012) offer tremendous benefits standalone, they
 are insufficient to meet all needs on an edge gateway, which has
 additional needs to serve:
 
@@ -50,7 +50,7 @@ are *enough*.
 
 # Inbound and Outbound Queue Management
 
-Much work [CABLELABS11], [CABLELABS12], has focused on reducing the
+Much work [CABLELABS12], [CABLELABS13], has focused on reducing the
 queue length on outbound flows from the CPE. However a large
 portion of the edge gateway bufferbloat problem occurs with
 dramatic overbuffering coming from the DSLAM, CMTS, and gpon
@@ -352,4 +352,4 @@ This document has no actions for IANA.
 
 # Acknowlegements
 
-The members of Bufferbloat.net, Openwrt, Eric Dumazet, Kathy Nichols, Van Jacobson, Maxime Bizon.
+The members of Bufferbloat.net, OpenWrt, Eric Dumazet, Kathy Nichols, Van Jacobson, Maxime Bizon.
