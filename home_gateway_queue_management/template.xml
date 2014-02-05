@@ -11,6 +11,12 @@
 <!ENTITY pandocRefDRR  PUBLIC '' '../bib/reference.DRR.xml'>
 <!ENTITY pandocRefSFQ  PUBLIC '' '../bib/reference.SFQ.xml'>
 <!ENTITY pandocRefSABRE  PUBLIC '' '../bib/reference.SABRE.xml'>
+<!ENTITY pandocRefTSV2011  PUBLIC '' '../bib/reference.TSV2011.xml'>
+<!ENTITY pandocRefBB2011  PUBLIC '' '../bib/reference.BB2011.xml'>
+<!ENTITY pandocRefBMPFQ  PUBLIC '' '../bib/reference.BMPFQ.xml'>
+<!ENTITY pandocRefCODEL2012  PUBLIC '' '../bib/reference.CODEL2012.xml'>
+<!ENTITY pandocRefVANQ2006  PUBLIC '' '../bib/reference.VANQ2006.xml'>
+<!ENTITY pandocRefREDL1998  PUBLIC '' '../bib/reference.REDL1998.xml'>
 ]>
 
 <rfc ipr="trust200902" category="info" docName="draft-taht-bcp-queuemanagement-homerouter-00">
@@ -60,16 +66,25 @@
 </middle>
 
 <back>
-    <references title="Normative References">
+<references title="Normative References">
         &pandocRef2309;
         &pandocRef2119;
         &pandocRef896;
         &pandocRef970;
         &pandocRef4594;
         &pandocRef6817;
+        &pandocRefTSV2011;
+    </references>
+    <references title="Informative References">
         &pandocRefSFQ;
         &pandocRefDRR;
         &pandocRefSABRE;
+        &pandocRefBB2011;
+        &pandocRefBMPFQ;
+        &pandocRefCODEL2012;
+	&pandocRefVANQ2006;
+	&pandocRefREDL1998;
     </references>
+
 </back>
 </rfc>
