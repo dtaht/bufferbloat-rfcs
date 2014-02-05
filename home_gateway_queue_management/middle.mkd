@@ -140,9 +140,9 @@ The third band (Background) is also limt
 
 ## LEDBAT
 
-It has been shown ()[YIXI2012] that any form of AQM or Fair Queueing induces *reprioritization* in low priority congestion control algorithms such as LEDBAT.
+It has been shown ()[YIXI2012] that any form of AQM or Fair Queueing induces *reprioritization* in low priority congestion control algorithms such as LEDBAT, turning all forms of delay based congestion control back into loss or ecn based congestion control.
 
-It is recommended that torrent flows be depriorized via classification, and that torrent clients use a more limited number of flows than the default 50.
+It is recommended that torrent flows be depriorized via classification, and that torrent clients use a more limited number of flows (10) rather than the default 50. 
 
 ## Bandwidths below 4 Mbit 
 
