@@ -66,3 +66,24 @@
    [SFQ1990] McKenney, P., "Stochastic Fairness Queuing", Proceedings
              of IEEE INFOCOMM'90, San Francisco, 1990.
 	    <http://www.rdrop.com/~paulmck/scalability/paper/sfq.2002.06.04.pdf>
+
+End-to-End Internet Packet Dynamics
+Vern Paxson
+Network Research Group
+Lawrence Berkeley National Laboratory
+University of California, Berkeley
+vern@ee.lbl.gov
+LBNL-40488
+June 23, 1997
+
+End-to-end internet packet dynamics - Networking ... - IEEE Xplore
+ftp://ftp.ee.lbl.gov/papers/vp-pkt-dyn-sigcomm97.ps.Z
+
+http://www.eecs.berkeley.edu/Pubs/TechRpts/1997/CSD-97-945.pdf
+
+he last aspect of packet delay variations we investigate is the degree to which it reflects
+an Internet path' s
+available bandwidth
+. We show that the ratio between the delay variations packets
+incur due to their connection' s own loading of the network, versus the total delay variations incurred,
+correlates well with the connection' s overall throughput. 

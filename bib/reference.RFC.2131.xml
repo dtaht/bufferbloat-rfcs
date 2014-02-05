@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<reference anchor='RFC2131'>
+
+<front>
+<title abbrev='DHCP'>Dynamic Host Configuration Protocol</title>
+<author initials='R.' surname='Droms' fullname='Ralph Droms'>
+<organization>Computer Science Department</organization>
+<address>
+<postal>
+<street>323 Dana Engineering</street>
+<street>Bucknell University</street>
+<street>Lewisburg</street>
+<street>PA 17837</street></postal>
+<phone>(717) 524-1145</phone>
+<email>droms@bucknell.edu</email></address></author>
+<date year='1997' month='March' />
+<area>Internet</area>
+<keyword>DHCP</keyword>
+<keyword>configuration</keyword>
+<keyword>dynamic host configuration protocol</keyword>
+<keyword>host</keyword>
+<abstract>
+<t>
+   The Dynamic Host Configuration Protocol (DHCP) provides a framework
+   for passing configuration information to hosts on a TCPIP network.
+   DHCP is based on the Bootstrap Protocol (BOOTP) , adding the
+   capability of automatic allocation of reusable network addresses and
+   additional configuration options .  DHCP captures the behavior of
+   BOOTP relay agents [7, 21], and DHCP participants can interoperate
+   with BOOTP participants .
+</t></abstract></front>
+
+<seriesInfo name='RFC' value='2131' />
+<format type='TXT' octets='113738' target='http://www.rfc-editor.org/rfc/rfc2131.txt' />
+<format type='XML' octets='118050' target='http://xml.resource.org/public/rfc/xml/rfc2131.xml' />
+</reference>

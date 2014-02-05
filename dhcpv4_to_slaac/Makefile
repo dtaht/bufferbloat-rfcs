@@ -9,7 +9,7 @@ $(DRAFT).txt: back.mkd middle.mkd template.xml
 	   @mv -f draft.txt $(DRAFT).txt
 
 $(DRAFT).html: back.mkd middle.mkd template.xml
-	bash pandoc2rfc -t template.xml -x ../transform.xsl -M back.mkd middle.mkd
+	bash pandoc2rfc -t template.xml -x ../transform.xsl -H back.mkd middle.mkd
 	   @mv -f draft.html $(DRAFT).html
 
 $(DRAFT).xml: back.mkd middle.mkd template.xml
@@ -18,4 +18,4 @@ $(DRAFT).xml: back.mkd middle.mkd template.xml
 
 .PHONY: clean
 clean:
-	rm -f draft.txt draft.xml draft.html
+	rm -f $(DRAFTS)
