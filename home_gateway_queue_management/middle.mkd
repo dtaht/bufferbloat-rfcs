@@ -30,10 +30,9 @@ End to end techniques, such as [SABRE](SABRE), and [LEDBAT](TORRENT) offer at
 best a reduction of queue latency below 100ms, leaving a side trip of
 halfway around the planet under load, on an edge gateway.
 
-Large network bursts caused by IW10, TCP offloads,
-802.11n aggregation, and misbehaved applications are all mitigated by
-using flow queueing techniques, making them nearly invisible to other
-network applications.
+Large network bursts caused by IW10, TCP offloads, 802.11n aggregation,
+and misbehaved applications are all mitigated by using flow queueing
+techniques, making them nearly invisible to other network applications.
 
 [](TAHT14)
 
@@ -48,55 +47,6 @@ has un-expected side effects, and it seems better to do better mixing of
 flows, more tightly control latency, and allow for group congestion control
 than allow for extensive classification. Three to five bands of traffic types
 are *enough*.
-
-# Definition of Terms
-
-## Rate Limiting
-
-Using algorithms such as TBF, HTB or HFSC.
-
-## Classification
-
-Deep Packet Inspection (DPI), per-port analysis, and utilization of the
-Diffserv field all count as "Classification".
-
-## Policing
-
-## Shaping
-
-## Active Queue Management
-
-[](#RFC2309) is a specification for utilizing active queue management.
-
-[bufferbloat](http://www.bufferbloat.net)
-
-## Smart Queue Management
-
-# Methods of flow queueing
-
-## 1/F(low)
-
-1/F flow queuing tries to provide fairness by allocating an equal
-portion of the bandwidth to each flow on the network.
-
-## 1/D(evice)
-
-1/D flow queueing tries to provide fairness by allocating an equal
-portion of the bandwidth to each queue generating device on the network.
-
-Unfortunately in an IPv6 world, devices can contain (far) more than a
-single ip address, and to correctly optimize on a per device basis
-requires co-joining all information about it's IPv4 and IPv6 address
-set into a single lookup table.
-
-## 1/U(ser) 
-
-1/U flow queueing attempts to provide fairness over users.
-
-## Mixed
-
-It is anticipated that most deployed systems will be a hybrid of all
-techniques.
 
 # Inbound and Outbound Queue Management
 
@@ -304,13 +254,13 @@ More research into effective rate limitation techniques is desireable.
 
 ## Policing
 
-Policing as presently used [WSHAPE](WSHAPER) [CISCO](CISCOSHAPER) involves setting a fixed buffer
+Policing as presently used ([WSHAPE](WSHAPER),[CISCO](CISCOSHAPER)) involves setting a fixed buffer
 limit to inbound streams. Although this technique is simple and easy to use, it is
 insensitive to latency and to bandwidth changes, and can do harm [](WONDERSHAPERDIE),
 when used inappropriately.
 
 Conventional policing is deprecated in favor of applying Smart Queueing techniques
-also to inbound streams, which has a single parameter: allowable latency.
+also to inbound streams, which has a single core parameter: allowable latency.
 
 ## TCP ACK prioritization
 
@@ -328,6 +278,65 @@ The core fq-codel and codel algorthms have been in the Linux kernel since versio
 3.5, and have been backported to kernel versions as old as 2.6.32. Improvements
 to the fq-codel jhash algoritm landed in 3.8, supporting better 6in4, 6rd, and GRE
 hashing. Improvements to HTB landed in 3.11.
+
+# Future work
+
+Combination with weighting techniques (QFQ), lighter weight shaping techniques,
+and full diffserv classification are only beginning to be explored. Full,
+rather than stochastic, fair queueing techniques are being explored. [SCH_FQ].
+
+Refinements to the Codel [NFQCODEL],[SFQCODEL] algorithm are possible. The combination
+of Flow Queueing with (PIE) or RED (SFQRED) has not been fully explored.
+
+# Definition of Terms
+
+## Rate Limiting
+
+Using algorithms such as TBF, HTB or HFSC.
+
+## Classification
+
+Deep Packet Inspection (DPI), per-port analysis, and utilization of the
+Diffserv field all count as "Classification".
+
+## Policing
+
+## Shaping
+
+## Active Queue Management
+
+[](#RFC2309) is a specification for utilizing active queue management.
+
+[bufferbloat](http://www.bufferbloat.net)
+
+## Smart Queue Management
+
+# Methods of flow queueing
+
+## 1/F(low)
+
+1/F flow queuing tries to provide fairness by allocating an equal
+portion of the bandwidth to each flow on the network.
+
+## 1/D(evice)
+
+1/D flow queueing tries to provide fairness by allocating an equal
+portion of the bandwidth to each queue generating device on the network.
+
+Unfortunately in an IPv6 world, devices can contain (far) more than a
+single ip address, and to correctly optimize on a per device basis
+requires co-joining all information about it's IPv4 and IPv6 address
+set into a single lookup table.
+
+## 1/U(ser) 
+
+1/U flow queueing attempts to provide fairness over users.
+
+## Mixed
+
+It is anticipated that most deployed systems will be a hybrid of all
+techniques.
+
 
 # Security Considerations
 
