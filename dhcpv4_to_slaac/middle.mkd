@@ -13,7 +13,7 @@ the DNS database other than a DNS update, which would create a very
 difficult key management problem.  By combining the DHCPv4 hostname or
 client FQDN option with information acquired using ICMPv6, a
 lightweight DHCPv4 server on a home gateway or SOHO gateway can
-automatically publish AAAA records for such hosts.
+automatically publish A and AAAA records for such hosts.
 
 <?rfc toc="yes"?>
 <?rfc symrefs="yes"?>
@@ -30,10 +30,10 @@ address, hostname, broadcast domain) tuple over to the IPv6 side.
 The broadcast domain plus configuration yields a list of prefixes, and
 the MAC address is turned into a SLAAC host-identifier. 
 
-The combination of the two make a set of putative addresses. The state
-machine then sends an ICMP6 echo request to each putative address. If
-it responds then that address is added as an AAAA record with the
-DHCPv4-assigned hostname.
+The combination of the two make a set of candidate IPv6 addresses. The
+state machine then sends an ICMP6 echo request to each candidate IPv6
+address. If it responds then that address is added as an AAAA record
+with the DHCPv4-assigned hostname.
 
 There are implementation details involving timeouts and retries and
 sending speculative router advertisements to ensure that a
@@ -43,7 +43,7 @@ where the odds of getting an RA before a successful DHCPv4 query
 are slim.
 
 Once the DHCPv4 lease is complete, RAs are sent every 5-10s for a
-minute, and pings, with exponential backoff, 1s ,2s, 4s, etc. It
+minute, and pings, with exponential backoff, 1s, 2s, 4s, etc. It
 bottoms out at a ping every 2048s which is trivial load for hosts
 which are never going to reply (No IPv6, privacy extensions, etc) but
 will still eventually find hosts which do.
@@ -57,7 +57,7 @@ privacy address when initiating connections (for privacy), but accept
 connections to the SLAAC address, then it still works.
 
 IPv6 addresses of Windows nodes (which do not generate IIDs according
-to traditional SLAAC), any nodes using CGAs, are also missed.
+to traditional SLAAC), and any nodes using CGAs, are also missed.
 
 Nodes using stateful DHCPv6 do not need this technique as naming
 is handled by DHCPv6.
@@ -86,27 +86,26 @@ This document has no actions for IANA.
 # Conclusions
 
 This document outlines a simple method for co-joining the DHCPv4 and
-SLAAC assigned DNS namespace. It is lightweight, simple, and as robust
-as possible.  It has been deployed as part of DNSMASQ since version
-2.61, released 29-Apr-2012 and continually improved.  Scripts have
-been available for doing the equivalent with BIND9 and ISC-dhcp since
-15-May-2011.
+SLAAC assigned DNS namespace. It is lightweight, and robust. It has
+been deployed as part of DNSMASQ since version 2.61, released
+29-Apr-2012, and continually improved.  Scripts have been available
+for doing the equivalent with BIND9 and ISC-dhcp since 15-May-2011.
 
 # Appendix A - DNSmasq configuration
 
-dnsmasq is configured using simple option=value pairs. For each
+Dnsmasq is configured using simple option=value pairs. For each
 interface you care about, the "ra-names" option will enable attempts
-to leverage DHCPv4 information for naming SLAAC interfaces.
+to leverage DHCPv4 information for naming SLAAC-derived addresses.
 
-## Without DHCPv6
+## Example 1: Without DHCPv6
 
-Use the DHCPv4 lease to derive the name, network segment and
-MAC address and assume that the host will also have an
-IPv6 address calculated using the SLAAC alogrithm.
+Use the DHCPv4 lease to derive the name, network segment and MAC
+address and assume that the host will also have an IPv6 address
+calculated using the SLAAC alogrithm.
 
 dhcp-range=1234::, ra-names
 
-## With stateless DHCPv6 & SLAAC
+## Example 2: With stateless DHCPv6 & SLAAC
 
 dhcp-range=1234::, ra-stateless, ra-names
 
