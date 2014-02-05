@@ -2,7 +2,9 @@
 
 This document presents best current practices for best combining
 [](flow queuing), with [](active queue management), traffic shaping
-and packet prioritization.
+and packet prioritization on Internet edge CPE and head ends.
+
+It does not address queue management problems on wireless technolgies.
 
 <?rfc toc="yes"?>
 <?rfc symrefs="yes"?>
@@ -11,45 +13,51 @@ and packet prioritization.
 <?rfc compact="yes"?>
 <?rfc comments="yes"?>
 
-While the new single queued and latency senstive AQM systems
+While the new single queued and latency sensitive AQM systems
 [PIE](PIE), [CODEL](CODEL) offer tremendous benefits standalone, they
 are insufficient to meet all needs on an edge gateway, which has
-additional needs to serve.
+additional needs to serve:
 
+* Break up large bursts back into packets
 * Optimize for very high bandwidth flows to devices 
 * Prioritize DNS and timekeeping
-* Deoptimize background flows using various techniques
+* Deoptimize background flows
 
-End to End techniques, such as [](SABRE), and [](TORRENT) offer at
+End to end techniques, such as [SABRE](SABRE), and [LEDBAT](TORRENT) offer at
 best a reduction of queue latency below 100ms, leaving a side trip of
 halfway around the planet under load, on an edge gateway.
 
-Additionally, extremely large network bursts caused by IW10, TCP offloads, Wireless-n aggregation, and misbehaved applications are mitigated by using flow queueing techniques.
-
-Using flow queuing techniques make these bursts invisible to other applications.
+Large network bursts caused by IW10, TCP offloads,
+802.11n aggregation, and misbehaved applications are all mitigated by
+using flow queueing techniques, making them nearly invisible to other
+network applications.
 
 [](TAHT14)
 
-Combining AQM, with packet scheduling, and prioritization techniques
+Combining better packet scheduling, AQM and prioritization techniques
 leads to an enormous reduction in induced latency under load, to below
 5ms for queue building flows, and and nearly 0 for non-queue building
 flows.
 
-This memo does not depricate [](RFC4954). 
-
-However we note that humans slicing and dicing up bandwidth along 64 different options in general has un-expected side effects, and it seems better to do better mixing of bursts, tightly control latency, and allow for group congestion control. than
+This memo does not deprecate [](RFC4954).  However we note that humans
+slicing and dicing up bandwidth along 64 different options in general
+has un-expected side effects, and it seems better to do better mixing of
+flows, more tightly control latency, and allow for group congestion control
+than allow for extensive classification. Three to five bands of traffic types
+are *enough*.
 
 # Definition of Terms
 
 ## Rate Limiting
 
+Using algorithms such as TBF, HTB or HFSC.
+
 ## Classification
 
-Deep Packet Inspection, port analysis, and utilization of the Diffserv field all count as "Classification".
+Deep Packet Inspection (DPI), per-port analysis, and utilization of the
+Diffserv field all count as "Classification".
 
 ## Policing
-
-Policing as commonly defined is depricated. 
 
 ## Shaping
 
@@ -59,130 +67,270 @@ Policing as commonly defined is depricated.
 
 [bufferbloat](http://www.bufferbloat.net)
 
+## Smart Queue Management
+
 # Methods of flow queueing
 
-## 1/F
+## 1/F(low)
 
 1/F flow queuing tries to provide fairness by allocating an equal
 portion of the bandwidth to each flow on the network.
 
-## 1/D
+## 1/D(evice)
 
 1/D flow queueing tries to provide fairness by allocating an equal
-portion of the bandwidth to each device on the network.
+portion of the bandwidth to each queue generating device on the network.
 
 Unfortunately in an IPv6 world, devices can contain (far) more than a
 single ip address, and to correctly optimize on a per device basis
-requires co-joining all information about it's ip address set into a
-single lookup table.
+requires co-joining all information about it's IPv4 and IPv6 address
+set into a single lookup table.
 
-## 1/U 
+## 1/U(ser) 
 
 1/U flow queueing attempts to provide fairness over users.
 
 ## Mixed
 
-It is anticipated that most systems will be a hybrid of all techniques.
+It is anticipated that most deployed systems will be a hybrid of all
+techniques.
 
-# Example #1 [](free.fr)
+# Inbound and Outbound Queue Management
 
-The French ISP "Free", adopted fq-codel as their default Smart Queue
-Management system in August, 2011, replacing their previous SFQ based
-system.
+Much work [CABLELABS11], [CABLELABS12], has focused on reducing the
+queue length on outbound flows from the CPE. However a large
+portion of the edge gateway bufferbloat problem occurs with
+dramatic overbuffering coming from the DSLAM, CMTS, and gpon
+host device. 
 
-Their system uses 3 bands of priority, utilizing DRR in the second 2
-bands to avoid starvation in the background queue.
+Since the publication of [BROADBAND11], DSL devices have largely
+been shown to have reasonable ingress
+buffering, and some form of AQM or packet management on egress.
+
+This is not the case on [VERIZON](GPON) and [COMCAST](),
+where downstream buffering has been measured at 300ms and
+1800ms respectively.
+
+Therefore, applying smart queuing techniques on both inbound
+and outbound traffic is both desirable and necessary.
+
+# Examples of deployed Smart Queueing Systems
+
+## [FREE.FR](free.fr) Queue Management system
+
+The French ISP "Free.fr", adopted fq-codel as their default Smart Queue
+Management system for their Revolution "V6" CPE product in August, 2011,
+replacing their previous SFQ based system.
+
+Their system uses 3 bands of classification and priority, utilizing DRR
+in the second 2 bands to avoid starvation of the background
+queue, and fq-codel on all 3 bands to break up flows and manage
+queue length.
 
 The first queue is strictly admission controlled, and can starve other
 queues if needed.
 
-|  -->  prio 1     Strict priority admission controlled fq-codel
-|  -->  prio 2 -> DRR 1 Best Effort fq-codel (80% weight)
-|  -->         -> DRR 2 Background fq-codel (20% weight)
+    prio queue 2 bands, priomap 1 1 1 1 1 1 0 0 1 1 1 1 1 1 1 1
+    |
+    |= fq-codel (Strict priority admission controlled)
+    |
+    |= drr (80% 20%)
+         |
+         |= fq-codel (best effort)
+         |
+         |= fq-codel (background)
+ 
 
 ^[fig:free.fr::Description of Free.fr SQM system]
 
 Rate limiting is provided by the native line rate of their DSL
-devices, and their device drivers are tuned to create no more than 1ms
-of native latency in the hardware on egress from the home gateway
+devices, and their device drivers are tuned to create no more than
+1ms of native latency in the hardware on egress from the home gateway
 device.
 
-ECN is enabled on egress.
+ECN is enabled on egress from the CPE.
 
-There is no (despite a desire for such) system for ingress as the
-DSLAM vendor has no support for it, and rate limiting inbound does not
-currently account for the non-rate limited TV broadcast streams.
+FQ-Codel is set to quantum of 300, giving priority to smaller packets,
+while not overly starving larger ones.
 
-()[FREEBENCHMARK]
+The FQ-codel "target" parameter is increased from the default of 5ms to
+a formula relative to the bandwidth on egress:
 
-# Example #2 [](Cerowrt simple.qos)
+    delay=$((1500*5/((bw_up/8))))
+    [ "$delay" -lt 5 ] && delay=5
 
-The simple.qos is a three tier system that can use diffserv and simple
+There is no (despite a desire for such) queue management system presently
+in place for ingress as the DSLAM vendor has no support for it. And:
+rate limiting inbound on the CPE cannot currently account for the non-rate
+limited TV broadcast streams multiplexed on the same virtual circuit.
+
+Despite extensive benchmarking ()[FREEBENCHMARK], we've been unable
+to come up with a better system.
+
+# CeroWrt SQM system
+
+The principal researh tool of the Bufferbloat effort has been poured
+into the CeroWrt SQM system, which, while defaulting to sensible values,
+can also be configured to use variants of codel, pie, and SFQ for
+experimentation.
+
+Emulations of typical byte-limited queues of DSL and Cable
+are also available, as well as naive head and tail drop fifo Qdiscs.
+
+It has been ported to mainline Linux variants and multiple
+embedded Linux systems.
+
+There are two main versions, one that exercises a single band
+queuing system (with variants of codel, fq-codel, PIE, SFQ,
+SFQRED, DRR, and RED) and a simple 3 band system modeled on
+the extremely successful but obsolete [wondershaper].
+
+The simplest system is useful primarily as a test of new
+queuing approaches, and as a reference to compare against
+the multi-band approaches.
+
+## Example #2 [](CeroWrt simple.qos)
+
+Simple.qos is a three band system that can use diffserv and simple
 prioritization to give or remove priority to certain kinds of
 identifiable flows.
 
-Right now it gives priority to locally generated
-dns and ntp packets, and a couple diffserv markings, and deprioritizes
-CS1. It would be nice if it was feature-competitive with qos-scripts,
+It gives priority to CPE generated DNS and NTP packets,
+respects a few diffserv markings, and deprioritizes CS1.
+
+It is not feature-competitive with OpenWrt's qos-scripts,
 which have (for example) l7 inspection to find common torrent-like
 protocols, and a gui with lots of knobs to control that aspect.
 
-The first band is strictly admission controlled, and is limited to DNS and NTP queries emitted directly from the local router's DNS and NTP servers. Optionally the user can specify additional devices, protocols or diffserv classifications to fit into this band.
+It does, however, work correctly with ipv6 and IPv4, which most
+shapers today do not do.
 
-It is limited to a maximum of 30% of all bandwidth by default.
+    HTB queue 3 bands
+    |
+    |= fq-codel (Strict priority max 30% admission controlled)
+    |
+    |= fq-codel (best effort)
+    |
+    |= fq-codel (background max 30%)
+
+^[fig:free.fr::Description of CeroWrt 3 band SQM system]
+
+The first band is strictly admission controlled, and is limited to DNS
+and NTP queries emitted directly from the local router's DNS and NTP
+servers, and packets marked TOS-immediate.
+
+Optionally the user can specify additional devices, protocols
+or diffserv classifications to fit into this band (or any other band).
+
+The priority band is limited to a maximum of 30% of all bandwidth by default.
 
 The second band (Best Effort) can absorb all bandwidth available on the system.
 
-The third band (Background) is limited to a minimum of 30%, due to observing many mis-classified flows in the field.
+The third band (Background) is limited to a minimum of 30%, due to observing
+many mis-classified flows in the field. Experiments with a maximum of 5%
+starved many common flow types.
 
-ECN is enabled on ingress and disabled on egress by default. It is recomended the ECN be enabled at bandwidths above 10Mbit in either direction.
+By default ECN is enabled on ingress and disabled on egress. It is recomended
+that ECN be enabled when using fq_codel or pie at bandwidths above 10Mbit.
+
+FQ-Codel uses a quantum of 300, giving some priority to smaller packets.
+
+There is extensive support in the HTB-based rate limiter for correctly
+estimating bandwidth for various forms of (mostly xDSL) based framing.
+
+TBF + DRR could be substituted for HTB.
+
+## Example #3 StreamBoost(tm)
+
+Streamboost(tm) implements a 5 band fq-codel based system, which does deep packet
+inspection using a regularly updated classification table (primarily for games),
+and allows for reservation of bandwidth on a per device basis. 
+
+## Other implementations
+
+TBD (1/d)
 
 # Overall Summary of recomendations
 
-* latency sensitive traffic (dns, ntp) should be in the priority queue
-* It is recomended that ICMP be moved to the background queue.
+* Queue-building flows MUST be broken up into packets and mixed with other flows.
+* Local latency sensitive traffic (dns, ntp) SHOULD be in the priority queue.
+* ICMP SHOULD be moved to the background queue.
+* Classification can help.
 
-# Known Problems
+# Known Problems with these approaches
 
 ## LEDBAT
 
-It has been shown ()[YIXI2012] that any form of AQM or Fair Queueing induces *reprioritization* in low priority congestion control algorithms such as LEDBAT, turning all forms of delay based congestion control back into loss or ecn based congestion control.
+It has been shown ()[YIXI2012] that any form of AQM or Fair Queue-ing induces
+*reprioritization* in low priority congestion control algorithms such as LEDBAT,
+turning all known forms of delay based congestion control back into loss-based or
+ecn congestion control. However this is not much of a problem as queue delays
+under fq_codel rarely exceed 5ms, rather than the target 100ms of LEDBAT,
+and verses web traffic, fq-codel shoots at many LEDBAT streams, forcing them
+to back off into their slower slow start phase, so web and LEDBAT traffic
+tend to co-exist nicely. 
 
-It is recommended that torrent flows be depriorized via classification, and that torrent clients use a more limited number of flows (10) rather than the default 50. 
+Torrent flows SHOULD be depriorized via classification, and torrent clients SHOULD use
+diffserv markings and use a more limited number of flows (10) rather than the default 50. 
 
-## Bandwidths below 4 Mbit 
+It is possible using UPNP rules to do so on inbound and outbound IPv4 traffic.
 
-The combination of server side techniques like IW10, and large MTUs (1500 bytes), make finding any general purpose solution difficult at uplink bandwidths less than 4Mbit. While the above techniques have been applied at rates as low as 128kbit, some things simply cannot be adaquately compensated for. 
+## Single large flows (DASH) & VPNS
+
+The hashing logic contains means to disambiguate GRE based flows.
+FIXME, write more about the flaws with VPNS and how to fix them.
+
+## Bandwidths below 4Mbit 
+
+The combination of big-iron server side techniques like IW10, and large MTUs (1500 bytes), make
+finding any general purpose solution difficult at uplink bandwidths less than 4Mbit.
+
+While the above techniques have been applied at rates as low as 128kbit, some things
+simply cannot be adaquately compensated for. Increasing the codel target does help.
 
 ## CPU usage
 
-The FQ_Codel and DRR algorithms by themselves incur very little CPU impact. However the rate limiter software (HTB and HFSC) can and do occupy a great deal of CPU, particularly at higher bandwidths, on current hardware.
+The FQ-Codel and DRR algorithms by themselves incur very little CPU impact. However
+the rate limiter algorithms (HTB and HFSC) can and do occupy a great deal of CPU,
+particularly at higher bandwidths, on current hardware.
+
+More research into effective rate limitation techniques is desireable.
 
 # Deprecated techniques
 
 ## Policing
 
-Policing as presently used [](WSHAPER) [](CISCOSHAPER) involves setting a fixed buffer limit to inbound streams. Although this technique is simple and easy to use, it is insensitive to latency and to bandwidth changes, and can do harm [](WONDERSHAPERDIE), when used inappropriately.
+Policing as presently used [](WSHAPER) [](CISCOSHAPER) involves setting a fixed buffer
+limit to inbound streams. Although this technique is simple and easy to use, it is
+insensitive to latency and to bandwidth changes, and can do harm [](WONDERSHAPERDIE),
+when used inappropriately.
 
-Conventional policing is deprecated in favor of applying Smart Queueing techniques also to inbound streams, which have a single parameter, allowable latency.
+Conventional policing is deprecated in favor of applying Smart Queueing techniques
+also to inbound streams, which have a single parameter: allowable latency.
 
 ## TCP ACK prioritization
 
-TCP ACK prioritization is depricated.
+TCP ACK prioritization is deprecated.
 
-With the movement of major protocols from TCP to others such as [](QUIC), [](SPDY), [](µTP), and wide adoption of new TCP options (timestamping, TFO), explicit optimizations for recognisable TCP acknowledgements is not advised.
+With the movement of major protocols from TCP to others such as [](QUIC), [](SPDY),
+[](µTP), and wide adoption of new TCP options (timestamping, TFO), explicit optimizations
+for recognisable TCP acknowledgements is not advised.
 
-## Port Reservation UPnP and PCP
+## Port Reservations UPnP and PCP
 
-## Other implementations
+# Dependencies
 
-Streamboost implements a 5 band system, which does deep packet inspection, and allows for reservation of bandwidth underneath.
-
-## Dependencies
+The core fq-codel and codel algorthms have been in the Linux kernel since version
+3.5, and have been backported to kernel versions as old as 2.6.32. Improvements
+to the fq-codel jhash algoritm landed in 3.8, supporting better 6in4, 6rd, and GRE
+hashing. Improvements to HTB landed in 3.11.
 
 # Security Considerations
 
-This document raises no security issues.
+This document raises no security issues. The hash values of fq_codel are permuted
+at invocation time and are difficult to guess. Deprioritizing ICMP slightly,
+and applying flow queueing techniques, mitigates some forms of attack (naive udp and
+and ping floods), while rendering difficult disabling a system entirely.
 
 # IANA Considerations
 
@@ -190,4 +338,4 @@ This document has no actions for IANA.
 
 # Acknowlegements
 
-The members of Bufferbloat.net, Openwrt, Eric Dumazet, Kathy Nichols, Van Jacobson, maxime of free, etc, etc, etc.
+The members of Bufferbloat.net, Openwrt, Eric Dumazet, Kathy Nichols, Van Jacobson, Maxime Bizon.
