@@ -1,10 +1,13 @@
 # Introduction
 
 This document presents best current practices for best combining
-[](flow queuing), with [](active queue management), traffic shaping
-and packet prioritization on Internet edge CPE and head ends.
+[Flow Queuing](flow queuing), with [AQM](active queue management),
+traffic shaping and packet prioritization on Internet edge CPE and
+head ends.
 
-It does not address queue management problems on wireless technolgies.
+It does not address queue management problems on wireless technologies.
+
+Yet.
 
 <?rfc toc="yes"?>
 <?rfc symrefs="yes"?>
@@ -261,19 +264,20 @@ TBD (1/d)
 
 ## LEDBAT
 
-It has been shown ()[YIXI2012] that any form of AQM or Fair Queue-ing induces
+It has been shown (YIXI)[YIXI2012] that any form of AQM or Fair Queue-ing induces
 *reprioritization* in low priority congestion control algorithms such as LEDBAT,
 turning all known forms of delay based congestion control back into loss-based or
-ecn congestion control. However this is not much of a problem as queue delays
-under fq_codel rarely exceed 5ms, rather than the target 100ms of LEDBAT,
-and verses web traffic, fq-codel shoots at many LEDBAT streams, forcing them
+ecn-based congestion control. However this is not much of a problem as queue delays
+under fq_codel rarely exceed 5ms, rather than the target 100ms of LEDBAT.
+
+Verses web traffic, fq-codel shoots at many LEDBAT streams, forcing them
 to back off into their slower slow start phase, so web and LEDBAT traffic
 tend to co-exist nicely. 
 
-Torrent flows SHOULD be depriorized via classification, and torrent clients SHOULD use
+Still, torrent flows SHOULD be depriorized via classification, and torrent clients SHOULD use
 diffserv markings and use a more limited number of flows (10) rather than the default 50. 
 
-It is possible using UPNP rules to do so on inbound and outbound IPv4 traffic.
+It is possible to do so using UPNP rules on inbound and outbound IPv4 traffic.
 
 ## Single large flows (DASH) & VPNS
 
@@ -300,21 +304,21 @@ More research into effective rate limitation techniques is desireable.
 
 ## Policing
 
-Policing as presently used [](WSHAPER) [](CISCOSHAPER) involves setting a fixed buffer
+Policing as presently used [WSHAPE](WSHAPER) [CISCO](CISCOSHAPER) involves setting a fixed buffer
 limit to inbound streams. Although this technique is simple and easy to use, it is
 insensitive to latency and to bandwidth changes, and can do harm [](WONDERSHAPERDIE),
 when used inappropriately.
 
 Conventional policing is deprecated in favor of applying Smart Queueing techniques
-also to inbound streams, which have a single parameter: allowable latency.
+also to inbound streams, which has a single parameter: allowable latency.
 
 ## TCP ACK prioritization
 
 TCP ACK prioritization is deprecated.
 
-With the movement of major protocols from TCP to others such as [](QUIC), [](SPDY),
-[](µTP), and wide adoption of new TCP options (timestamping, TFO), explicit optimizations
-for recognisable TCP acknowledgements is not advised.
+With the movement of major protocols from TCP to others such as [QUIC](QUIC), [SPDY](SPDY),
+[µTP](µTP), and wide adoption of new TCP options (timestamping, TFO), explicit optimizations
+for recognisable TCP segments or acknowledgements is not advised.
 
 ## Port Reservations UPnP and PCP
 
@@ -330,7 +334,8 @@ hashing. Improvements to HTB landed in 3.11.
 This document raises no security issues. The hash values of fq_codel are permuted
 at invocation time and are difficult to guess. Deprioritizing ICMP slightly,
 and applying flow queueing techniques, mitigates some forms of attack (naive udp and
-and ping floods), while rendering difficult disabling a system entirely.
+and ping floods), while rendering more difficult disabling a system entirely with
+multiple forms of attack.
 
 # IANA Considerations
 
