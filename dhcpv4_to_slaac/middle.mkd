@@ -70,8 +70,14 @@ supply a hostname with their DHCPv4 requests, and many printers.
 # Security Considerations
 
 This document describes a simple and operational scheme for tying
-DHCPv4 name requests to SLAAC generated addresses. Exposure to the DNS
-is limited to SLAAC addresses. Privacy addresses remain private.
+DHCPv4 name requests to SLAAC generated addresses. Privacy addresses
+remain private.
+
+Exposure to the DNS is limited to SLAAC addresses. Automatic DNS
+registry of these has privacy implications that may be undesirable in
+some cases; user interfaces should provide appropriate mechanisms for
+controlling which hosts' addresses are registered in the public DNS,
+and which are not.
 
 # IANA Considerations
 
