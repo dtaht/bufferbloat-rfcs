@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<reference anchor='BB2011'
+target='http://queue.acm.org/detail.cfm?id=2071893'>
+<front>
+<title>Bufferbloat: Dark Buffers in the Internet, Communications of the ACM 9(11),pp 57-65</title>
+<author initials='K' surname='Nichols' fullname='Kathleen Nichols'>
+<organization>Pollere, Inc</organization></author>
+<author initials='J' surname='Gettys' fullname='James Gettys'>
+<organization>Alcatel-Lucent</organization></author>
+<date year='2011' month='May' />
+<abstract>
+<t>
+</t></abstract></front>
+<format type='PDF' octets='' target='http://queue.acm.org/detail.cfm?id=2071893' />
+</reference>

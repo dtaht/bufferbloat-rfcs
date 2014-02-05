@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<reference anchor='VANQ2006'
+target='http://www.pollere.net/Pdfdocs/QrantJul06.pdf'>
+<front>
+<title>A Rant on Queues</title>
+<author initials='V' surname='Jacobson' fullname='Van Jacobson'>
+<organization>Talk at MIT Lincoln labs</organization></author>
+<date year='2006' month='July' />
+<abstract>
+<t>
+</t></abstract></front>
+<format type='PDF' octets='' target='http://www.pollere.net/Pdfdocs/QrantJul06.pdf'/>
+</reference>

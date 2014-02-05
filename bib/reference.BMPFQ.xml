@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<reference anchor='BMPFQ'
+target='http://snapon.lab.bufferbloat.net/~docmirror/AM4DT-Research/suter99.pdf'>
+<front>
+<title>Buffer Management Schemes for Supporting TCP in Gigabit Routers with Per-flow Queueing</title>
+<author initials='B' surname='Suter' fullname='B Suter'>
+</author>
+<!--<workgroup>IEEE Journal on Selected Areas in Communications Vol. 17
+             Issue 6, June, 1999, pp. 1159-1169.
+</workgroup>--><date year='1999' month='June' />
+<abstract>
+<t>
+</t></abstract></front>
+<format type='PDF' octets='' target='http://snapon.lab.bufferbloat.net/~docmirror/AM4DT-Research/suter99.pdf' />
+</reference>

@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<reference anchor='REDL1998'
+target='http://www.cnaf.infn.it/~ferrari/papers/ispn/red_light_9_30.pdf'>
+<front>
+<title>RED in a different Light</title>
+<author initials='V' surname='Jacobson' fullname='Van Jacobson'>
+<organization></organization></author>
+<author initials='K' surname='Nichols' fullname='Kathleen Nichols'>
+<organization></organization></author>
+<author initials='K' surname='Poduri' fullname='K Poduri'>
+<organization></organization></author>
+<date year='1999' month='September' />
+<abstract>
+<t>
+</t></abstract></front>
+<format type='PDF' octets='' target='http://www.cnaf.infn.it/~ferrari/papers/ispn/red_light_9_30.pdf' />
+</reference>

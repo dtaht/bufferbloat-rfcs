@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<reference anchor='CODEL2012'
+target='http://queue.acm.org/detail.cfm?id=2209336'>
+<front>
+<title>Controlling Queue Delay</title>
+<author initials='K' surname='Nichols' fullname='Kathleen Nichols'>
+<organization></organization></author>
+<author initials='V' surname='Jacobson' fullname='Van Jacobson'>
+<organization>Google, Inc</organization></author>
+<!--<workgroup>Communications of the ACM Vol. 55 No. 11, July, 2012, pp.
+             42-50.</workgroup>-->
+<date year='2012' month='July' />
+<abstract>
+<t>
+</t></abstract></front>
+<format type='PDF' octets='' target='http://queue.acm.org/detail.cfm?id=2209336' />
+</reference>

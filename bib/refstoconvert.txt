@@ -1,45 +1,8 @@
-   [RFC896] Nagle, J., "Congestion Control in IP/TCP Internetworks",
-             RFC 896, January 1984.
-	    <"http://tools.ietf.org/search/rfc896">
-
-   [RFC2309] Braden, R. et al., "Recommendations on Queue Management
-             and Congestion Avoidance in the Internet", RFC 2309, April
-             1998.
-	     <http://tools.ietf.org/html/rfc2309>
-
 ## Informative References
-
-   [TSV2011] Gettys, J., "Bufferbloat: Dark Buffers in the Internet",
-             presentation to Transport Area Open Meeting, http://
-             www.ietf.org/proceedings/80/tsvarea.html, IETF 80, March,
-             2011.
-   [BB2011] Gettys, J. and K. Nichols, "Bufferbloat: Dark Buffers in
-             the Internet", Communications of the ACM 9(11) pp. 57-65.
-	    <http://queue.acm.org/detail.cfm?id=2071893>
-
-   [BMPFQ] Suter, B., et. al., "Buffer Management Schemes for
-             Supporting TCP in Gigabit Routers with Per-flow Queueing",
-             IEEE Journal on Selected Areas in Communications Vol. 17
-             Issue 6, June, 1999, pp. 1159-1169.
-	     <http://snapon.lab.bufferbloat.net/~docmirror/AM4DT-Research/suter99.pdf>
-
    [CMNTS] Allman, M., "Comments on Bufferbloat", Computer
              Communication Review Vol. 43 No. 1, January, 2013, pp.
              31-37.
 	   <http://www.sigcomm.org/sites/default/files/ccr/papers/2013/January/2427036-2427041.pdf>
-
-   [CODEL2012] Nichols, K. and V. Jacobson, "Controlling Queue Delay",
-             Communications of the ACM Vol. 55 No. 11, July, 2012, pp.
-             42-50.
-	     <http://delivery.acm.org/10.1145/2210000/2209336/p20-nichols.pdf?ip=108.67.145.139&id=2209336&acc=OPEN&key=BF13D071DEA4D3F3B0AA4BA89B4BCA5B&CFID=391992573&CFTOKEN=79280983&__acm__=1388525739_e4b44ba719a42e5b3f0453bc780938c4>
-
-   [VANQ2006] Jacobson, V., "A Rant on Queues", talk at MIT Lincoln
-             Labs, Lexington, MA, July, 2006, <http://www.pollere.net/
-             Pdfdocs/QrantJul06.pdf>
-
-   [REDL1998] Jacobson, V., K. Nichols and K. Poduri, "RED in a
-             Different Light",September, 1999, <http://
-             www.cnaf.infn.it/~ferrari/papers/ispn/red_light_9_30.pdf>
 
    [NETAL2010] Kreibich, C., et. al., "Netalyzr: Illuminating the Edge
              Network", Proceedings of the Internet Measurement
@@ -62,10 +25,6 @@
              SIGCOMM Computer Communications Review, Vol. 27 no. 1,
              Jan. 2007.
 	     <https://www.cs.auckland.ac.nz/courses/compsci742s2c/resources/mathis-tcpmodel-ccr97.pdf>
-
-   [SFQ1990] McKenney, P., "Stochastic Fairness Queuing", Proceedings
-             of IEEE INFOCOMM'90, San Francisco, 1990.
-	    <http://www.rdrop.com/~paulmck/scalability/paper/sfq.2002.06.04.pdf>
 
 End-to-End Internet Packet Dynamics
 Vern Paxson

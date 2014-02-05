@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<reference anchor='TSV2011'
+target='http://www.ietf.org/proceedings/80/tsvarea.html'>
+<front>
+<title>Bufferbloat: Dark Buffers in the internet, IETF 80</title>
+<author initials='J' surname='Gettys' fullname='Jim Gettys'>
+<organization>Alcatel-Lucent</organization></author>
+<date year='2011' month='March' />
+<abstract>
+<t>
+</t></abstract></front>
+<format type='PDF' octets='' target='http://www.ietf.org/proceedings/80/tsvarea.html' />
+</reference>
