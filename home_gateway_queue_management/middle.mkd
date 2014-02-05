@@ -41,7 +41,7 @@ leads to an enormous reduction in induced latency under load, to below
 5ms for queue building flows, and and nearly 0 for non-queue building
 flows.
 
-This memo does not deprecate [](RFC4954).  However we note that humans
+This memo does not deprecate [](#RFC4594).  However we note that humans
 slicing and dicing up bandwidth along 64 different options in general
 has un-expected side effects, and it seems better to do better mixing of
 flows, more tightly control latency, and allow for group congestion control
@@ -120,7 +120,7 @@ limited TV broadcast streams multiplexed on the same virtual circuit.
 Despite extensive benchmarking ()[FREEBENCHMARK], we've been unable
 to come up with a better system.
 
-# CeroWrt SQM system
+## CeroWrt SQM system
 
 The principal researh tool of the Bufferbloat effort has been poured
 into the CeroWrt SQM system, which, while defaulting to sensible values,
@@ -142,7 +142,7 @@ The simplest system is useful primarily as a test of new
 queuing approaches, and as a reference to compare against
 the multi-band approaches.
 
-## Example #2 [](CeroWrt simple.qos)
+## Example #2 [Simple](CeroWrt simple.qos)
 
 Simple.qos is a three band system that can use diffserv and simple
 prioritization to give or remove priority to certain kinds of

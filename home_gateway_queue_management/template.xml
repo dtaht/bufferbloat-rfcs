@@ -6,6 +6,7 @@
 <!ENTITY pandocRef896  PUBLIC '' '../bib/reference.RFC.0896.xml'>
 <!ENTITY pandocRef970  PUBLIC '' '../bib/reference.RFC.0970.xml'>
 <!ENTITY pandocRef2309  PUBLIC '' '../bib/reference.RFC.2309.xml'>
+<!ENTITY pandocRef4594  PUBLIC '' '../bib/reference.RFC.4594.xml'>
 <!ENTITY pandocRefDRR  PUBLIC '' '../bib/reference.DRR.xml'>
 <!ENTITY pandocRefSFQ  PUBLIC '' '../bib/reference.SFQ.xml'>
 ]>
@@ -62,6 +63,7 @@
         &pandocRef2119;
         &pandocRef896;
         &pandocRef970;
+        &pandocRef4594;
         &pandocRefSFQ;
         &pandocRefDRR;
     </references>
