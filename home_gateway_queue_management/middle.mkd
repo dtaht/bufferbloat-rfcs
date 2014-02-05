@@ -123,7 +123,7 @@ CS1. It would be nice if it was feature-competitive with qos-scripts,
 which have (for example) l7 inspection to find common torrent-like
 protocols, and a gui with lots of knobs to control that aspect.
 
-The first band is strictly admission controlled, and is limited to DNS and NTP queries emitted directly from the local router's DNS and NTP servers. Optionally the user can specify 
+The first band is strictly admission controlled, and is limited to DNS and NTP queries emitted directly from the local router's DNS and NTP servers. Optionally the user can specify additional devices, protocols or diffserv classifications to fit into this band.
 
 It is limited to a maximum of 30% of all bandwidth by default.
 
@@ -137,6 +137,12 @@ The third band (Background) is also limt
 * It is recomended that ICMP be moved to the background queue.
 
 # Known Problems
+
+## LEDBAT
+
+It has been shown ()[YIXI2012] that any form of AQM or Fair Queueing induces *reprioritization* in low priority congestion control algorithms such as LEDBAT.
+
+It is recommended that torrent flows be depriorized via classification, and that torrent clients use a more limited number of flows than the default 50.
 
 ## Bandwidths below 4 Mbit 
 
