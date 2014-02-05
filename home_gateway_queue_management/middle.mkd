@@ -78,9 +78,11 @@ single lookup table.
 
 ## 1/U 
 
-1/U flow queueing attempts to provide fairness over 
+1/U flow queueing attempts to provide fairness over users.
 
 ## Mixed
+
+It is anticipated that most systems will be a hybrid of all techniques.
 
 # Example #1 [](free.fr)
 
@@ -105,6 +107,8 @@ devices, and their device drivers are tuned to create no more than 1ms
 of native latency in the hardware on egress from the home gateway
 device.
 
+ECN is enabled on egress.
+
 There is no (despite a desire for such) system for ingress as the
 DSLAM vendor has no support for it, and rate limiting inbound does not
 currently account for the non-rate limited TV broadcast streams.
@@ -127,9 +131,11 @@ The first band is strictly admission controlled, and is limited to DNS and NTP q
 
 It is limited to a maximum of 30% of all bandwidth by default.
 
-The second band (Best Effort)
+The second band (Best Effort) can absorb all bandwidth available on the system.
 
-The third band (Background) is also limt
+The third band (Background) is limited to a minimum of 30%, due to observing many mis-classified flows in the field.
+
+ECN is enabled on ingress and disabled on egress by default. It is recomended the ECN be enabled at bandwidths above 10Mbit in either direction.
 
 # Overall Summary of recomendations
 
@@ -181,3 +187,7 @@ This document raises no security issues.
 # IANA Considerations
 
 This document has no actions for IANA.
+
+# Acknowlegements
+
+The members of Bufferbloat.net, Openwrt, Eric Dumazet, Kathy Nichols, Van Jacobson, maxime of free, etc, etc, etc.
