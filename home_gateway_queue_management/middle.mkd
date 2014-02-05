@@ -26,20 +26,20 @@ additional needs to serve:
 * Prioritize DNS and timekeeping
 * Deoptimize background flows
 
-End to end techniques, such as [SABRE](SABRE), and [LEDBAT](TORRENT) offer at
+End to end techniques, such as [](#SABRE), and [LEDBAT](#RFC6817) offer at
 best a reduction of queue latency below 100ms, leaving a side trip of
-halfway around the planet under load, on an edge gateway.
+halfway around the planet, under load, on an edge gateway. 
+
+Combining better packet scheduling, AQM and prioritization techniques
+leads to an enormous reduction in induced latency under load, to below
+5ms for queue building flows, and and nearly 0 for non-queue building
+flows.
 
 Large network bursts caused by IW10, TCP offloads, 802.11n aggregation,
 and misbehaved applications are all mitigated by using flow queueing
 techniques, making them nearly invisible to other network applications.
 
 [](TAHT14)
-
-Combining better packet scheduling, AQM and prioritization techniques
-leads to an enormous reduction in induced latency under load, to below
-5ms for queue building flows, and and nearly 0 for non-queue building
-flows.
 
 This memo does not deprecate [](#RFC4594).  However we note that humans
 slicing and dicing up bandwidth along 64 different options in general
@@ -72,7 +72,7 @@ and outbound traffic is both desirable and necessary.
 ## [FREE.FR](free.fr) Queue Management system
 
 The French ISP "Free.fr", adopted fq-codel as their default Smart Queue
-Management system for their Revolution "V6" CPE product in August, 2012,
+Management system for their Revolution "V6" CPE product in August, 2011,
 replacing their previous SFQ based system.
 
 Their system uses 3 bands of classification and priority, utilizing DRR
