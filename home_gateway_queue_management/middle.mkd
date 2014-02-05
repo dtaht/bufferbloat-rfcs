@@ -218,7 +218,8 @@ It has been shown (YIXI)[YIXI2012] that any form of AQM or Fair Queue-ing induce
 *reprioritization* in low priority congestion control algorithms such as LEDBAT,
 turning all known forms of delay based congestion control back into loss-based or
 ecn-based congestion control. However this is not much of a problem as queue delays
-under fq_codel rarely exceed 5ms, rather than the target 100ms of LEDBAT.
+under fq_codel rarely exceed 20ms, and are usually invisible, rather than the
+target 100ms of LEDBAT.
 
 Verses web traffic, fq-codel shoots at many LEDBAT streams, forcing them
 to back off into their slower slow start phase, so web and LEDBAT traffic
