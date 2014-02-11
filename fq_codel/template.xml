@@ -15,6 +15,24 @@
  <front>
         <title abbrev="Fq_Codel">FlowQueue_Codel</title>
 
+        <author initials="T." surname="Høiland-Jørgensen"
+                fullname="Toke Høiland-Jørgensen">
+            <organization>Karlstad University</organization>
+
+            <address>
+                <postal>
+                    <street>Dept. of Computer Science</street>
+                    <city>Karlstad</city> <region></region>
+                    <code>65188</code>
+                    <country>Sweden</country>
+                </postal>
+
+                <phone></phone>
+                <email>toke.hoiland-jorgensen@kau.se</email>
+                <uri></uri>
+            </address>
+        </author>
+
         <author initials="P." surname="McKenney"
                 fullname="Paul McKenney">
             <organization>IBM Linux Technology Center</organization>
