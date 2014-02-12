@@ -1,4 +1,4 @@
-title=draft-taht-fq_codel-00
+title=draft-taht-jorgensen-mckenney-gettys-fq_codel-00
 objects=$(title).html $(title).xml $(title).txt
 
 all: $(title).html $(title).xml $(title).txt
