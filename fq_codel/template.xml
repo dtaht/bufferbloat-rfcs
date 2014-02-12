@@ -9,6 +9,8 @@
 <!ENTITY pandocRef2309  PUBLIC '' '../bib/reference.RFC.2309.xml'>
 <!ENTITY pandocRefDRR  PUBLIC '' '../bib/reference.DRR.xml'>
 <!ENTITY pandocRefSFQ  PUBLIC '' '../bib/reference.SFQ.xml'>
+<!ENTITY pandocRefCODEL2012  PUBLIC '' '../bib/reference.CODEL2012.xml'>
+<!ENTITY pandocRefSQF2012  PUBLIC '' '../bib/reference.SQF2012.xml'>
 ]>
 
 <rfc ipr="trust200902" category="info" docName="draft-taht-fq_codel-00">
@@ -99,9 +101,7 @@
         <keyword>Pandoc</keyword>
         <keyword>Extensible Markup Language</keyword>
         <abstract>
-            <t>This memo presents a technique for utilizing "Flow Queuing" and the codel AQM algorithm together on home gateways.</t>
-            <t>
-                On bandwith constrained home gateways the need for some form of rate limitation and packet scheduling has been embedded in many devices.
+            <t>This memo presents the fq_codel hybrid packet scheduler/AQM algorithm.
             </t>
         </abstract>
 </front>
@@ -118,6 +118,8 @@
         &pandocRef970;
         &pandocRef2309;
         &pandocRefSFQ;
+        &pandocRefCODEL2012;
+        &pandocRefSQF2012;
         &pandocRefDRR;
     </references>
 </back>
