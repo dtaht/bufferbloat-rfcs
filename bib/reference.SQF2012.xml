@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<reference anchor='SQF2012'
+target='http://perso.telecom-paristech.fr/~bonald/Publications_files/BMO2011.pdf'>
+<front>
+<title>On the impact of TCP and per-flow scheduling on Internet Performance - IEEE/ACM transactions on Networking</title>
+<author initials='T' surname='Bonald' fullname='Thomas Bonald'>
+<organization>Telecom ParisTech</organization></author>
+<author initials='L' surname='Muscariello' fullname='Luca Muscariello'>
+<organization>Orange Labs</organization></author>
+<author initials='N' surname='Ostallo' fullname='Norberto Ostallo'>
+<organization>Eurocom</organization></author>
+<date year='2012' month='April' />
+<abstract>
+<t>
+We present a packet scheduler called “shortest
+queue first” (SQF) that aims at protecting audio and video traffic from the congestion caused by data traffic. Unlike standard
+solutions, the services to be handled with priority are
+not known in advance. It is rather the traffic characteristics of audio and
+video applications that are used to detect their delay sensitivity.
+The SQF algorithm does not require any prior configuration
+of the network and, as such, adapts to the fast evolution of
+traffic and usage. The performance of the proposed solution is
+demonstrated using both analysis and experiments on a testbed
+emulating a residential access line
+</t></abstract></front>
+<format type='PDF' octets='' target='http://perso.telecom-paristech.fr/~bonald/Publications_files/BMO2011.pdf' />
+</reference>
