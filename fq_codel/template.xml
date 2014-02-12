@@ -3,7 +3,6 @@
 <!ENTITY pandocMiddle PUBLIC '' 'middle.xml'>
 
 <!ENTITY pandocRef2119  PUBLIC '' '../bib/reference.RFC.2119.xml'>
-<!ENTITY pandocRef4641  PUBLIC '' '../bib/reference.RFC.4641.xml'>
 <!ENTITY pandocRef896  PUBLIC '' '../bib/reference.RFC.0896.xml'>
 <!ENTITY pandocRef970  PUBLIC '' '../bib/reference.RFC.0970.xml'>
 <!ENTITY pandocRef2309  PUBLIC '' '../bib/reference.RFC.2309.xml'>
@@ -13,7 +12,7 @@
 <!ENTITY pandocRefSQF2012  PUBLIC '' '../bib/reference.SQF2012.xml'>
 ]>
 
-<rfc ipr="trust200902" category="info" docName="draft-taht-fq_codel-00">
+<rfc ipr="trust200902" category="info" docName="draft-taht-jorgensen-mckenney-gettys-fq_codel-00">
  <front>
         <title abbrev="Fq_Codel">FlowQueue_Codel</title>
 
@@ -113,7 +112,6 @@
 <back>
     <references title="Normative References">
         &pandocRef2119;
-        &pandocRef4641;
         &pandocRef896;
         &pandocRef970;
         &pandocRef2309;
