@@ -14,7 +14,7 @@
 
 <rfc ipr="trust200902" category="info" docName="draft-taht-jorgensen-mckenney-gettys-fq_codel-00">
  <front>
-        <title abbrev="Fq_Codel">FlowQueue_Codel</title>
+        <title abbrev="Fq_Codel">FlowQueue-Codel</title>
 
         <author initials="T." surname="Høiland-Jørgensen"
                 fullname="Toke Høiland-Jørgensen">
@@ -100,7 +100,7 @@
         <keyword>Pandoc</keyword>
         <keyword>Extensible Markup Language</keyword>
         <abstract>
-            <t>This memo presents the fq_codel hybrid packet scheduler/AQM algorithm.
+            <t>This memo presents the fq-codel hybrid packet scheduler/AQM algorithm, a critical tool for fighting bufferbloat. 
             </t>
         </abstract>
 </front>
