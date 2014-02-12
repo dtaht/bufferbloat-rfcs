@@ -34,7 +34,7 @@ CoDel AQM: The Active Queue Management algorithm employed by FQ-CoDel
 
 DRR: Deficit round-robin scheduling.
 
-FLOW: A flow is typically identified by a 5-tuple of source IP, destination 
+FLOW: A flow is typically identified by a 5-tuple of source IP, destination
 IP, source port, destination port, and protocol. It can also be identified
 by a superset or subset of those parameters, or by mac address, or other means.
 
@@ -42,109 +42,61 @@ Packet: An indivisable quantity of bytes.
 
 Quantum: The amount of bytes in a flow that will be delivered at once.
 
-## Informal summary of FQ-CoDel 
+## Informal summary of FQ-CoDel
 
 FQ-CoDel is a *hybrid* of [DRR](#DRR) and [CODEL](#CODEL2012), with an
-optimization for sparse flows similar to [SQF](#SQF2012). We call this "Flow
-Queuing" rather than "Fair Queueing" as it is *unfair* to flows that
+optimisation for sparse flows similar to [SQF](#SQF2012). We call this "Flow
+Queueing" rather than "Fair Queueing" as it is *unfair* to flows that
 build a queue.
 
-FQ-CoDel uses a stochastic model to classify incoming packets into
-different flows and is used to provide a fair share of the bandwidth
-to all the flow building flows using the queue. Each such flow is
-managed by the CoDel queuing discipline.  Packet ordering within a flow is
-preserved since it uses FIFO queues internally.
+FQ-CoDel stochastically classifies incoming packets into different
+queues by hashing the 5-tuple of IP protocol number and source and
+destination IP and port numbers, perturbed with a random number selected
+at initiation time. Each queue is managed by the CoDel queueing
+discipline. Packet ordering within a queue is preserved, since queues
+have FIFO ordering.
 
-FQ-CoDel is an implementation of a somewhat modified stochastic
-fairness queueing algorithm, with CoDel added as an AQM for the
-individual queues. As such, it consists of two parts: the scheduler
+The FQ-CoDel algorithm consists of two logical parts: the scheduler
 which selects which queue to dequeue a packet from, and the CoDel AQM
-which works on each of the queues built in to the qdisc. The
-subtleties of FQ-CoDel are mostly in the scheduling part, which is the
-subject of this description. For a description of CoDel, refer to
-Kathy and Van's paper[1].
+which works on each of the queues. The subtleties of FQ-CoDel are mostly
+in the scheduling part, whereas the interaction between the scheduler
+and the CoDel algorithm are fairly straight forward: At initiation, the
+queues are initialised so that each queue has a separate set of CoDel
+state variables. By default, 1024 queues are created, but the current
+implementation supports anywhere from 2 to 64k separate queues. Each
+queue maintains the state variables throughout its lifetime, and so acts
+the same as the non-fq CoDel variant would.
 
-The interaction between the scheduler and the CoDel algorithm are
-fairly straight forward: At initiation (i.e. at boot, or when FQ-CoDel
-is first installed on the interface, or its parameters are changed),
-the list of queues is initialised so that each queue has a separate
-set of CoDel state variables, and a unique random number is generated
-to mix into and perturb the hashing algorithm.
+On dequeue, FQ-CoDel selects a queue from which to dequeue by a two-tier
+round-robin scheme, in which each queue is allowed to dequeue up to a
+configurable quantum of bytes for each iteration.. Deviations from this
+quantum is maintained as a deficit for the queue, which serves to make
+the fairness scheme byte-based rather than a packet-based. The two-tier
+round-robin mechanism distinguishes between "new" queues (which don't
+build up a standing queue) and "old" queues, that have queued enough
+data to be around for more than one iteration of the round-robin
+scheduler.
 
-By default, 1024 queues are created. Packets are hashed into them at
-enqueue time. A range of 2 to 64k is supported by the current
-implementation.
+This new/old queue distinction has a particular consequence for queues
+that don't build up more than a quantum of bytes before being visited by
+the scheduler: Such queues are removed from the list, and then re-added
+as a new queue each time a packet arrives for it, and so will get
+priority over queues that do not empty out each round (except for a
+minor modification to protect against starvation, detailed below).
+Exactly how much data a flow has to send to keep its queue in this state
+is somewhat difficult to reason about, because it depends on both the
+egress link speed and the number of concurrent flows. However, in
+practice many things that are beneficial to have prioritised for typical
+internet use (ACKs, DNS lookups, interactive SSH, HTTP requests, ARP,
+ICMP) *tend* to fall in this category, which is why FQ-CoDel performs so
+well for many practical applications.
 
-Each queue maintains the CoDel state variables throughout its
-lifetime, and so acts the same as the non-fq CoDel variant would
-(including retaining the control law state when the queue drains,
-etc).
+This scheduling scheme has some subtlety to it, which is explained in
+detail in the remainder of this document. For more analysis of the
+consequences of the scheduling, and some performance notes, see the
+appendix.
 
-The new/old queue distinction has a particular consequence for queues
-that don't build up more than a quantum of bytes before being visited
-by the scheduler (as a new queue), *and* then stay empty until the
-scheduler returns to it in the list of old queues: Such queues are
-removed from the list, and then re-added as a new queue each time a
-packet arrives for it, and so will always get priority over queues
-that do not empty out each round. Exactly how much data a flow has to
-send to keep its queue in this state is somewhat difficult to reason
-about, because it depends on both the egress link speed and the number
-of concurrent flows. However, in practice many things that are
-beneficial to have prioritised for typical internet use (ACKs, DNS
-lookups, interactive SSH, HTTP requests, ARP, ICMP) *tend* to fall in
-this category, which is why FQ-CoDel performs so well for many
-practical applications.
-
-A rough schematic of the packet scheduling portion is shown below:
-
-    +--------+                             +-----+
-    |   D    |                             |     |
-    |  100   |                             |     +--+
-    |        |                             +-----+  |
-    +--------+                                ^     |
-    |   C    |                                |     |
-    | 4500   |                             +--+--+  |
-    |        |                             |     |  |
-    +--------+                             |     |  |
-    |   B    |                             +-----+  |
-    |        |                                ^     |
-    +--------+                                |     |
-    |        |    +-----+                  +--+--+  |     +-----+
-    |   A    |    |     |                  |     |  |     |     |
-    |  100   |    |     +--+               |     |  |     |     |+-+
-    +--------+    +-----+  |               +-----+  |     +-----+  |
-                     ^     |                  ^     |        ^     |
-                     |     v                  |     v        |     v
-                  +--+--------+------------+--+----------+---+--------+
-                  |           |            |             |            |
-                  |     A     |     B      |      C      |      D     |
-                  |           |            |             |            |
-                  +--------+--+------------+-------------+----------+-+
-                     ^     |                      ^          ^  ^   |
-                     |     +----------------------|----------+  |   |
-                     |                            |             |   |
-                     +----------------------------|-------------|---+
-                                                  |             |
-                                                  |             |
-                                                  |             |
-
-The resulting migration of flows is shown more completely and
-precisely in the following state diagram:
-
-    +-----------------+                +--------------------+
-    |                 |     Empty      |                    |
-    |     Empty       |<---------------+     "Elephant"     +-----+
-    |                 |                |                    |     |
-    +-------+---------+                +--------------------+     |
-            |                             ^              ^        |Quantum
-            |Arrival                      |              |        |Exceeded
-            v                             |              |        |
-    +-----------------+                   |              |        |
-    |      Low        |     Empty or      |              |        |
-    |   Bandwidth     +-------------------+              +--------+
-    |                 |  Quantum exceeded
-    +-----------------+
-
+FIXME: Write appendix.
 
 # CoDel
 
@@ -213,7 +165,7 @@ minimum standing/persistent queue delay for each FQ-CoDel Queue.  This
 minimum delay is identified by tracking the local minimum queue delay
 that packets experience.
 
-Default target value is 5ms. 
+Default target value is 5ms.
 
 ### Packet limit
 
@@ -241,7 +193,7 @@ GRO-enabled systems, up to 4K bytes.
 
 The flows is the number of flows into which the incoming packets are
 classified. Due to the stochastic nature of hashing, multiple flows
-may end up being hashed into the same slot. 
+may end up being hashed into the same slot.
 
 This parameter can be set only at load time since memory has to be
 allocated for the hash table in the current implementation.
@@ -311,6 +263,23 @@ to the list of new queues. This is the source of some subtlety in the
 packet scheduling at dequeue time, explained below.
 
 # The FQ-CoDel scheduler
+
+The resulting migration of flows is shown more completely and
+precisely in the following state diagram:
+
+    +-----------------+                +--------------------+
+    |                 |     Empty      |                    |
+    |     Empty       |<---------------+     "Elephant"     +-----+
+    |                 |                |                    |     |
+    +-------+---------+                +--------------------+     |
+            |                             ^              ^        |Quantum
+            |Arrival                      |              |        |Exceeded
+            v                             |              |        |
+    +-----------------+                   |              |        |
+    |      Low        |     Empty or      |              |        |
+    |   Bandwidth     +-------------------+              +--------+
+    |                 |  Quantum exceeded
+    +-----------------+
 
 ## The DRR mechanism
 
@@ -430,4 +399,3 @@ ns2 and ns3 models are available.
 	|        backlog 0b 0p requeues 34869
 	|        maxpacket 65226 drop_overlimit 0 new_flow_count 73 ecn_mark 0
 	|        new_flows_len 1 old_flows_len 3
-
