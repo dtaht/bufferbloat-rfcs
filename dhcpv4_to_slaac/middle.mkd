@@ -46,8 +46,10 @@ If the server has an interface in the broadcast domain, then the server MAY
 use the configuration of the interface in the form of IPv4 addresses and netmasks, and 
 IPv6 prefixes and prefix lengths to make this determination. The implementation
 MAY also make it possible to provide this information as part of the server's
-configuration. This is likely when a DHCPv4 relay agent is in use and the server
-does not have an interface in the broadcast domain. The server MUST discard any IPv6 prefixes whose length is not 64,
+configuration. This is likely to be a reuirement when a DHCPv4 relay agent is in use and the server
+does not have an interface in the broadcast domain. 
+
+The server MUST discard any IPv6 prefixes whose length is not 64,
 since hosts cannot assign addresses in these prefixes using SLAAC. The server MUST discard link-local prefixes. It MAY be configured to discard site-local prefixes. This would be appropriate of the host records were being inserted into the global DNS, but not if they were being inserted into a local DNS view only available within the site.
 
 Having determined the set of possible IPv6 prefixes (as above) the implementation then determines
