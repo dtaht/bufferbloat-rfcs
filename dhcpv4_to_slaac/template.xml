@@ -47,8 +47,8 @@
                 <uri>http://www.isc.org/</uri>
             </address>
         </author>
-        <author initials="S." surname="Kelly"
-                fullname="Simon Kelly">
+        <author initials="S." surname="Kelley"
+                fullname="Simon Kelley">
             <organization>Dnsmasq</organization>
 
             <address>
@@ -59,8 +59,8 @@
                     <country>GB</country>
                 </postal>
 
-                <phone>+44.1223520480</phone>
-                <email>simon@thekellys.org.uk</email>
+                <phone>+44.07810386191</phone>
+                <email>simon@thekelleys.org.uk</email>
                 <uri>http://www.dnsmasq.org/</uri>
             </address>
         </author>
