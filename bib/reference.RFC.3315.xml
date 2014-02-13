@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<reference anchor='RFC3315'>
+
+<front>
+<title>Dynamic Host Configuration Protocol for IPv6 (DHCPv6)</title>
+<author initials='R.' surname='Droms' fullname='R. Droms'>
+<organization /></author>
+<author initials='J.' surname='Bound' fullname='J. Bound'>
+<organization /></author>
+<author initials='B.' surname='Volz' fullname='B. Volz'>
+<organization /></author>
+<author initials='T.' surname='Lemon' fullname='T. Lemon'>
+<organization /></author>
+<author initials='C.' surname='Perkins' fullname='C. Perkins'>
+<organization /></author>
+<author initials='M.' surname='Carney' fullname='M. Carney'>
+<organization /></author>
+<date year='2003' month='July' /></front>
+
+<seriesInfo name='RFC' value='3315' />
+<format type='TXT' octets='231402' target='http://www.rfc-editor.org/rfc/rfc3315.txt' />
+</reference>

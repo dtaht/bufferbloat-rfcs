@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<reference anchor='RFC3633'>
+
+<front>
+<title>IPv6 Prefix Options for Dynamic Host Configuration Protocol (DHCP) version 6</title>
+<author initials='O.' surname='Troan' fullname='O. Troan'>
+<organization /></author>
+<author initials='R.' surname='Droms' fullname='R. Droms'>
+<organization /></author>
+<date year='2003' month='December' />
+<abstract>
+<t>The Prefix Delegation options provide a mechanism for automated delegation of IPv6 prefixes using the Dynamic Host Configuration Protocol (DHCP).  This mechanism is intended for delegating a long-lived prefix from a delegating router to a requesting router, across an administrative boundary, where the delegating router does not require knowledge about the topology of the links in the network to which the prefixes will be assigned.</t></abstract></front>
+
+<seriesInfo name='RFC' value='3633' />
+<format type='TXT' octets='45308' target='http://www.rfc-editor.org/rfc/rfc3633.txt' />
+</reference>
