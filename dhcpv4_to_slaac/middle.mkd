@@ -26,7 +26,7 @@ it publishes A records.
 # Methods
 
 A DHCPv4 server which supports the hostname or FQDN options can easily determine 
-the tuple (MAC address, hostname, broadcast domain) for each DHCPv4 client which has 
+the tuple (link-layer address, hostname, broadcast domain) for each DHCPv4 client which has 
 completed a DHCPv4 lease. The MAC address or client-id can be used to determine the
 host-identifier which is likely to be used by the client if it configures itself 
 for IPv6 using SLAAC. If the server has access to the mapping between broadcast domains and 
@@ -39,14 +39,14 @@ IPv4 naming information.
 
 # Protocol
 
-For each DHCPv4 lease which is in BOUND state, the DHCPv4 server 
+For each DHCPv4 lease which is in BOUND state and has a known name, the DHCPv4 server 
 attempts to determines the broadcast domain in which the assigned IPv4 
 address exists and the IPv6 prefix(es) associated with that broadcast domain. 
 If the server has an interface in the broadcast domain, then the server MAY 
 use the configuration of the interface in the form of IPv4 addresses and netmasks, and 
 IPv6 prefixes and prefix lengths to make this determination. The implementation
 MAY also make it possible to provide this information as part of the server's
-configuration. This is likely to be a reuirement when a DHCPv4 relay agent is in use and the server
+configuration. This is likely to be a requirement when a DHCPv4 relay agent is in use and the server
 does not have an interface in the broadcast domain. 
 
 The server MUST discard any IPv6 prefixes whose length is not 64,
@@ -57,13 +57,13 @@ a possible interface identifier. It uses the client's link-layer address contain
 packet, or encoded in the client-id (Eg for firewire - reference?) and applies the procedure
 give in RFC4291 para 2.5.1 (TODO - reference) to calculate the SLAAC interface identifier.
 
-The set of prefixes are combined with the interface identifier to generate a set of putative IPv6 addresses for the client. This set of addresses is then tested to determine if the client is actually using them. To do this the server send a ICMP6 echo request to each putative address and awaits a matching reply. To avoid problems with packet loss, the 
-ICMP echo requests MUST be retransmitted and the time between retransmissions MUST be subject to a suitable backoff strategy to avoid flooding the network. When an ICMP6 echo reply is recieved from a putative address, that address is marked as confirmed, and the (name, IPv6-address) pair may be installed in the DNS.
+The set of prefixes are combined with the interface identifier to generate a set of putative IPv6 addresses for the client. This set of addresses is then tested to determine if the client is actually using them. To do this the server send a ICMP6 echo request (reference) to each putative address and awaits a reply. To avoid problems with packet loss, the 
+ICMP echo requests MUST be retransmitted and the time between retransmissions MUST be subject to a suitable backoff strategy to avoid flooding the network. When an ICMP6 echo reply is recieved from a putative address, that address is marked as confirmed, and the (name, IPv6-address) pair may be installed in the DNS. The server SHOULD cease sending IMCP6 echo requests to an address once it has been confirmed. It MAY cease sending ICMP6 echo requests is no answers are recieved after an extended period, or it MAY implement a backoff strategy which reduces the rate to sending echo requests to close to zero after an extended period. One of these options MUST be implemented.
 
 # Interactions with the DNS.
 
 The exact mechansim by which a name is associated with a host, and the name, address pair are installed in the DNS are 
-beyond the scope of this document. It is assumed that the mechanism which is used to determine the name which is stored in the A record is re-used to the AAAA record, and the mechanism by which the A record is inserted into the DNS is re-used for the AAAA record. The lifetime and TTL of the AAAA record should be the same as that for the A record. The
+beyond the scope of this document. It is assumed that the mechanism which is used to determine the name which is stored in the A record is re-used to the AAAA record, and the mechanism by which the A record is inserted into the DNS is re-used for the AAAA record. The lifetime and TTL of the AAAA record should be the same as that for the A record. The same strategy for removing DNS records on the expiry of a DHCPv4 lease is used for AAAA records. The
 server MUST NOT insert AAAA records into the DNS unless they have been confirmed by the receipt of an ICMP6 echo reply. 
 
 # Persistent storage of IPv6 addresses.
@@ -76,7 +76,7 @@ When an new IPv6 prefix is added to a broadcast domain, the server SHOULD add th
 
 # Router advertisements.
 
-The implementation MAY arrange for unsolicited Router Advertisements to be sent at short intervals, in the same way as after an interface becomes an advertising interface, when a new DHCPv4 lease enters the BOUND state from another state. THis increases tha probability that a new host appearing on the network will be assigned an address by SLAAC  promptly and be detected by the system.
+The implementation MAY arrange for unsolicited Router Advertisements to be sent at short intervals, in the same way as after an interface becomes an advertising interface, when a new DHCPv4 lease enters the BOUND state from another state. This increases tha probability that a new host appearing on the network will be assigned an address by SLAAC  promptly and be detected by the system.
 
 
 
@@ -140,7 +140,7 @@ dhcp-range=1234::, ra-names
 
 dhcp-range=1234::, ra-stateless, ra-names
 
-For more details on configuration see the [](dnsmasq configuration examples).
+For more details on configuration see the [http://www.thekelleys.org.uk/dnsmasq/docs/dnsmasq.conf.example].
 
 # Appendix B - ISC-dhcp configuration
 
