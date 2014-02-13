@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<reference anchor='RFC4861'>
+
+<front>
+<title>Neighbor Discovery for IP version 6 (IPv6)</title>
+<author initials='T.' surname='Narten' fullname='T. Narten'>
+<organization /></author>
+<author initials='E.' surname='Nordmark' fullname='E. Nordmark'>
+<organization /></author>
+<author initials='W.' surname='Simpson' fullname='W. Simpson'>
+<organization /></author>
+<author initials='H.' surname='Soliman' fullname='H. Soliman'>
+<organization /></author>
+<date year='2007' month='September' />
+<abstract>
+<t>This document specifies the Neighbor Discovery protocol for IP Version 6.  IPv6 nodes on the same link use Neighbor Discovery to discover each other's presence, to determine each other's link-layer addresses, to find routers, and to maintain reachability information about the paths to active neighbors. [STANDARDS-TRACK]</t></abstract></front>
+
+<seriesInfo name='RFC' value='4861' />
+<format type='TXT' octets='235106' target='http://www.rfc-editor.org/rfc/rfc4861.txt' />
+</reference>

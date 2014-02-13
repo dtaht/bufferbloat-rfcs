@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<reference anchor='RFC4843'>
+
+<front>
+<title>An IPv6 Prefix for Overlay Routable Cryptographic Hash Identifiers (ORCHID)</title>
+<author initials='P.' surname='Nikander' fullname='P. Nikander'>
+<organization /></author>
+<author initials='J.' surname='Laganier' fullname='J. Laganier'>
+<organization /></author>
+<author initials='F.' surname='Dupont' fullname='F. Dupont'>
+<organization /></author>
+<date year='2007' month='April' />
+<abstract>
+<t>This document introduces Overlay Routable Cryptographic Hash Identifiers (ORCHID) as a new, experimental class of IPv6-address- like identifiers. These identifiers are intended to be used as endpoint identifiers at applications and Application Programming Interfaces (API) and not as identifiers for network location at the IP layer, i.e., locators. They are designed to appear as application layer entities and at the existing IPv6 APIs, but they should not appear in actual IPv6 headers. To make them more like vanilla IPv6 addresses, they are expected to be routable at an overlay level. Consequently, while they are considered non-routable addresses from the IPv6 layer point-of-view, all existing IPv6 applications are expected to be able to use them in a manner compatible with current IPv6 addresses.&lt;/t>&lt;t> This document requests IANA to allocate a temporary prefix out of the IPv6 addressing space for Overlay Routable Cryptographic Hash Identifiers. By default, the prefix will be returned to IANA in 2014, with continued use requiring IETF consensus. This memo defines an Experimental Protocol for the Internet community.</t></abstract></front>
+
+<seriesInfo name='RFC' value='4843' />
+<format type='TXT' octets='32483' target='http://www.rfc-editor.org/rfc/rfc4843.txt' />
+</reference>
