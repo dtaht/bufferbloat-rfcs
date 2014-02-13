@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<reference anchor='RFC3596'>
+
+<front>
+<title>DNS Extensions to Support IP Version 6</title>
+<author initials='S.' surname='Thomson' fullname='S. Thomson'>
+<organization /></author>
+<author initials='C.' surname='Huitema' fullname='C. Huitema'>
+<organization /></author>
+<author initials='V.' surname='Ksinant' fullname='V. Ksinant'>
+<organization /></author>
+<author initials='M.' surname='Souissi' fullname='M. Souissi'>
+<organization /></author>
+<date year='2003' month='October' />
+<abstract>
+<t>This document defines the changes that need to be made to the Domain Name System (DNS) to support hosts running IP version 6 (IPv6).  The changes include a resource record type to store an IPv6 address, a domain to support lookups based on an IPv6 address, and updated definitions of existing query types that return Internet addresses as part of additional section processing.  The extensions are designed to be compatible with existing applications and, in particular, DNS implementations themselves. [STANDARDS-TRACK]</t></abstract></front>
+
+<seriesInfo name='RFC' value='3596' />
+<format type='TXT' octets='14093' target='http://www.rfc-editor.org/rfc/rfc3596.txt' />
+</reference>
