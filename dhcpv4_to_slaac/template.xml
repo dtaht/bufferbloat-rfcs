@@ -5,6 +5,14 @@
 <!ENTITY pandocRef2119  PUBLIC '' '../bib/reference.RFC.2119.xml'>
 <!ENTITY pandocRef4641  PUBLIC '' '../bib/reference.RFC.4641.xml'>
 <!ENTITY pandocRef2131  PUBLIC '' '../bib/reference.RFC.2131.xml'>
+<!ENTITY pandocRef3146  PUBLIC '' '../bib/reference.RFC.3146.xml'>
+<!ENTITY pandocRef4291  PUBLIC '' '../bib/reference.RFC.4291.xml'>
+<!ENTITY pandocRef4843  PUBLIC '' '../bib/reference.RFC.4843.xml'>
+<!ENTITY pandocRef4862  PUBLIC '' '../bib/reference.RFC.4862.xml'>
+<!ENTITY pandocRef4861  PUBLIC '' '../bib/reference.RFC.4861.xml'>
+<!ENTITY pandocRef3633  PUBLIC '' '../bib/reference.RFC.3633.xml'>
+<!ENTITY pandocRef3315  PUBLIC '' '../bib/reference.RFC.3315.xml'>
+<!ENTITY pandocRef3596  PUBLIC '' '../bib/reference.RFC.3596.xml'>
 ]>
 
 <rfc ipr="trust200902" category="info" docName="draft-taht-kelly-hunt-dhcpv4-to-slaac-naming-00">
@@ -108,6 +116,14 @@
         &pandocRef2119;
         &pandocRef4641;
         &pandocRef2131;
+        &pandocRef4291;
+        &pandocRef4843;
+        &pandocRef3146;
+        &pandocRef4861;
+        &pandocRef4862;
+        &pandocRef3315;
+        &pandocRef3633;
+        &pandocRef3596;
     </references>
 </back>
 </rfc>

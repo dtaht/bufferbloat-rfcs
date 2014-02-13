@@ -1,15 +1,15 @@
 # Introduction
 
 This memo presents a technique for using the hostname acquired for a
-DHCPv4 client request to publish AAAA records on that domain name for
+DHCPv4 [](#RFC2131) client request to publish AAAA records [](#RFC3596) on that domain name for
 public IPv6 addresses acquired by the same dual-stack host using
-SLAAC.
+SLAAC [](#RFC4862).
 
 On dual-stack networks, there is a need to automatically publish
 entries in the DNS for the public IPv6 addresses of an IPv6 host when
 it does not use DHCPv6.  IPv6 hosts can acquire IPv6 addresses using
 SLAAC, but there is no mechanism allowing them to register a name in
-the DNS database other than a DNS update, which would create a very
+the DNS database other than a DNS update, which creates a very
 difficult key management problem.  By combining the DHCPv4 hostname or
 client FQDN option, the client MAC address or DHCPPv4 client-ID and  information 
 acquired using ICMPv6, a DHCPv4 server on a home gateway or SOHO gateway can
@@ -36,7 +36,6 @@ server can infer a connection between the active IPv6 addresses and the hostname
 install that naming information into the DNS using the same mechanisms it uses to public 
 IPv4 naming information.
 
-
 # Protocol
 
 For each DHCPv4 lease which is in BOUND state and has a known name, the DHCPv4 server 
@@ -53,34 +52,32 @@ The server MUST discard any IPv6 prefixes whose length is not 64,
 since hosts cannot assign addresses in these prefixes using SLAAC. The server MUST discard link-local prefixes. It MAY be configured to discard site-local prefixes. This would be appropriate of the host records were being inserted into the global DNS, but not if they were being inserted into a local DNS view only available within the site.
 
 Having determined the set of possible IPv6 prefixes (as above) the implementation then determines
-a possible interface identifier. It uses the client's link-layer address contained in the CHADDR field of the DHCPv4
-packet, or encoded in the client-id (Eg for firewire - reference?) and applies the procedure
-give in RFC4291 para 2.5.1 (TODO - reference) to calculate the SLAAC interface identifier.
+a possible interface identifier. It uses the client's link-layer address contained in the CHADDR field of the DHCPv4 [](#RFC2131)
+packet, or encoded in the client-id as in FIREWIRE [](#RFC3146) and applies the procedure
+given in [](#RFC4291) para 2.5.1 to calculate the SLAAC interface identifier.
 
 The set of prefixes are combined with the interface identifier to generate a set of putative IPv6 addresses for the client. This set of addresses is then tested to determine if the client is actually using them. To do this the server sends an ICMP6 echo request (reference) to each putative address and awaits a reply. To avoid problems with packet loss, the 
 ICMP echo requests MUST be retransmitted and the time between retransmissions MUST be subject to a suitable backoff strategy to avoid flooding the network. When an ICMP6 echo reply is recieved from a putative address, that address is marked as confirmed, and the (name, IPv6-address) pair SHOULD be installed in the DNS. The server SHOULD cease sending IMCP6 echo requests to an address once it has been confirmed. It MAY cease sending ICMP6 echo requests is no answers are recieved after an extended period, or it MAY implement a backoff strategy which reduces the rate to sending echo requests to close to zero after an extended period. One of these options MUST be implemented.
 
-# Interactions with the DNS.
+# Interactions with the DNS
 
-The exact mechansim by which a name is associated with a host, and the name, address pair are installed in the DNS are 
+The exact mechanism by which a name is associated with a host, and the name, address pair are installed in the DNS are 
 beyond the scope of this document. It is assumed that the mechanism which is used to determine the name which is stored in the A record is re-used to the AAAA record, and the mechanism by which the A record is inserted into the DNS is re-used for the AAAA record. The lifetime and TTL of the AAAA record should be the same as that for the A record. The same strategy for removing DNS records on the expiry of a DHCPv4 lease is used for AAAA records. The
 server MUST NOT insert AAAA records into the DNS unless they have been confirmed by the receipt of an ICMP6 echo reply. 
 
-# Persistent storage of IPv6 addresses.
+# Persistent storage of IPv6 addresses
 
-The server MAY store the set of confirmed IPv6 addresses in the persistent lease database so that they are preserved over a server restart. Alternatively, after a server restart, the server MAY  repeat the generation and confirmation of the set of putative IPv6 addresses associated with each DHCPv4 lease. The server MUST NOT assume that IPv6 addresses for existing leases are confirmed after a server restart and MUST repeat the confirmation process unless the status of the addresses is stored in the persistent database.  
+The server MAY store the set of confirmed IPv6 addresses in the persistent lease database so that they are preserved over a server restart. Alternatively, after a server restart, the server MAY  repeat the generation and confirmation of the set of putative IPv6 addresses associated with each DHCPv4 lease. The server MUST NOT assume that IPv6 addresses for existing leases are confirmed after a server restart and MUST repeat the confirmation process unless the status of the addresses is stored in the persistent database. 
 
-# Addition and removal of IPv6 prefixes.
+# Addition and removal of IPv6 prefixes
 
 When an new IPv6 prefix is added to a broadcast domain, the server SHOULD add the corresponding IPv6 addresses to the set of putative addressess for each existing DHCPv4 lease which is in BOUND state and attempt to confirm its existence by sending ICMP6 echp requests and listening for replies. When confirmed, the relevant AAAA records should be added the relevant RRset. Whn an IPv6 prefix is removed or becomes deprecated, the associated AAAA records should be removed from the DNS.
 
-# Router advertisements.
+# Router advertisements
 
 The implementation MAY arrange for unsolicited Router Advertisements to be sent at short intervals, in the same way as after an interface becomes an advertising interface, when a new DHCPv4 lease enters the BOUND state from another state. This increases tha probability that a new host appearing on the network will be assigned an address by SLAAC  promptly and be detected by the system.
 
-
-
-# Limitations.
+# Limitations
 
 This technique will only install SLAAC addresses into the DNS. It does not detect 
 privacy addresses. It is unlikely to be useful to insert privacy addresses into the DNS. A host which
@@ -140,7 +137,7 @@ dhcp-range=1234::, ra-names
 
 dhcp-range=1234::, ra-stateless, ra-names
 
-For more details on configuration see the [http://www.thekelleys.org.uk/dnsmasq/docs/dnsmasq.conf.example].
+For more details on configuration see the [examples](http://www.thekelleys.org.uk/dnsmasq/docs/dnsmasq.conf.example).
 
 # Appendix B - ISC-dhcp configuration
 
