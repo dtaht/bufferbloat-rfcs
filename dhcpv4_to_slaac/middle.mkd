@@ -116,7 +116,7 @@ SHOULD add the corresponding IPv6 addresses to the set of putative
 addressess for each existing DHCPv4 lease which is in BOUND state and
 attempt to confirm its existence by sending ICMP6 echp requests and
 listening for replies. When confirmed, the relevant AAAA records
-should be added the relevant RRset. Whn an IPv6 prefix is removed or
+should be added the relevant RRset. When an IPv6 prefix is removed or
 becomes deprecated, the associated AAAA records should be removed from
 the DNS.
 
