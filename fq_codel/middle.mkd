@@ -102,8 +102,6 @@ detail in the remainder of this document. For more analysis of the
 consequences of the scheduling, and some performance notes, see the
 appendix.
 
-FIXME: Write appendix.
-
 # CoDel
 
 CoDel is described in the the ACM Queue paper, [#CODEL], and Van
@@ -448,29 +446,7 @@ sparse packet drop behavior, etc.
 [NFQCODEL](http://www.bufferbloat.net/projects/cerowrt/wiki/nfq_codel).
 ns2 and ns3 models are available.
 
-### Appendix A - Examples of use
+# Appendix A - Efficacy of FQ-CoDel
 
-FIXME: Is this really useful? Also, very Linux-specific.
-
-	|   tc qdisc del dev eth0 root
-	|  tc qdisc add dev eth0 root fq_codel
-	|  tc -s qdisc show
-	|       qdisc  fq_codel  8002:  dev  eth0 root refcnt 2 limit 10240p flows 1024
-	|       quantum 1514
-	|        target 5.0ms interval 100.0ms ecn
-	|          Sent 428514 bytes 2269 pkt (dropped 0, overlimits 0 requeues 0)
-	|          backlog 0b 0p requeues 0
-	|           maxpacket 256 drop_overlimit 0 new_flow_count 0 ecn_mark 0
-	|           new_flows_len 0 old_flows_len 0
-
-
-	|    tc qdisc del dev eth0 root
-	|   tc qdisc add dev dev eth0 root fq_codel limit 800  target  20ms  interval 120ms noecn
-	|   tc -s qdisc show dev eth0
-	|       qdisc  fq_codel  8003:  dev  eth0  root refcnt 2 limit 800p flows 1024
-	|      quantum 1514 target 20.0ms interval 120.0ms
-	|       Sent 2588985006 bytes 1783629 pkt (dropped 0,  overlimits  0  requeues
-	|      34869)
-	|        backlog 0b 0p requeues 34869
-	|        maxpacket 65226 drop_overlimit 0 new_flow_count 73 ecn_mark 0
-	|        new_flows_len 1 old_flows_len 3
+FIXME: Write this appendix. Some stuff from the old text can probably be
+incorporated.
