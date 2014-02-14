@@ -376,7 +376,32 @@ summarised in the following state diagram:
 
 # Implementation considerations
 
-### Memory Overhead
+## Probability of hash collisions
+
+Since the Linux FQ-CoDel implementation by default uses no fewer than
+1024 hash buckets, the probabilty that (say) 100 VOIP sessions will all
+hash to the same bucket is something like ten to the power of minus 300.
+Thus, the probability that at least one of the VOIP sessions will hash
+to some other queue is very high indeed.
+
+What is the probability that each of the 100 VOIP sessions will get its
+own queue? This is given by (1023!/(924!*1024^99)) or about 0.007, which
+although much more highly probable than ten to the power of minus 300,
+is still not all that probable.
+
+The probability rises sharply if we are willing to accept a few
+collisions. For example, there is about an 86% probability that no more
+than two of the 100 VOIP sessions will be involved in any given
+collision, and about a 99% probability that no more than three of the
+VOIP sessions will be involved in any given collision. These last two
+results were computed using Monte Carlo simulations: Oddly enough, the
+mathematics for VOIP-session collision exactly matches that of hardware
+cache overflow.
+
+FIXME: Expand with more thorough discussion of hashing?
+
+
+## Memory Overhead
 
 FQ-CoDel can be implemented with a very low memory footprint (less than
 64 bytes per queue on 64 bit systems). This is the data structure used in
