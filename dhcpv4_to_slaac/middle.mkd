@@ -190,8 +190,10 @@ dhcp-range=1234::, ra-names
 
 dhcp-range=1234::, ra-stateless, ra-names
 
-For more details on configuration see the dnsmasq examples [http://www.thekelleys.org.uk/dnsmasq/docs/dnsmasq.conf.example](http://www.thekelleys.org.uk/dnsmasq/docs/dnsmasq.conf.example).
+For more details on configuration see the dnsmasq examples at [http://www.thekelleys.org.uk/dnsmasq/docs/dnsmasq.conf.example](http://www.thekelleys.org.uk/dnsmasq/docs/dnsmasq.conf.example).
 
 # Appendix B - ISC-dhcp configuration
+
+For more details on isc-dhcp configuration see the examples at [https://github.com/dtaht/bufferbloat-rfcs/dhcpv4_to_slaac/isc-dhcp/](https://github.com/dtaht/bufferbloat-rfcs/dhcpv4_to_slaac/isc-dhcp/)
 
 
