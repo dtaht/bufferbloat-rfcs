@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<reference anchor='RFC4443'>
+
+<front>
+<title>Internet Control Message Protocol (ICMPv6) for the Internet Protocol Version 6 (IPv6) Specification</title>
+<author initials='A.' surname='Conta' fullname='A. Conta'>
+<organization /></author>
+<author initials='S.' surname='Deering' fullname='S. Deering'>
+<organization /></author>
+<author initials='M.' surname='Gupta' fullname='M. Gupta'>
+<organization /></author>
+<date year='2006' month='March' />
+<abstract>
+<t>This document describes the format of a set of control messages used in ICMPv6 (Internet Control Message Protocol).  ICMPv6 is the Internet Control Message Protocol for Internet Protocol version 6 (IPv6). [STANDARDS-TRACK]</t></abstract></front>
+
+<seriesInfo name='RFC' value='4443' />
+<format type='TXT' octets='48969' target='http://www.rfc-editor.org/rfc/rfc4443.txt' />
+</reference>
