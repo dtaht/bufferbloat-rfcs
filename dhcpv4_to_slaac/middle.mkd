@@ -42,7 +42,7 @@ information.
 # Protocol
 
 For each DHCPv4 lease which is in BOUND state and has a known name,
-the DHCPv4 server attempts to determines the broadcast domain in which
+the DHCPv4 server attempts to determine the broadcast domain in which
 the assigned IPv4 address exists and the IPv6 prefix(es) associated
 with that broadcast domain.  If the server has an interface in the
 broadcast domain, then the server MAY use the configuration of the
