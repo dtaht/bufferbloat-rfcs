@@ -15,7 +15,7 @@
 <!ENTITY pandocRef3596  PUBLIC '' '../bib/reference.RFC.3596.xml'>
 ]>
 
-<rfc ipr="trust200902" category="info" docName="draft-taht-kelly-hunt-dhcpv4-to-slaac-naming-00">
+<rfc ipr="trust200902" category="info" docName="draft-taht-kelley-hunt-dhcpv4-to-slaac-naming-00">
  <front>
         <title abbrev="SLAAC2DNS">DHCPv4 to SLAAC DNS naming</title>
 
