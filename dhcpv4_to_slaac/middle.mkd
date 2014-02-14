@@ -95,7 +95,7 @@ the DNS is re-used for the AAAA record. The lifetime and TTL of the
 AAAA record should be the same as that for the A record. The same
 strategy for removing DNS records on the expiry of a DHCPv4 lease is
 used for AAAA records. The server MUST NOT insert AAAA records into
-the DNS unless they have been confirmed by the receipt of an ICMP6
+the DNS unless they have been confirmed by the receipt of an ICMPv6
 echo reply.
 
 # Persistent storage of IPv6 addresses
