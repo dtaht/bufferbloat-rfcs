@@ -13,6 +13,7 @@
 <!ENTITY pandocRef3633  PUBLIC '' '../bib/reference.RFC.3633.xml'>
 <!ENTITY pandocRef3315  PUBLIC '' '../bib/reference.RFC.3315.xml'>
 <!ENTITY pandocRef3596  PUBLIC '' '../bib/reference.RFC.3596.xml'>
+<!ENTITY pandocRef4443  PUBLIC '' '../bib/reference.RFC.4443.xml'>
 ]>
 
 <rfc ipr="trust200902" category="info" docName="draft-taht-kelley-hunt-dhcpv4-to-slaac-naming-00">
@@ -124,6 +125,7 @@
         &pandocRef3315;
         &pandocRef3633;
         &pandocRef3596;
+        &pandocRef4443;
     </references>
 </back>
 </rfc>
