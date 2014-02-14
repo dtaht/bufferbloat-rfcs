@@ -1,4 +1,4 @@
-DRAFT=draft-taht-kelly-hunt-dhpv4-to-slac-naming-00
+DRAFT=draft-taht-kelly-hunt-dhpv4-to-slaac-naming-00
 
 DRAFTS=$(DRAFT).txt $(DRAFT).html $(DRAFT).xml
 

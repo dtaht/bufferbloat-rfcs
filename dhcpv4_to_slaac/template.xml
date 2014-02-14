@@ -20,8 +20,9 @@
  <front>
         <title abbrev="SLAAC2DNS">DHCPv4 to SLAAC DNS naming</title>
 
-        <author initials="D." surname="Taht"
-                fullname="Dave Taht">
+
+        <author initials="D." surname="Täht"
+                fullname="Dave Täht">
             <organization>Teklibre</organization>
 
             <address>

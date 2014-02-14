@@ -194,6 +194,6 @@ For more details on configuration see the dnsmasq examples at [http://www.thekel
 
 # Appendix B - ISC-dhcp configuration
 
-For more details on isc-dhcp configuration see the examples at [https://github.com/dtaht/bufferbloat-rfcs/dhcpv4_to_slaac/isc-dhcp/](https://github.com/dtaht/bufferbloat-rfcs/dhcpv4_to_slaac/isc-dhcp/)
+For more details on isc-dhcp configuration see the examples at [https://github.com/dtaht/bufferbloat-rfcs/tree/master/dhcpv4_to_slaac/isc-dhcp/](https://github.com/dtaht/bufferbloat-rfcs/tree/master/dhcpv4_to_slaac/isc-dhcp/)
 
 
