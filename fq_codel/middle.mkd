@@ -70,11 +70,13 @@ and the CoDel algorithm are fairly straight forward:
 
 At initiation, the queues are initialised so that each queue has a
 separate set of CoDel state variables. By default, 1024 queues are
-created, but the current implementation supports anywhere from 2 to
-64k separate queues. Each queue maintains the state variables
-throughout its lifetime, and so acts the same as the non-fq CoDel
-variant would. Codel variants apply varying levels of hysteresis to
-queues that fall out of use to eventually reset their states.
+created. The current implementation supports one to 64k separate
+queues. With one queue FQ-CoDel behaves essentially the same as CoDel.
+
+Each queue maintains the state variables throughout its lifetime, and
+so acts the same as the non-fq CoDel variant would. Codel variants
+apply varying levels of hysteresis to queues that fall out of use to
+eventually reset their states.
 
 On dequeue, FQ-CoDel selects a queue from which to dequeue by a two-tier
 round-robin scheme, in which each queue is allowed to dequeue up to a
@@ -469,6 +471,20 @@ Much of the scheduling portion of FQ-Codel is derived from
 DRR. SFQ-based versions have also been produced and tested in
 ns2. Other forms of Fair Queuing, such as WFQ or QFQ have not been
 thoroughly explored.
+
+## Differences between CoDel and FQ-Codel behavior
+
+CoDel is a single queue system that evolves to an "ideal" drop rate
+and then optimizes around that control point.
+
+FQ-Codel smears bursts of competing flows over each other, so that a
+new flow gets substantial "credit" over other flows until CoDel finds
+an ideal drop rate for it as well. However, as more time passes before
+all of a new flow is delivered (as packets from it, too, are mixed
+across the other existing queue-building flows), FQ-CoDel seeks an
+ideal drop rate in more time, with less delivered packets.
+
+FQ-Codel "shoots" more accurately at the largest flows than CoDel.
 
 # Resources and Additional Information
 
