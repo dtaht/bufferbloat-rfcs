@@ -100,9 +100,19 @@
         <keyword>Pandoc</keyword>
         <keyword>Extensible Markup Language</keyword>
         <abstract>
-            <t>This memo presents the FQ-CoDel hybrid packet scheduler/AQM algorithm, a critical tool for fighting bufferbloat and reducing latency across the Internet. 
+            <t>This memo presents the FQ-CoDel hybrid packet
+            scheduler/AQM algorithm, a critical tool for fighting
+            bufferbloat and reducing latency across the Internet.
             </t>
-	    <t>FQ-CoDel reduces the impact of head of line blocking, such as that induced by IW10, and provides isolation for low-rate traffic such as DNS, web, and videoconferencing traffic. It improves (bidirectional) utilization across the networking fabric, and by holding queue lengths short and doing so in a memory and cpu-efficient fashion, can be implemented across a wide range of hardware. 
+	    <t>FQ-CoDel reduces flows back into mixable packets, and
+	    reduces the impact of head of line blocking, such as that
+	    induced by IW10. It provides isolation for low-rate
+	    traffic such as DNS, web, and videoconferencing
+	    traffic. It improves utilization, especially bidirectional
+	    utilization, across the networking fabric, and by holding
+	    queue lengths short and doing so in a memory and
+	    cpu-efficient fashion, can be implemented across a wide
+	    range of hardware.
 	    </t>
         </abstract>
 </front>
