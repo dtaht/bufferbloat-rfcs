@@ -484,7 +484,11 @@ all of a new flow is delivered (as packets from it, too, are mixed
 across the other existing queue-building flows), FQ-CoDel seeks an
 ideal drop rate in more time, with less delivered packets.
 
-FQ-Codel "shoots" more accurately at the largest flows than CoDel.
+It acts to pace bursty flows to better fill the pipe.
+
+FQ-Codel shoots sooner and more accurately at and at more of the
+largest flows than CoDel alone. It is more responsive to changes in
+bandwidth, and in number of flows, than CoDel alone.
 
 # Resources and Additional Information
 
