@@ -11,18 +11,18 @@ The FQ-CoDel algorithm is a combined packet scheduler and AQM
 developed as part of the bufferbloat-fighting community effort. It is
 based on a modified Deficit Round Robin (DRR) queue scheduler, with
 the CoDel AQM algorithm operating on each sub-queue. This document
-describes the combined algorithm; Reference implementations are
+describes the combined algorithm; reference implementations are
 available for ns2 and ns3 and it is included in the mainline Linux
 kernel as the FQ-CoDel queueing discipline.
 
 The rest of this document is structured as follows: The rest of this
 section gives some concepts and terminology used in the rest of the
 document, and gives a short informal summary of the FQ-CoDel
-algorithm. Section 2 (FIXME: automatic internal links?) gives an
-overview of the CoDel algorithm. Section 3 defines the parameters and
-data structures employed by FQ-CoDel and section 4 describes the
-working of the algorithm in detail. Section 6 describes security
-considerations while section 8 concludes.
+algorithm. Section 2 gives an overview of the CoDel algorithm. Section
+3 covers the DRR portion. Section 4 defines the parameters and data
+structures employed by FQ-CoDel. Section 5 describes the working of
+the algorithm in detail. Section 6 describes implementation
+considerations. Section 11 concludes.
 
 ## Terminology and concepts
 
@@ -269,7 +269,7 @@ which it is removed when it is no longer active. This behaviour is the
 source of some subtlety in the packet scheduling at dequeue time,
 explained below.
 
-# The FQ-CoDel scheduler
+# The FQ-CoDel scheduler and AQM interactions
 
 This section describes the operation of the FQ-CoDel scheduler and
 AQM. It is split into two parts explaining the enqueue and dequeue
@@ -297,8 +297,8 @@ being dropped and no further action taken. By design the standard
 filter cannot fail.
 
 The default algorithm presently deployed does decapsulation of some
-common packet types (6in4, GRE 0), mixes ipv6 IP addresses thoroughly,
-and uses jhash3 on the result.
+common packet types (6in4, IPIP, GRE 0), mixes IPv6 IP addresses
+thoroughly, and uses jhash3 on the result.
 
 Once the packet has been successfully classified into a sub-queue, it is
 handed over to the CoDel algorithm for timestamping. It is then added to
@@ -306,7 +306,7 @@ the tail of the selected queue, and the queue's byte count is updated by
 the packet size. Then, if the queue is not currently active (i.e. if it
 is not in either the list of new or the list of old queues), it is added
 to the end of the list of new queues, and its deficit is initiated to
-the configured quantum.
+the configured quantum. Otherwise it is added to the old queue list.
 
 Finally, the total number of enqueued packets is compared with the
 configured limit, and if it is *above* this value (which can happen
@@ -386,9 +386,9 @@ summarised in the following state diagram:
 
 ## Probability of hash collisions
 
-Since the Linux FQ-CoDel implementation by default uses no fewer than
-1024 hash buckets, the probabilty that (say) 100 VOIP sessions will all
-hash to the same bucket is something like ten to the power of minus 300.
+Since the Linux FQ-CoDel implementation by default uses 1024 hash
+buckets, the probabilty that (say) 100 VOIP sessions will all hash to
+the same bucket is something like ten to the power of minus 300.
 Thus, the probability that at least one of the VOIP sessions will hash
 to some other queue is very high indeed.
 
