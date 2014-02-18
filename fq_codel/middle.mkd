@@ -156,7 +156,7 @@ than at the tail.
 
 ### Interval
 
-The _interval_ paramter has the same semantics as CoDel and is used to
+The _interval_ parameter has the same semantics as CoDel and is used to
 ensure that the measured minimum delay does not become too stale. The
 minimum delay must be experienced in the last epoch of length
 interval. It should be set on the order of the worst-case RTT through
@@ -184,7 +184,8 @@ from the largest queue (measured in bytes) are dropped from the head
 of the flow. Note that this limit is a global limit for packets in all
 queues; each individual queue does not have an upper limit.
 
-The default packet limit is 10240 packets.
+The default packet limit is 10240 packets, which is suitable for up
+to 10GigE speeds.
 
 ### Quantum
 
