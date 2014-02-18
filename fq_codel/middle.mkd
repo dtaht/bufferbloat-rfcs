@@ -330,7 +330,7 @@ the end of the list).
 
 After having selected a queue from which to dequeue a packet, the CoDel
 algorithm is invoked on that queue. This applies the CoDel control law,
-and may discard one or more packets from the head of the queue, before
+and may discard one or more packets from the head of that queue, before
 returning the packet that should be dequeued (or nothing if the queue is
 or becomes empty while being handled by the CoDel algorithm).
 
@@ -348,7 +348,7 @@ algorithm, it updates the byte deficit for the selected queue before
 returning the packet as the result of the dequeue operation.
 
 Note that the step that moves an empty queue from the list of new queues
-to the list of old queues before it is removed, is crucial to prevent
+to the list of old queues before it is removed is crucial to prevent
 starvation. This is because otherwise the queue can reappear (the next
 time a packet arrives for it) before the list of old queues is visited;
 this can go on indefinitely even with a small number of active flows, if
