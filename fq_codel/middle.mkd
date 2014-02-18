@@ -172,7 +172,13 @@ determines the scheduling granularity, with the tradeoff from too small
 a quantum being scheduling overhead. For small bandwidths, lowering the
 quantum from the default MTU size can be advantageous.
 
-# FQ-CoDel Parameters and data structures
+Unlike DRR there are two sets of flows - a "new" list for flows that
+have not built a queue recently, and an "old" list for flow-building
+queues. 
+
+# FQ-CoDel Parameters and Data Structures
+
+This section goes into the parameters and data structures in FQ-Codel.
 
 ## Parameters
 
@@ -245,15 +251,14 @@ It can be disabled by specifying the _noecn_ parameter.
 
 ### Internal sub-queues
 
-The main data structure of FQ-CoDel is the array of sub-queues, which is
-instantiated at initiation to the number of queues specified by the
-_flows_ parameter. Each sub-queue consists simply an ordered list of
-packets with FIFO semantics, two state variables tracking the queue
-deficit and total number of bytes enqueued, and the set of CoDel state
-variables (which includes an arrival timestamp of each packet in the
-queue). Other state variables to track queue statistics can also be
-included: the Linux implementation keeps a per-queue count of dropped
-packets.
+The main data structure of FQ-CoDel is the array of sub-queues, which
+is instantiated to the number of queues specified by the _flows_
+parameter at instantiation time. Each sub-queue consists simply an
+ordered list of packets with FIFO semantics, two state variables
+tracking the queue deficit and total number of bytes enqueued, and the
+set of CoDel state variables.  Other state variables to track queue
+statistics can also be included: the Linux implementation keeps a
+per-queue count of dropped packets.
 
 Queue space is shared: there's a global limit on the number of packets
 the queues can hold, but not one per queue.
@@ -317,10 +322,10 @@ that was just enqueued, and may even be from a different queue.
 
 ## Dequeue
 
-Most of FQ-CoDel's scheduling is done at packet dequeue time. It
-consists of three parts: selecting a queue from which to dequeue a
-packet, actually dequeuing it (employing the CoDel algorithm in the
-process), and some final bookkeeping.
+Most of FQ-CoDel's work is done at packet dequeue time. It consists of
+three parts: selecting a queue from which to dequeue a packet,
+actually dequeuing it (employing the CoDel algorithm in the process),
+and some final bookkeeping.
 
 For the first part, the scheduler first looks at the list of new
 queues; for each queue in that list, if that queue has a negative
@@ -354,15 +359,15 @@ If, instead, the scheduler *did* get a packet back from the CoDel
 algorithm, it updates the byte deficit for the selected queue before
 returning the packet as the result of the dequeue operation.
 
-Note that the step that moves an empty queue from the list of new queues
-to the list of old queues before it is removed is crucial to prevent
+The step that moves an empty queue from the list of new queues to the
+list of old queues before it is removed is crucial to prevent
 starvation. This is because otherwise the queue can reappear (the next
-time a packet arrives for it) before the list of old queues is visited;
-this can go on indefinitely even with a small number of active flows, if
-the flow providing packets to the queue in question transmits at just
-the right rate. This is prevented by first moving the queue to the list
-of old queues, thus forcing a pass through that, and preventing
-starvation.
+time a packet arrives for it) before the list of old queues is
+visited; this can go on indefinitely even with a small number of
+active flows, if the flow providing packets to the queue in question
+transmits at just the right rate. This is prevented by first moving
+the queue to the list of old queues, thus forcing a pass through that,
+and thus preventing starvation.
 
 The resulting migration of queues between the different states is
 summarised in the following state diagram:
@@ -458,6 +463,13 @@ that do most of their processing in silicon.
 
 Also, timestamping functions in the core OS need to be very efficient.
 
+## Other forms of "Fair Queuing"
+
+Much of the scheduling portion of FQ-Codel is derived from
+DRR. SFQ-based versions have also been produced and tested in
+ns2. Other forms of Fair Queuing, such as WFQ or QFQ have not been
+thoroughly explored.
+
 # Resources and Additional Information
 
 # Security Considerations
@@ -472,8 +484,9 @@ This document has no actions for IANA.
 
 # Acknowlegements
 
-Eric Dumazet (author of FQ-Codel), Kathie Nichols, Van Jacobson,
-and the members of the bufferbloat.net effort.
+Our deepest thanks to Eric Dumazet (author of FQ-Codel), Kathie
+Nichols, Van Jacobson, and all the members of the bufferbloat.net
+effort.
 
 # Conclusions
 
@@ -490,7 +503,7 @@ On-going projects are: improving FQ-CoDel with more SFQ-like behavior
 for lower bandwidth systems, improving the control law, optimizing
 sparse packet drop behavior, etc..
 
-ns2 and ns3 models are available. Patches (such as
+Ns2 and ns3 models are available. Refinements (such as
 [NFQCODEL](http://www.bufferbloat.net/projects/cerowrt/wiki/nfq_codel))
 are being tested in the CeroWrt effort.
 
