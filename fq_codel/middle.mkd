@@ -151,6 +151,27 @@ than at the tail.
                     +------------------------+
 
 
+# Flow Queuing
+
+FQ-CoDel's DRR scheduler is byte-based, employing a deficit round-robin
+mechanism between queues. This works by keeping track of the
+current byte _deficit_ of each queue. This deficit is initialised to
+the configurable quantum; each time a queue gets a dequeue
+opportunity, it gets to dequeue packets, decreasing the deficit by the
+packet size for each packet, until the deficit runs into the negative,
+at which point it is increased by one quantum, and the dequeue
+opportunity ends.
+
+This means that if one queue contains packets of size quantum/3, and
+another contains quantum-sized packets, the first queue will dequeue
+three packets each time it gets a turn, whereas the second only dequeues
+one. This means that flows that send small packets are not penalised by
+the difference in packet sizes; rather, the DRR scheme approximates a
+(single-)byte-based fairness queueing. The size of the quantum
+determines the scheduling granularity, with the tradeoff from too small
+a quantum being scheduling overhead. For small bandwidths, lowering the
+quantum from the default MTU size can be advantageous.
+
 # FQ-CoDel Parameters and data structures
 
 ## Parameters
@@ -250,31 +271,9 @@ explained below.
 
 # The FQ-CoDel scheduler
 
-This section describes the operation of the FQ-CoDel scheduler. It is
-split into three parts: An explanation of the deficit round-robin (DRR)
-mechanism employed to divide bandwidth between queues, and two parts
-explaining the enqueue and dequeue operations.
-
-## The DRR mechanism
-
-FQ-CoDel's scheduler is byte-based, employing a deficit round-robin
-mechanism between queues. This works by keeping track of the
-current byte _deficit_ of each queue. This deficit is initialised to
-the configurable quantum; each time a queue gets a dequeue
-opportunity, it gets to dequeue packets, decreasing the deficit by the
-packet size for each packet, until the deficit runs into the negative,
-at which point it is increased by one quantum, and the dequeue
-opportunity ends.
-
-This means that if one queue contains packets of size quantum/3, and
-another contains quantum-sized packets, the first queue will dequeue
-three packets each time it gets a turn, whereas the second only dequeues
-one. This means that flows that send small packets are not penalised by
-the difference in packet sizes; rather, the DRR scheme approximates a
-(single-)byte-based fairness queueing. The size of the quantum
-determines the scheduling granularity, with the tradeoff from too small
-a quantum being scheduling overhead. For small bandwidths, lowering the
-quantum from the default MTU size can be advantageous.
+This section describes the operation of the FQ-CoDel scheduler and
+AQM. It is split into two parts explaining the enqueue and dequeue
+operations.
 
 ## Enqueue
 
@@ -285,15 +284,21 @@ maximum.
 
 When a packet is enqueued, it is first classified into the appropriate
 sub-queue. By default, this is done by hashing on the 5-tuple of IP
-protocol, and source and destination IP and port numbers, permuted by a
-random value selected at initialisation time, and taking the hash value
-modulo the number of sub-queues. However, an implementation may also
-specify a configurable sub-queue classification scheme (the Linux
-implementation does so in the form of the 'tc filter' command). In this
-case, classification failure results in the packet being dropped and no
-further action taken.
+protocol, and source and destination IP and port numbers, permuted by
+a random value selected at initialisation time, and taking the hash
+value modulo the number of sub-queues. However, an implementation may
+also specify a configurable classification scheme along a wide variety
+of other possible parameters such as mac address, diffserv, firewall
+and flow specific markings, etc. (the Linux implementation does so in
+the form of the 'tc filter' command).
 
-FIXME: Should the hashing algorithm me specified?
+If a custom filter fails, classification failure results in the packet
+being dropped and no further action taken. By design the standard
+filter cannot fail.
+
+The default algorithm presently deployed does decapsulation of some
+common packet types (6in4, GRE 0), mixes ipv6 IP addresses thoroughly,
+and uses jhash3 on the result.
 
 Once the packet has been successfully classified into a sub-queue, it is
 handed over to the CoDel algorithm for timestamping. It is then added to
@@ -443,6 +448,15 @@ The master table managing all queues looks like this:
         struct list_head new_flows;     /* list of new flows */
         struct list_head old_flows;     /* list of old flows */
     };
+
+## Per-Packet Timestamping
+
+The CoDel portion of the algorithm requires per-packet timestamps be
+stored along with the packet. While this approach works well for
+software-based routers, it cannot be easily retrofitted to devices
+that do most of their processing in silicon.
+
+Also, timestamping functions in the core OS need to be very efficient.
 
 # Resources and Additional Information
 
