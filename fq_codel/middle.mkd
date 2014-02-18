@@ -115,7 +115,7 @@ outgoing link busy, but avoiding building up the queue beyond that
 point. This is done by preferentially dropping packets that remain in
 the queue for “too long”.
 
-When each new packet arrives, it is marked with its arrival time. Later,
+When each new packet arrives, its arrival time is stored with it. Later,
 when it is that packet's turn to be dequeued, CoDel computes its sojourn
 time (the current time minus the arrival time). If the sojourn time for
 packets being dequeued exceeds the _target_ time for a time period of at
