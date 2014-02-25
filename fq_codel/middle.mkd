@@ -44,7 +44,7 @@ CoDel AQM: The Active Queue Management algorithm employed by FQ-CoDel.
 
 DRR: Deficit round-robin scheduling.
 
-Packet: An indivisable quantity of bytes.
+Packet: An indivisible quantity of bytes.
 
 Quantum: The amount of bytes in a flow that will be delivered at once.
 
@@ -74,7 +74,7 @@ created. The current implementation supports one to 64k separate
 queues. With one queue FQ-CoDel behaves essentially the same as CoDel.
 
 Each queue maintains the state variables throughout its lifetime, and
-so acts the same as the non-fq CoDel variant would. Codel variants
+so acts the same as the non-FQ CoDel variant would. CoDel variants
 apply varying levels of hysteresis to queues that fall out of use to
 eventually reset their states.
 
@@ -99,7 +99,7 @@ state is somewhat difficult to reason about, because it depends on
 both the egress link speed and the number of concurrent
 flows. However, in practice many things that are beneficial to have
 prioritised for typical internet use (ACKs, DNS lookups, interactive
-SSH, HTTP requests, ARP, ICMP, VOIP) *tend* to fall in this category,
+SSH, HTTP requests, ARP, ICMP, VoIP) *tend* to fall in this category,
 which is why FQ-CoDel performs so well for many practical
 applications.
 
@@ -153,7 +153,7 @@ than at the tail.
                     +------------------------+
 
 
-# Flow Queuing
+# Flow Queueing
 
 FQ-CoDel's DRR scheduler is byte-based, employing a deficit round-robin
 mechanism between queues. This works by keeping track of the
@@ -176,11 +176,11 @@ quantum from the default MTU size can be advantageous.
 
 Unlike DRR there are two sets of flows - a "new" list for flows that
 have not built a queue recently, and an "old" list for flow-building
-queues. 
+queues.
 
 # FQ-CoDel Parameters and Data Structures
 
-This section goes into the parameters and data structures in FQ-Codel.
+This section goes into the parameters and data structures in FQ-CoDel.
 
 ## Parameters
 
@@ -220,7 +220,7 @@ to 10GigE speeds.
 ### Quantum
 
 The _quantum_ parameter is the number of bytes used as 'deficit' in
-the flow queuing algorithm. The default is set to 1514 bytes which
+the flow queueing algorithm. The default is set to 1514 bytes which
 corresponds to the Ethernet MTU plus the hardware header length of 14
 bytes.
 
@@ -243,7 +243,7 @@ The default value is 1024.
 
 ECN is *enabled* by default. Rather than do anything special with
 misbehaved ECN flows, FQ-CoDel relies on the packet scheduling system
-to minimize their impact, thus unresponsive packets in a flow being
+to minimise their impact, thus unresponsive packets in a flow being
 marked with ECN can grow to the overall packet limit, but will not
 otherwise affect the performance of the system.
 
@@ -394,23 +394,23 @@ summarised in the following state diagram:
 ## Probability of hash collisions
 
 Since the Linux FQ-CoDel implementation by default uses 1024 hash
-buckets, the probabilty that (say) 100 VOIP sessions will all hash to
+buckets, the probability that (say) 100 VoIP sessions will all hash to
 the same bucket is something like ten to the power of minus 300.
-Thus, the probability that at least one of the VOIP sessions will hash
+Thus, the probability that at least one of the VoIP sessions will hash
 to some other queue is very high indeed.
 
-What is the probability that each of the 100 VOIP sessions will get its
+What is the probability that each of the 100 VoIP sessions will get its
 own queue? This is given by (1023!/(924!*1024^99)) or about 0.007, which
 although much more highly probable than ten to the power of minus 300,
 is still not all that probable.
 
 The probability rises sharply if we are willing to accept a few
 collisions. For example, there is about an 86% probability that no
-more than two of the 100 VOIP sessions will be involved in any given
+more than two of the 100 VoIP sessions will be involved in any given
 collision, and about a 99% probability that no more than three of the
-VOIP sessions will be involved in any given collision. These last two
+VoIP sessions will be involved in any given collision. These last two
 results were computed using Monte Carlo simulations: Oddly enough, the
-mathematics for VOIP-session collision exactly matches that of
+mathematics for VoIP-session collision exactly matches that of
 hardware cache overflow.
 
 ## Memory Overhead
@@ -465,19 +465,19 @@ that do most of their processing in silicon.
 
 Also, timestamping functions in the core OS need to be very efficient.
 
-## Other forms of "Fair Queuing"
+## Other forms of "Fair Queueing"
 
-Much of the scheduling portion of FQ-Codel is derived from
+Much of the scheduling portion of FQ-CoDel is derived from
 DRR. SFQ-based versions have also been produced and tested in
-ns2. Other forms of Fair Queuing, such as WFQ or QFQ have not been
+ns2. Other forms of Fair Queueing, such as WFQ or QFQ have not been
 thoroughly explored.
 
-## Differences between CoDel and FQ-Codel behavior
+## Differences between CoDel and FQ-CoDel behaviour
 
 CoDel is a single queue system that evolves to an "ideal" drop rate
-and then optimizes around that control point.
+and then optimises around that control point.
 
-FQ-Codel smears bursts of competing flows over each other, so that a
+FQ-CoDel smears bursts of competing flows over each other, so that a
 new flow gets substantial "credit" over other flows until CoDel finds
 an ideal drop rate for it as well. However, as more time passes before
 all of a new flow is delivered (as packets from it, too, are mixed
@@ -486,7 +486,7 @@ ideal drop rate in more time, with less delivered packets.
 
 It acts to pace bursty flows to better fill the pipe.
 
-FQ-Codel shoots sooner and more accurately at and at more of the
+FQ-CoDel shoots sooner and more accurately at and at more of the
 largest flows than CoDel alone. It is more responsive to changes in
 bandwidth, and in number of flows, than CoDel alone.
 
@@ -502,26 +502,26 @@ reduced (e.g. simple minded packet floods).
 
 This document has no actions for IANA.
 
-# Acknowlegements
+# Acknowledgements
 
-Our deepest thanks to Eric Dumazet (author of FQ-Codel), Kathie
+Our deepest thanks to Eric Dumazet (author of FQ-CoDel), Kathie
 Nichols, Van Jacobson, and all the members of the bufferbloat.net
 effort.
 
 # Conclusions
 
 FQ-CoDel is a very general, efficient, nearly parameterless active
-queue management approach combining flow queuing with CoDel. It is a
+queue management approach combining flow queueing with CoDel. It is a
 critical tool in solving bufferbloat.
 
 FQ-CoDel's default settings SHOULD be modified for other
-special-purpose networking applications, for use in data centers, or
+special-purpose networking applications, for use in data centres, or
 on links with inherent delay greater than 800ms (e.g. satellite
 links).
 
-On-going projects are: improving FQ-CoDel with more SFQ-like behavior
-for lower bandwidth systems, improving the control law, optimizing
-sparse packet drop behavior, etc..
+On-going projects are: improving FQ-CoDel with more SFQ-like behaviour
+for lower bandwidth systems, improving the control law, optimising
+sparse packet drop behaviour, etc..
 
 Ns2 and ns3 models are available. Refinements (such as
 [NFQCODEL](http://www.bufferbloat.net/projects/cerowrt/wiki/nfq_codel))
