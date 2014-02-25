@@ -70,17 +70,15 @@ and the CoDel algorithm are fairly straight forward:
 
 At initiation, the queues are initialised so that each queue has a
 separate set of CoDel state variables. By default, 1024 queues are
-created. The current implementation supports one to 64k separate
-queues. With one queue FQ-CoDel behaves essentially the same as CoDel.
-
-Each queue maintains the state variables throughout its lifetime, and
-so acts the same as the non-FQ CoDel variant would. CoDel variants
-apply varying levels of hysteresis to queues that fall out of use to
-eventually reset their states.
+created. The current implementation supports anywhere from one to 64K
+separate queues, and each queue maintains the state variables throughout
+its lifetime, and so acts the same as the non-FQ CoDel variant would.
+This means that with only one queue, FQ-CoDel behaves essentially the
+same as CoDel by itself.
 
 On dequeue, FQ-CoDel selects a queue from which to dequeue by a two-tier
 round-robin scheme, in which each queue is allowed to dequeue up to a
-configurable quantum of bytes for each iteration.. Deviations from this
+configurable quantum of bytes for each iteration. Deviations from this
 quantum is maintained as a deficit for the queue, which serves to make
 the fairness scheme byte-based rather than a packet-based. The two-tier
 round-robin mechanism distinguishes between "new" queues (which don't
@@ -104,9 +102,7 @@ which is why FQ-CoDel performs so well for many practical
 applications.
 
 This scheduling scheme has some subtlety to it, which is explained in
-detail in the remainder of this document. For more analysis of the
-consequences of the scheduling, and some performance notes, see the
-appendix.
+detail in the remainder of this document.
 
 # CoDel
 
@@ -127,31 +123,12 @@ rate. If the sojourn still remains above the target time, additional
 packet drops will occur on a schedule computed from an
 inverse-square-root control law until either (1) the queue becomes empty
 or (2) a packet is encountered with a sojourn time that is less than the
-target time. This target time, is normally set to about five
+target time. This target time is normally set to about five
 milliseconds, and the interval is normally set to about 100
 milliseconds. This approach has proven to be quite effective in a wide
 variety of situations.
 
-CoDel tries to drop packets at or near the head of a queue, rather
-than at the tail.
-
-                       Tail           Head
-                         |              |
-                         |              |
-                    +----|--------------|----+
-      +---------+   |  +-v+--+--+--+--+-v+   |
-      |         |   |  |  |  |  |  |  |  |   |
-      | Source  +----->|  |  |  |  |  |  |+-------------+
-      |         |   |  |  |  |  |  |  |  |   |          |
-      +---------+   |  +--+--+--+--+--+--+   |          |
-           ^        |                        |          v
-           |        |        +--+--+         |   +--------------+
-           |        |        |  |  |         |   |              |
-           +-----------------+  |  |<------------+  Destination |
-                    |        |  |  |         |   |              |
-                    |        +--+--+         |   +--------------+
-                    +------------------------+
-
+CoDel drops packets at the head of a queue, rather than at the tail.
 
 # Flow Queueing
 
@@ -192,7 +169,7 @@ minimum delay must be experienced in the last epoch of length
 interval. It should be set on the order of the worst-case RTT through
 the bottleneck to give end-points sufficient time to react.
 
-Default interval value is 100 ms.
+The default interval value is 100 ms.
 
 ### Target
 
@@ -201,31 +178,32 @@ acceptable minimum standing/persistent queue delay for each FQ-CoDel
 Queue. This minimum delay is identified by tracking the local minimum
 queue delay that packets experience.
 
-Default target value is 5 ms.
+The default target value is 5 ms.
 
 ### Packet limit
 
 Routers do not have infinite memory, so some packet limit must be
 enforced.
 
-The packet _limit_ has the same semantics as CoDel and is the hard limit
-on the real queue size.  When this limit is reached, incoming packets
-from the largest queue (measured in bytes) are dropped from the head
-of the flow. Note that this limit is a global limit for packets in all
-queues; each individual queue does not have an upper limit.
+The _limit_ parameter is the hard limit on the real queue size, measured
+in number of packets. This limit is a global limit on the number of
+packets in all queues; each individual queue does not have an upper
+limit. When the limit is reached and a new packet arrives for enqueue, a
+packet is dropped from the head of the largest queue (measured in bytes)
+to make room for the new packet.
 
 The default packet limit is 10240 packets, which is suitable for up
 to 10GigE speeds.
 
 ### Quantum
 
-The _quantum_ parameter is the number of bytes used as 'deficit' in
-the flow queueing algorithm. The default is set to 1514 bytes which
-corresponds to the Ethernet MTU plus the hardware header length of 14
-bytes.
+The _quantum_ parameter is the number of bytes each queue gets to
+dequeue on each round of the scheduling algorithm. The default is set to
+1514 bytes which corresponds to the Ethernet MTU plus the hardware
+header length of 14 bytes.
 
 In TSO-enabled systems, where a "packet" consists of an offloaded
-packet train, it can presently be as large as 64k bytes. In
+packet train, it can presently be as large as 64K bytes. In
 GRO-enabled systems, up to 4K bytes.
 
 ### Flows
@@ -255,7 +233,7 @@ It can be disabled by specifying the _noecn_ parameter.
 
 The main data structure of FQ-CoDel is the array of sub-queues, which
 is instantiated to the number of queues specified by the _flows_
-parameter at instantiation time. Each sub-queue consists simply an
+parameter at instantiation time. Each sub-queue consists simply of an
 ordered list of packets with FIFO semantics, two state variables
 tracking the queue deficit and total number of bytes enqueued, and the
 set of CoDel state variables.  Other state variables to track queue
@@ -286,7 +264,7 @@ operations.
 
 The packet enqueue mechanism consists of three stages: classification
 into a sub-queue, timestamping and bookkeeping, and optionally dropping
-a packet when the total number of enqueues packets goes over the
+a packet when the total number of enqueued packets goes over the
 maximum.
 
 When a packet is enqueued, it is first classified into the appropriate
@@ -303,9 +281,9 @@ If a custom filter fails, classification failure results in the packet
 being dropped and no further action taken. By design the standard
 filter cannot fail.
 
-The default algorithm presently deployed does decapsulation of some
-common packet types (6in4, IPIP, GRE 0), mixes IPv6 IP addresses
-thoroughly, and uses jhash3 on the result.
+Additionally, the default algorithm presently deployed does
+decapsulation of some common packet types (6in4, IPIP, GRE 0), mixes
+IPv6 IP addresses thoroughly, and uses jhash3 on the result.
 
 Once the packet has been successfully classified into a sub-queue, it is
 handed over to the CoDel algorithm for timestamping. It is then added to
@@ -329,12 +307,11 @@ three parts: selecting a queue from which to dequeue a packet,
 actually dequeuing it (employing the CoDel algorithm in the process),
 and some final bookkeeping.
 
-For the first part, the scheduler first looks at the list of new
-queues; for each queue in that list, if that queue has a negative
-deficit (i.e. it has already dequeued a quantum of bytes (or more)),
-its deficit is increased by one quantum, and the queue is put onto the
-end of the list of old queues, and the routine selects the next queue
-and starts again.
+For the first part, the scheduler first looks at the list of new queues;
+for each queue in that list, if that queue has a negative deficit (i.e.
+it has already dequeued at least a quantum of bytes), its deficit is
+increased by one quantum, and the queue is put onto the end of the list
+of old queues, and the routine selects the next queue and starts again.
 
 Otherwise, that queue is selected for dequeue. If the list of new
 queues is empty, the scheduler proceeds down the list of old queues in
@@ -353,7 +330,7 @@ empty, and the scheduler does one of two things: if the queue selected
 for dequeue came from the list of new queues, it is moved to the end of
 the list of old queues. If instead it came from the list of old queues,
 that queue is removed from the list, to be added back (as a new queue)
-the next time a packet arrives that hashes to that queue. Then, (since
+the next time a packet arrives that hashes to that queue. Then (since
 no packet was available for dequeue), the whole dequeue process is
 restarted from the beginning.
 
@@ -364,12 +341,12 @@ returning the packet as the result of the dequeue operation.
 The step that moves an empty queue from the list of new queues to the
 list of old queues before it is removed is crucial to prevent
 starvation. This is because otherwise the queue can reappear (the next
-time a packet arrives for it) before the list of old queues is
-visited; this can go on indefinitely even with a small number of
-active flows, if the flow providing packets to the queue in question
-transmits at just the right rate. This is prevented by first moving
-the queue to the list of old queues, thus forcing a pass through that,
-and thus preventing starvation.
+time a packet arrives for it) before the list of old queues is visited;
+this can go on indefinitely even with a small number of active flows, if
+the flow providing packets to the queue in question transmits at just
+the right rate. This is prevented by first moving the queue to the list
+of old queues, forcing a pass through that, and thus preventing
+starvation.
 
 The resulting migration of queues between the different states is
 summarised in the following state diagram:
@@ -399,19 +376,16 @@ the same bucket is something like ten to the power of minus 300.
 Thus, the probability that at least one of the VoIP sessions will hash
 to some other queue is very high indeed.
 
-What is the probability that each of the 100 VoIP sessions will get its
-own queue? This is given by (1023!/(924!*1024^99)) or about 0.007, which
-although much more highly probable than ten to the power of minus 300,
-is still not all that probable.
-
-The probability rises sharply if we are willing to accept a few
-collisions. For example, there is about an 86% probability that no
-more than two of the 100 VoIP sessions will be involved in any given
-collision, and about a 99% probability that no more than three of the
-VoIP sessions will be involved in any given collision. These last two
-results were computed using Monte Carlo simulations: Oddly enough, the
-mathematics for VoIP-session collision exactly matches that of
-hardware cache overflow.
+Conversely, the probability that each of the 100 VoIP sessions will get
+its own queue is given by (1023!/(924!*1024^99)) or about 0.007; so not
+all that probable. The probability rises sharply, however, if we are
+willing to accept a few collisions. For example, there is about an 86%
+probability that no more than two of the 100 VoIP sessions will be
+involved in any given collision, and about a 99% probability that no
+more than three of the VoIP sessions will be involved in any given
+collision. These last two results were computed using Monte Carlo
+simulations: Oddly enough, the mathematics for VoIP-session collision
+exactly matches that of hardware cache overflow.
 
 ## Memory Overhead
 
@@ -474,21 +448,23 @@ thoroughly explored.
 
 ## Differences between CoDel and FQ-CoDel behaviour
 
-CoDel is a single queue system that evolves to an "ideal" drop rate
-and then optimises around that control point.
+CoDel can be applied to a single queue system as a straight AQM, where
+it converges towards an "ideal" drop rate (i.e. one that minimises delay
+while keeping a high link utilisation), and then optimises around that
+control point.
 
-FQ-CoDel smears bursts of competing flows over each other, so that a
-new flow gets substantial "credit" over other flows until CoDel finds
-an ideal drop rate for it as well. However, as more time passes before
-all of a new flow is delivered (as packets from it, too, are mixed
-across the other existing queue-building flows), FQ-CoDel seeks an
-ideal drop rate in more time, with less delivered packets.
+The added scheduling of FQ-CoDel mixes bursts of competing flows, which
+acts to pace bursty flows to better fill the pipe. Additionally, a new
+flow gets substantial "credit" over other flows until CoDel finds an
+ideal drop rate for it. However, for a new flow that exceeds the
+configured quantum, more time passes before all of its data is delivered
+(as packets from it, too, are mixed across the other existing
+queue-building flows). Thus, FQ-CoDel takes longer to converge towards
+an ideal drop rate, with fewer delivered packets.
 
-It acts to pace bursty flows to better fill the pipe.
-
-FQ-CoDel shoots sooner and more accurately at and at more of the
-largest flows than CoDel alone. It is more responsive to changes in
-bandwidth, and in number of flows, than CoDel alone.
+FQ-CoDel drops packets from the largest flows sooner and more accurately
+than CoDel alone. It is also more responsive to changes in bandwidth,
+and in number of flows, than CoDel alone.
 
 # Resources and Additional Information
 
@@ -526,8 +502,3 @@ sparse packet drop behaviour, etc..
 Ns2 and ns3 models are available. Refinements (such as
 [NFQCODEL](http://www.bufferbloat.net/projects/cerowrt/wiki/nfq_codel))
 are being tested in the CeroWrt effort.
-
-# Appendix A - Efficacy of FQ-CoDel
-
-FIXME: Write this appendix. Some stuff from the old text can probably be
-incorporated.
