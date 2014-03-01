@@ -12,7 +12,7 @@
 <!ENTITY pandocRefSQF2012  PUBLIC '' '../bib/reference.SQF2012.xml'>
 ]>
 
-<rfc ipr="trust200902" category="info" docName="draft-taht-hoiland-jorgensen-mckenney-gettys-fq_codel-00">
+<rfc ipr="trust200902" category="info" docName="draft-taht-hoiland-jorgensen-dumazet-mckenney-gettys-fq_codel-00">
  <front>
         <title abbrev="Fq_Codel">FlowQueue-Codel</title>
 
@@ -87,11 +87,28 @@
                 <uri>https://en.wikipedia.org/wiki/Jim_Gettys</uri>
             </address>
         </author>
+        <author initials="E." surname="Dumazet"
+                fullname="Eric Dumazet">
+            <organization>Google, Inc.</organization>
 
-        <date month="February" year="2014"/>
+            <address>
+                <postal>
+                    <street>1600 Amphitheater Pkwy</street>
+                    <city>Mountain View</city> <region>Ca</region>
+                    <code>94043</code>
+                    <country>USA</country>
+                </postal>
+
+                <phone></phone>
+                <email>edumazet@gmail.com</email>
+                <uri></uri>
+            </address>
+        </author>
+
+        <date month="March" year="2014"/>
 
         <area>General</area>
-        <workgroup>AQM Working Group</workgroup>
+        <workgroup>AQM and Packet Scheduling</workgroup>
         <keyword>RFC</keyword>
         <keyword>Request for Comments</keyword>
         <keyword>I-D</keyword>

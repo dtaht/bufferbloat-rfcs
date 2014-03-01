@@ -204,7 +204,7 @@ header length of 14 bytes.
 
 In TSO-enabled systems, where a "packet" consists of an offloaded
 packet train, it can presently be as large as 64K bytes. In
-GRO-enabled systems, up to 4K bytes.
+GRO-enabled systems, up to 17 MSS (25K bytes).
 
 ### Flows
 
@@ -281,9 +281,9 @@ If a custom filter fails, classification failure results in the packet
 being dropped and no further action taken. By design the standard
 filter cannot fail.
 
-Additionally, the default algorithm presently deployed does
+Additionally, the default hashing algorithm presently deployed does
 decapsulation of some common packet types (6in4, IPIP, GRE 0), mixes
-IPv6 IP addresses thoroughly, and uses jhash3 on the result.
+IPv6 IP addresses thoroughly, and uses Jenkins hash on the result.
 
 Once the packet has been successfully classified into a sub-queue, it is
 handed over to the CoDel algorithm for timestamping. It is then added to
