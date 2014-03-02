@@ -67,13 +67,13 @@ which works on each of the queues. The subtleties of FQ-CoDel are mostly
 in the scheduling part, whereas the interaction between the scheduler
 and the CoDel algorithm are fairly straight forward:
 
-At initiation, the queues are initialised so that each queue has a
-separate set of CoDel state variables. By default, 1024 queues are
-created. The current implementation supports anywhere from one to 64K
-separate queues, and each queue maintains the state variables throughout
-its lifetime, and so acts the same as the non-FQ CoDel variant would.
-This means that with only one queue, FQ-CoDel behaves essentially the
-same as CoDel by itself.
+At initialisation, each queue is set up to have a separate set of CoDel
+state variables. By default, 1024 queues are created. The current
+implementation supports anywhere from one to 64K separate queues, and
+each queue maintains the state variables throughout its lifetime, and so
+acts the same as the non-FQ CoDel variant would. This means that with
+only one queue, FQ-CoDel behaves essentially the same as CoDel by
+itself.
 
 On dequeue, FQ-CoDel selects a queue from which to dequeue by a two-tier
 round-robin scheme, in which each queue is allowed to dequeue up to a
