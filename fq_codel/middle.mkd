@@ -22,7 +22,7 @@ algorithm. Section 2 gives an overview of the CoDel algorithm. Section
 3 covers the DRR portion. Section 4 defines the parameters and data
 structures employed by FQ-CoDel. Section 5 describes the working of
 the algorithm in detail. Section 6 describes implementation
-considerations. Section 11 concludes.
+considerations. Section 10 concludes.
 
 ## Terminology and concepts
 
@@ -44,9 +44,8 @@ CoDel AQM: The Active Queue Management algorithm employed by FQ-CoDel.
 
 DRR: Deficit round-robin scheduling.
 
-Packet: An indivisible quantity of bytes.
-
-Quantum: The amount of bytes in a flow that will be delivered at once.
+Quantum: The maximum amount of bytes to be dequeued from a queue at
+once.
 
 ## Informal summary of FQ-CoDel
 
@@ -117,16 +116,21 @@ When each new packet arrives, its arrival time is stored with it. Later,
 when it is that packet's turn to be dequeued, CoDel computes its sojourn
 time (the current time minus the arrival time). If the sojourn time for
 packets being dequeued exceeds the _target_ time for a time period of at
-least _interval_, one or more packets will be dropped (or marked, if ECN
-is enabled) in order to signal the source endpoint to reduce its send
-rate. If the sojourn still remains above the target time, additional
-packet drops will occur on a schedule computed from an
-inverse-square-root control law until either (1) the queue becomes empty
-or (2) a packet is encountered with a sojourn time that is less than the
-target time. This target time is normally set to about five
-milliseconds, and the interval is normally set to about 100
-milliseconds. This approach has proven to be quite effective in a wide
-variety of situations.
+least the (current value of) _interval_, one or more packets will be
+dropped (or marked, if ECN is enabled) in order to signal the source
+endpoint to reduce its send rate. If the sojourn still remains above the
+target time, the value of interval be lowered, and additional packet
+drops will occur on a schedule computed from an inverse-square-root
+control law until either (1) the queue becomes empty or (2) a packet is
+encountered with a sojourn time that is less than the target time. Upon
+exiting the dropping mode, CoDel caches the last calculated interval
+(applying varying amounts of hysteresis to it), to be used as the
+starting point on subsequent re-entries into dropping mode.
+
+The _target_ time is normally set to about five milliseconds, and the
+initial _interval_ is normally set to about 100 milliseconds. This
+approach has proven to be quite effective in a wide variety of
+situations.
 
 CoDel drops packets at the head of a queue, rather than at the tail.
 
@@ -165,8 +169,8 @@ This section goes into the parameters and data structures in FQ-CoDel.
 
 The _interval_ parameter has the same semantics as CoDel and is used to
 ensure that the measured minimum delay does not become too stale. The
-minimum delay must be experienced in the last epoch of length
-interval. It should be set on the order of the worst-case RTT through
+minimum delay MUST be experienced in the last epoch of length
+interval. It SHOULD be set on the order of the worst-case RTT through
 the bottleneck to give end-points sufficient time to react.
 
 The default interval value is 100 ms.
@@ -178,11 +182,14 @@ acceptable minimum standing/persistent queue delay for each FQ-CoDel
 Queue. This minimum delay is identified by tracking the local minimum
 queue delay that packets experience.
 
-The default target value is 5 ms.
+The default target value is 5 ms, but this value SHOULD be tuned to be
+at least the transmission time of a single MTU-sized packet at the
+prevalent egress link speed (which for e.g. 1Mbps and MTU 1500 is
+~15ms).
 
 ### Packet limit
 
-Routers do not have infinite memory, so some packet limit must be
+Routers do not have infinite memory, so some packet limit MUST be
 enforced.
 
 The _limit_ parameter is the hard limit on the real queue size, measured
@@ -202,9 +209,9 @@ dequeue on each round of the scheduling algorithm. The default is set to
 1514 bytes which corresponds to the Ethernet MTU plus the hardware
 header length of 14 bytes.
 
-In TSO-enabled systems, where a "packet" consists of an offloaded
-packet train, it can presently be as large as 64K bytes. In
-GRO-enabled systems, up to 17 MSS (25K bytes).
+In TSO-enabled systems, where a "packet" consists of an offloaded packet
+train, it can presently be as large as 64K bytes. In GRO-enabled
+systems, up to 17 times the TCP max segment size (or 25K bytes).
 
 ### Flows
 
@@ -231,14 +238,14 @@ It can be disabled by specifying the _noecn_ parameter.
 
 ### Internal sub-queues
 
-The main data structure of FQ-CoDel is the array of sub-queues, which
-is instantiated to the number of queues specified by the _flows_
-parameter at instantiation time. Each sub-queue consists simply of an
-ordered list of packets with FIFO semantics, two state variables
-tracking the queue deficit and total number of bytes enqueued, and the
-set of CoDel state variables.  Other state variables to track queue
-statistics can also be included: the Linux implementation keeps a
-per-queue count of dropped packets.
+The main data structure of FQ-CoDel is the array of sub-queues, which is
+instantiated to the number of queues specified by the _flows_ parameter
+at instantiation time. Each sub-queue consists simply of an ordered list
+of packets with FIFO semantics, two state variables tracking the queue
+deficit and total number of bytes enqueued, and the set of CoDel state
+variables. Other state variables to track queue statistics can also be
+included: for instance, the Linux implementation keeps a count of
+dropped packets.
 
 Queue space is shared: there's a global limit on the number of packets
 the queues can hold, but not one per queue.
@@ -271,7 +278,7 @@ When a packet is enqueued, it is first classified into the appropriate
 sub-queue. By default, this is done by hashing on the 5-tuple of IP
 protocol, and source and destination IP and port numbers, permuted by
 a random value selected at initialisation time, and taking the hash
-value modulo the number of sub-queues. However, an implementation may
+value modulo the number of sub-queues. However, an implementation MAY
 also specify a configurable classification scheme along a wide variety
 of other possible parameters such as mac address, diffserv, firewall
 and flow specific markings, etc. (the Linux implementation does so in
@@ -441,10 +448,10 @@ Also, timestamping functions in the core OS need to be very efficient.
 
 ## Other forms of "Fair Queueing"
 
-Much of the scheduling portion of FQ-CoDel is derived from
-DRR. SFQ-based versions have also been produced and tested in
-ns2. Other forms of Fair Queueing, such as WFQ or QFQ have not been
-thoroughly explored.
+Much of the scheduling portion of FQ-CoDel is derived from DRR.
+SFQ-based versions have also been produced and tested in ns2. Other
+forms of Fair Queueing, such as WFQ or QFQ, have not been thoroughly
+explored.
 
 ## Differences between CoDel and FQ-CoDel behaviour
 
@@ -461,12 +468,11 @@ quantum, more time passes before all of its data is delivered (as
 packets from it, too, are mixed across the other existing queue-building
 flows). Thus, FQ-CoDel takes longer (as measured in time) to converge
 towards an ideal drop rate for a given new flow, but does so within
-fewer delivered *packets*. Furthermore, FQ-CoDel drops packets from the
-largest flows sooner and more accurately than CoDel alone, and it is
-more responsive to changes in bandwidth, and in number of flows, than
-CoDel alone.
+fewer delivered *packets* from that flow.
 
-# Resources and Additional Information
+Finally, FQ-CoDel drops packets from the largest flows sooner and more
+accurately than CoDel alone, and it is more responsive to changes in
+bandwidth, and in number of flows, than CoDel alone.
 
 # Security Considerations
 
@@ -490,15 +496,16 @@ FQ-CoDel is a very general, efficient, nearly parameterless active
 queue management approach combining flow queueing with CoDel. It is a
 critical tool in solving bufferbloat.
 
-FQ-CoDel's default settings SHOULD be modified for other
-special-purpose networking applications, for use in data centres, or
-on links with inherent delay greater than 800ms (e.g. satellite
-links).
+FQ-CoDel's default settings SHOULD be modified for other special-purpose
+networking applications, such as for exceptionally slow links, for use
+in data centres, or on links with inherent delay greater than 800ms
+(e.g. satellite links).
 
 On-going projects are: improving FQ-CoDel with more SFQ-like behaviour
 for lower bandwidth systems, improving the control law, optimising
 sparse packet drop behaviour, etc..
 
-Ns2 and ns3 models are available. Refinements (such as
+In addition to the Linux kernel sources, ns2 and ns3 models are
+available. Refinements (such as
 [NFQCODEL](http://www.bufferbloat.net/projects/cerowrt/wiki/nfq_codel))
 are being tested in the CeroWrt effort.
