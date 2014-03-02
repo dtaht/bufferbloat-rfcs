@@ -3,17 +3,36 @@
 <!ENTITY pandocMiddle PUBLIC '' 'middle.xml'>
 
 <!ENTITY pandocRef2119  PUBLIC '' '../bib/reference.RFC.2119.xml'>
-<!ENTITY pandocRef4641  PUBLIC '' '../bib/reference.RFC.4641.xml'>
 <!ENTITY pandocRef896  PUBLIC '' '../bib/reference.RFC.0896.xml'>
 <!ENTITY pandocRef970  PUBLIC '' '../bib/reference.RFC.0970.xml'>
 <!ENTITY pandocRef2309  PUBLIC '' '../bib/reference.RFC.2309.xml'>
 <!ENTITY pandocRefDRR  PUBLIC '' '../bib/reference.DRR.xml'>
 <!ENTITY pandocRefSFQ  PUBLIC '' '../bib/reference.SFQ.xml'>
+<!ENTITY pandocRefCODEL2012  PUBLIC '' '../bib/reference.CODEL2012.xml'>
+<!ENTITY pandocRefSQF2012  PUBLIC '' '../bib/reference.SQF2012.xml'>
 ]>
 
-<rfc ipr="trust200902" category="info" docName="draft-taht-fq_codel-00">
+<rfc ipr="trust200902" category="info" docName="draft-taht-hoiland-jorgensen-dumazet-mckenney-gettys-fq_codel-00">
  <front>
-        <title abbrev="Fq_Codel">FlowQueue_Codel</title>
+        <title abbrev="Fq_Codel">FlowQueue-Codel</title>
+
+        <author initials="T." surname="Høiland-Jørgensen"
+                fullname="Toke Høiland-Jørgensen">
+            <organization>Karlstad University</organization>
+
+            <address>
+                <postal>
+                    <street>Dept. of Computer Science</street>
+                    <city>Karlstad</city> <region></region>
+                    <code>65188</code>
+                    <country>Sweden</country>
+                </postal>
+
+                <phone></phone>
+                <email>toke.hoiland-jorgensen@kau.se</email>
+                <uri></uri>
+            </address>
+        </author>
 
         <author initials="P." surname="McKenney"
                 fullname="Paul McKenney">
@@ -68,11 +87,28 @@
                 <uri>https://en.wikipedia.org/wiki/Jim_Gettys</uri>
             </address>
         </author>
+        <author initials="E." surname="Dumazet"
+                fullname="Eric Dumazet">
+            <organization>Google, Inc.</organization>
 
-        <date month="January" year="2014"/>
+            <address>
+                <postal>
+                    <street>1600 Amphitheater Pkwy</street>
+                    <city>Mountain View</city> <region>Ca</region>
+                    <code>94043</code>
+                    <country>USA</country>
+                </postal>
+
+                <phone></phone>
+                <email>edumazet@gmail.com</email>
+                <uri></uri>
+            </address>
+        </author>
+
+        <date month="March" year="2014"/>
 
         <area>General</area>
-        <workgroup>AQM Working Group</workgroup>
+        <workgroup>AQM and Packet Scheduling</workgroup>
         <keyword>RFC</keyword>
         <keyword>Request for Comments</keyword>
         <keyword>I-D</keyword>
@@ -81,10 +117,20 @@
         <keyword>Pandoc</keyword>
         <keyword>Extensible Markup Language</keyword>
         <abstract>
-            <t>This memo presents a technique for utilizing "Flow Queuing" and the codel AQM algorithm together on home gateways.</t>
-            <t>
-                On bandwith constrained home gateways the need for some form of rate limitation and packet scheduling has been embedded in many devices.
+            <t>This memo presents the FQ-CoDel hybrid packet
+            scheduler/AQM algorithm, a critical tool for fighting
+            bufferbloat and reducing latency across the Internet.
             </t>
+	    <t>FQ-CoDel reduces flows back into mixable packets, and
+	    reduces the impact of head of line blocking, such as that
+	    induced by IW10. It provides isolation for low-rate
+	    traffic such as DNS, web, and videoconferencing
+	    traffic. It improves utilization, especially bidirectional
+	    utilization, across the networking fabric, and by holding
+	    queue lengths short and doing so in a memory and
+	    cpu-efficient fashion, can be implemented across a wide
+	    range of hardware.
+	    </t>
         </abstract>
 </front>
 
@@ -95,11 +141,12 @@
 <back>
     <references title="Normative References">
         &pandocRef2119;
-        &pandocRef4641;
         &pandocRef896;
         &pandocRef970;
         &pandocRef2309;
         &pandocRefSFQ;
+        &pandocRefCODEL2012;
+        &pandocRefSQF2012;
         &pandocRefDRR;
     </references>
 </back>
