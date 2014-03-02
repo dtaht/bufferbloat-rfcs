@@ -453,18 +453,18 @@ it converges towards an "ideal" drop rate (i.e. one that minimises delay
 while keeping a high link utilisation), and then optimises around that
 control point.
 
-The added scheduling of FQ-CoDel mixes bursts of competing flows, which
-acts to pace bursty flows to better fill the pipe. Additionally, a new
-flow gets substantial "credit" over other flows until CoDel finds an
-ideal drop rate for it. However, for a new flow that exceeds the
-configured quantum, more time passes before all of its data is delivered
-(as packets from it, too, are mixed across the other existing
-queue-building flows). Thus, FQ-CoDel takes longer to converge towards
-an ideal drop rate, with fewer delivered packets.
-
-FQ-CoDel drops packets from the largest flows sooner and more accurately
-than CoDel alone. It is also more responsive to changes in bandwidth,
-and in number of flows, than CoDel alone.
+The scheduling of FQ-CoDel mixes packets of competing flows, which acts
+to pace bursty flows to better fill the pipe. Additionally, a new flow
+gets substantial "credit" over other flows until CoDel finds an ideal
+drop rate for it. However, for a new flow that exceeds the configured
+quantum, more time passes before all of its data is delivered (as
+packets from it, too, are mixed across the other existing queue-building
+flows). Thus, FQ-CoDel takes longer (as measured in time) to converge
+towards an ideal drop rate for a given new flow, but does so within
+fewer delivered *packets*. Furthermore, FQ-CoDel drops packets from the
+largest flows sooner and more accurately than CoDel alone, and it is
+more responsive to changes in bandwidth, and in number of flows, than
+CoDel alone.
 
 # Resources and Additional Information
 
