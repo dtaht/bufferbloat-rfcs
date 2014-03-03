@@ -12,7 +12,7 @@
 <!ENTITY pandocRefSQF2012  PUBLIC '' '../bib/reference.SQF2012.xml'>
 ]>
 
-<rfc ipr="trust200902" category="info" docName="draft-hoeiland-joergensen-mckenney-taht-gettys-dumazet-fq-codel-00">
+<rfc ipr="trust200902" category="info" docName="draft-hoeiland-joergensen-aqm-fq-codel-00">
  <front>
         <title abbrev="Fq_Codel">FlowQueue-Codel</title>
 
