@@ -1,4 +1,4 @@
-title=draft-hoeiland-joergensen-mckenney-taht-gettys-dumazet-fq_codel-00
+title=draft-hoeiland-joergensen-mckenney-taht-gettys-dumazet-fq-codel-00
 objects=$(title).html $(title).xml $(title).txt
 
 all: $(title).html $(title).xml $(title).txt
