@@ -14,7 +14,7 @@
 <!ENTITY pandocRefDRRPP  PUBLIC '' '../bib/reference.DRRPP.xml'>
 ]>
 
-<rfc ipr="trust200902" category="info" docName="draft-hoeiland-joergensen-aqm-fq-codel-01">
+<rfc ipr="trust200902" category="info" docName="draft-aqm-fq_codel-00">
  <front>
         <title abbrev="Fq_Codel">FlowQueue-Codel</title>
 
