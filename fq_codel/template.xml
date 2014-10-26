@@ -9,10 +9,12 @@
 <!ENTITY pandocRefDRR  PUBLIC '' '../bib/reference.DRR.xml'>
 <!ENTITY pandocRefSFQ  PUBLIC '' '../bib/reference.SFQ.xml'>
 <!ENTITY pandocRefCODEL2012  PUBLIC '' '../bib/reference.CODEL2012.xml'>
+<!ENTITY pandocRefCODELDRAFT  PUBLIC '' '../bib/reference.CODELDRAFT.xml'>
 <!ENTITY pandocRefSQF2012  PUBLIC '' '../bib/reference.SQF2012.xml'>
+<!ENTITY pandocRefDRRPP  PUBLIC '' '../bib/reference.DRRPP.xml'>
 ]>
 
-<rfc ipr="trust200902" category="info" docName="draft-hoeiland-joergensen-aqm-fq-codel-00">
+<rfc ipr="trust200902" category="info" docName="draft-hoeiland-joergensen-aqm-fq-codel-01">
  <front>
         <title abbrev="Fq_Codel">FlowQueue-Codel</title>
 
@@ -65,7 +67,7 @@
                 </postal>
 
                 <phone></phone>
-                <email>d@taht.net</email>
+                <email>d+ietf@teklibre.com</email>
                 <uri>http://www.teklibre.com/</uri>
             </address>
         </author>
@@ -105,7 +107,7 @@
             </address>
         </author>
 
-        <date month="March" year="2014"/>
+        <date month="October" year="2014"/>
 
         <area>General</area>
         <workgroup>AQM and Packet Scheduling</workgroup>
@@ -142,12 +144,14 @@
         &pandocRef896;
         &pandocRef970;
         &pandocRef2309;
+        &pandocRefCODELDRAFT;
     </references>
     <references title="Informative References">
         &pandocRefSFQ;
         &pandocRefCODEL2012;
         &pandocRefSQF2012;
         &pandocRefDRR;
+        &pandocRefDRRPP;
     </references>
 </back>
 </rfc>

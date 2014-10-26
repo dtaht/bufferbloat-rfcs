@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<reference anchor='DRRPP'
+target="http://ieeexplore.ieee.org/xpls/abs_all.jsp?arnumber=875803">
+<front>
+<title>Deficits for Bursty Latency-critical Flows: DRR++</title>
+<author surname='MacGregor' fullname='M.H. MacGregor'>
+<organization /></author>
+<author surname='Shi' fullname='W. Shi'>
+<organization /></author>
+<date year='2000' />
+</front>
+</reference>

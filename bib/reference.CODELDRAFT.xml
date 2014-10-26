@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<reference anchor='CODELDRAFT'
+target='https://datatracker.ietf.org/doc/draft-ietf-aqm-codel/'>
+<front>
+<title>Controlling Queue Delay</title>
+<author initials='K' surname='Nichols' fullname='Kathleen Nichols'>
+<organization></organization></author>
+<author initials='V' surname='Jacobson' fullname='Van Jacobson'>
+<organization>Google, Inc</organization></author>
+<author initials='A' surname='McGregor' fullname='Andrew McGregor'>
+<organization>Google, Inc</organization></author>
+<author initials='J' surname='Iyengar' fullname='Jana Iyengar'>
+<organization>Google, Inc</organization></author>
+<!--<workgroup>Communications of the ACM Vol. 55 No. 11, July, 2012, pp.
+             42-50.</workgroup>-->
+<date year='2014' month='October' />
+</front>
+</reference>
