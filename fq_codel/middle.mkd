@@ -454,11 +454,9 @@ software-based routers, it may be impossible to retrofit devices that do
 most of their processing in silicon and lack space or mechanism for
 timestamping.
 
-Also, while perfect resolution is not needed (timestamp resolution on
-the order of milliseconds is sufficient), timestamping functions in the
-core OS need to be efficient as they are called at least once on each
-packet enqueue and dequeue.
-
+Also, while perfect resolution is not needed, timestamping functions in
+the core OS need to be efficient as they are called at least once on
+each packet enqueue and dequeue.
 
 ## Other forms of "Fair Queueing"
 
@@ -485,13 +483,13 @@ towards an ideal drop rate for a given new flow, but does so within
 fewer delivered *packets* from that flow.
 
 Finally, the flow isolation FQ-CoDel provides means that the CoDel drop
-mechanism can operate on the flow actually building a queue, which
-results in packets being dropped more accurately from the largest flows
-than CoDel alone manages. Additionally, flow isolation radically
-improves the transient behaviour of the algorithm when traffic or link
-characteristics change (e.g. when new flows start up or the link
-bandwidth changes); while CoDel itself can take a while to respond,
-fq_codel doesn't miss a beat.
+mechanism operates on the flows actually building queues, which results
+in packets being dropped more accurately from the largest flows than
+CoDel alone manages. Additionally, flow isolation radically improves the
+transient behaviour of the network when traffic or link characteristics
+change (e.g. when new flows start up or the link bandwidth changes);
+while CoDel itself can take a while to respond, fq_codel doesn't miss a
+beat.
 
 # Limitations of flow queueing
 While FQ-CoDel has been shown in many scenarios to offer significant
@@ -518,6 +516,12 @@ available packet field to partition packets into virtual queues, to for
 instance match on address or subnet source/destination pairs,
 application layer characteristics, etc.
 
+Furthermore, as commonly deployed today, FQ-CoDel is used with three or
+more tiers of classification: priority, best effort and background,
+based on diffserv markings. Some products do more detailed
+classification, including deep packet inspection and
+destination-specific filters to achieve their desired result.
+
 ## Flow bunching by opaque encapsulation
 Where possible, FQ-CoDel will attempt to decapsulate packets before
 matching on the header fields for the flow hashing. However, for some
@@ -526,10 +530,11 @@ possible. If several flows are bunched into one such encapsulated
 tunnel, they will be seen as one flow by the FQ-CoDel algorithm. This
 means that they will share a queue, and drop behaviour, and so flows
 inside the encapsulation will not benefit from the implicit
-prioritisation of FQ-CoDel. In addition, when such an encapsulated bunch
-competes against other flows, it will count as one flow, and not
-assigned a share of the bandwidth based on how many flows are inside the
-encapsulation.
+prioritisation of FQ-CoDel, but will continue to benefit from the
+reduced overall queue length from the CoDel algorithm operating on the
+queue. In addition, when such an encapsulated bunch competes against
+other flows, it will count as one flow, and not assigned a share of the
+bandwidth based on how many flows are inside the encapsulation.
 
 Depending on the application, this may or may not be desirable
 behaviour. In cases where it is not, changing FQ-CoDel's matching to not
@@ -537,14 +542,20 @@ be flow-based (as detailed in the previous subsection above) can be a
 way to mitigate this.
 
 ## Low-priority congestion control algorithms
+
 Because of the flow isolation that FQ-CoDel provides, low-priority
 congestion control algorithms (or, in general, algorithms that try to
-voluntarily use up less than their fair share of bandwidth) can break
-down. Because a flow experiences very little added latency when the link
-is congested, such algorithms lack the signal to back off that added
-latency previously afforded them. As such, they tend to revert to
-loss-based congestion control, and will consume the fair share of
-bandwidth afforded to them by the FQ-CoDel scheduler.
+voluntarily use up less than their fair share of bandwidth) can be
+re-prioritised. Because a flow experiences very little added latency
+when the link is congested, such algorithms lack the signal to back off
+that added latency previously afforded them. As such, existing
+algorithms tend to revert to loss-based congestion control, and will
+consume the fair share of bandwidth afforded to them by the FQ-CoDel
+scheduler. However, low-priority congestion control mechanisms may be
+able to take steps to continue to be low priority, for instance by
+taking into account the vastly reduced level of delay afforded by an
+AQM, or by using a coupled approach to observing the behaviour of
+multiple flows.
 
 # Security Considerations
 
