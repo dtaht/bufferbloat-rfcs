@@ -21,7 +21,9 @@ gives a short informal summary of the FQ-CoDel algorithm. Section 2
 gives an overview of the CoDel algorithm. Section 3 covers the DRR
 portion. Section 4 defines the parameters and data structures employed
 by FQ-CoDel. Section 5 describes the working of the algorithm in detail.
-Section 6 describes implementation considerations. Section 10 concludes.
+Section 6 describes implementation considerations, and section 7 lists
+some of the limitations of using flow queueing. Finally section 11
+concludes.
 
 ## Terminology and concepts
 
@@ -490,6 +492,59 @@ improves the transient behaviour of the algorithm when traffic or link
 characteristics change (e.g. when new flows start up or the link
 bandwidth changes); while CoDel itself can take a while to respond,
 fq_codel doesn't miss a beat.
+
+# Limitations of flow queueing
+While FQ-CoDel has been shown in many scenarios to offer significant
+performance gains, there are some scenarios where the scheduling
+algorithm in particular is not a good fit. This section documents some
+of the known cases which either may require tweaking the default
+behaviour, or where alternatives to flow queueing should be considered.
+
+## Fairness between things other than flows
+In some parts of the network, enforcing flow-level fairness may not be
+desirable, or some other level of fairness may be more important. An
+example of this can be an Internet Service Provider that may be more
+interested in ensuring fairness between customers than between flows. Or
+a hosting or transit provider that wishes to ensure fairness between
+connecting Autonomous Systems or networks. Another issue can be that the
+number of simultaneous flows experienced at a particular link can be too
+high for flow-based fairness queueing to be effective.
+
+Whatever the reason, in a scenario where fairness between flows is not
+desirable, reconfiguring FQ-CoDel to match on a different characteristic
+can be a way forward. The implementation in Linux can leverage the
+powerful packet matching mechanism of the _tc_ subsystem to use any
+available packet field to partition packets into virtual queues, to for
+instance match on address or subnet source/destination pairs,
+application layer characteristics, etc.
+
+## Flow bunching by opaque encapsulation
+Where possible, FQ-CoDel will attempt to decapsulate packets before
+matching on the header fields for the flow hashing. However, for some
+encapsulation techniques, most notably encrypted VPNs, this is not
+possible. If several flows are bunched into one such encapsulated
+tunnel, they will be seen as one flow by the FQ-CoDel algorithm. This
+means that they will share a queue, and drop behaviour, and so flows
+inside the encapsulation will not benefit from the implicit
+prioritisation of FQ-CoDel. In addition, when such an encapsulated bunch
+competes against other flows, it will count as one flow, and not
+assigned a share of the bandwidth based on how many flows are inside the
+encapsulation.
+
+Depending on the application, this may or may not be desirable
+behaviour. In cases where it is not, changing FQ-CoDel's matching to not
+be flow-based (as detailed in the previous subsection above) can be a
+way to mitigate this.
+
+## Low-priority congestion control algorithms
+Because of the flow isolation that FQ-CoDel provides, low-priority
+congestion control algorithms (or, in general, algorithms that try to
+voluntarily use up less than their fair share of bandwidth) can break
+down. Because a flow experiences very little added latency when the link
+is congested, such algorithms lack the signal to back off that added
+latency previously afforded them. As such, they tend to revert to
+loss-based congestion control, and will consume the fair share of
+bandwidth afforded to them by the FQ-CoDel scheduler.
 
 # Security Considerations
 
