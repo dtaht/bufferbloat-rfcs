@@ -14,7 +14,7 @@
 <!ENTITY pandocRefDRRPP  PUBLIC '' '../bib/reference.DRRPP.xml'>
 ]>
 
-<rfc ipr="trust200902" category="info" docName="draft-aqm-fq_codel-00">
+<rfc ipr="trust200902" category="info" docName="draft-ietf-aqm-fq_codel-00">
  <front>
         <title abbrev="Fq_Codel">FlowQueue-Codel</title>
 
@@ -110,7 +110,7 @@
         <date month="October" year="2014"/>
 
         <area>General</area>
-        <workgroup>AQM and Packet Scheduling</workgroup>
+        <workgroup>Active Queue Management and Packet Scheduling (aqm)</workgroup>
         <keyword>RFC</keyword>
         <keyword>Request for Comments</keyword>
         <keyword>I-D</keyword>

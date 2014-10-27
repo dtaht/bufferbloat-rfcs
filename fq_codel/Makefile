@@ -1,4 +1,4 @@
-title=draft-aqm-fq_codel-00
+title=draft-ietf-aqm-fq_codel-00
 objects=$(title).html $(title).xml $(title).txt
 
 all: $(title).html $(title).xml $(title).txt
