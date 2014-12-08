@@ -130,15 +130,15 @@ packet size for each packet, until the deficit runs into the negative,
 at which point it is increased by one quantum, and the dequeue
 opportunity ends.
 
-This means that if one queue contains packets of size quantum/3, and
-another contains quantum-sized packets, the first queue will dequeue
-three packets each time it gets a turn, whereas the second only dequeues
-one. This means that flows that send small packets are not penalised by
-the difference in packet sizes; rather, the DRR scheme approximates a
-(single-)byte-based fairness queueing. The size of the quantum
-determines the scheduling granularity, with the tradeoff from too small
-a quantum being scheduling overhead. For small bandwidths, lowering the
-quantum from the default MTU size can be advantageous.
+This means that if one queue contains packets of, for instance, size
+quantum/3, and another contains quantum-sized packets, the first queue
+will dequeue three packets each time it gets a turn, whereas the second
+only dequeues one. This means that flows that send small packets are not
+penalised by the difference in packet sizes; rather, the DRR scheme
+approximates a (single-)byte-based fairness queueing. The size of the
+quantum determines the scheduling granularity, with the tradeoff from
+too small a quantum being scheduling overhead. For small bandwidths,
+lowering the quantum from the default MTU size can be advantageous.
 
 Unlike DRR there are two sets of flows - a "new" list for flows that
 have not built a queue recently, and an "old" list for flow-building
@@ -306,8 +306,9 @@ and some final bookkeeping.
 For the first part, the scheduler first looks at the list of new queues;
 for each queue in that list, if that queue has a negative deficit (i.e.
 it has already dequeued at least a quantum of bytes), its deficit is
-increased by one quantum, and the queue is put onto the end of the list
-of old queues, and the routine selects the next queue and starts again.
+increased by one quantum, and the queue is put onto *the end of* the
+list of old queues, and the routine selects the next queue and starts
+again.
 
 Otherwise, that queue is selected for dequeue. If the list of new
 queues is empty, the scheduler proceeds down the list of old queues in
@@ -323,25 +324,27 @@ or becomes empty while being handled by the CoDel algorithm).
 
 Finally, if the CoDel algorithm did not return a packet, the queue is
 empty, and the scheduler does one of two things: if the queue selected
-for dequeue came from the list of new queues, it is moved to the end of
-the list of old queues. If instead it came from the list of old queues,
-that queue is removed from the list, to be added back (as a new queue)
-the next time a packet arrives that hashes to that queue. Then (since
-no packet was available for dequeue), the whole dequeue process is
-restarted from the beginning.
+for dequeue came from the list of new queues, it is moved to *the end
+of* the list of old queues. If instead it came from the list of old
+queues, that queue is removed from the list, to be added back (as a new
+queue) the next time a packet arrives that hashes to that queue. Then
+(since no packet was available for dequeue), the whole dequeue process
+is restarted from the beginning.
 
 If, instead, the scheduler *did* get a packet back from the CoDel
 algorithm, it updates the byte deficit for the selected queue before
 returning the packet as the result of the dequeue operation.
 
-The step that moves an empty queue from the list of new queues to the
-list of old queues before it is removed is crucial to prevent
-starvation. Otherwise the queue could reappear (the next time a packet
-arrives for it) before the list of old queues is visited; this can go on
-indefinitely even with a small number of active flows, if the flow
-providing packets to the queue in question transmits at just the right
-rate. This is prevented by first moving the queue to the list of old
-queues, forcing a pass through that, and thus preventing starvation.
+The step that moves an empty queue from the list of new queues to *the
+end of* the list of old queues before it is removed is crucial to
+prevent starvation. Otherwise the queue could reappear (the next time a
+packet arrives for it) before the list of old queues is visited; this
+can go on indefinitely even with a small number of active flows, if the
+flow providing packets to the queue in question transmits at just the
+right rate. This is prevented by first moving the queue to *the end of*
+the list of old queues, forcing a pass through that, and thus preventing
+starvation. Moving it to the end of the list, rather than the front, is
+crucial for this to work.
 
 The resulting migration of queues between the different states is
 summarised in the following state diagram:
