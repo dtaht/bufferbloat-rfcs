@@ -3,7 +3,7 @@
 <reference anchor='CODELDRAFT'
 target='https://datatracker.ietf.org/doc/draft-ietf-aqm-codel/'>
 <front>
-<title>Controlling Queue Delay</title>
+<title>Controlled Delay Active Queue Management</title>
 <author initials='K' surname='Nichols' fullname='Kathleen Nichols'>
 <organization></organization></author>
 <author initials='V' surname='Jacobson' fullname='Van Jacobson'>
