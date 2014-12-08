@@ -50,7 +50,7 @@ once.
 
 ## Informal summary of FQ-CoDel
 
-FQ-CoDel is a *hybrid* of [DRR](#DRR) and [CODEL](#CODEL2012), with an
+FQ-CoDel is a *hybrid* of [DRR](#DRR) and [CoDel](#CODELDRAFT), with an
 optimisation for sparse flows similar to [SQF](#SQF2012) and
 [DRR++](#DRRPP). We call this "Flow Queueing" rather than "Fair
 Queueing" as flows that build a queue are treated differently than flows
@@ -111,34 +111,13 @@ detail in the remainder of this document.
 
 # CoDel
 
-CoDel is described in the the ACM Queue paper, [CODEL](#CODEL2012), and
-Van Jacobson's IETF84 presentation [CODELDRAFT](#CODELDRAFT). The basic
-idea is to control queue length, maintaining sufficient queueing to keep
-the outgoing link busy, but avoiding building up the queue beyond that
-point. This is done by preferentially dropping packets that remain in
-the queue for “too long”.
-
-When each new packet arrives, its arrival time is stored with it. Later,
-when it is that packet's turn to be dequeued, CoDel computes its sojourn
-time (the current time minus the arrival time). If the sojourn time for
-packets being dequeued exceeds the _target_ time for a time period of at
-least the (current value of) _interval_, one or more packets will be
-dropped (or marked, if ECN is enabled) in order to signal the source
-endpoint to reduce its send rate. If the sojourn still remains above the
-target time, the value of interval be lowered, and additional packet
-drops will occur on a schedule computed from an inverse-square-root
-control law until either (1) the queue becomes empty or (2) a packet is
-encountered with a sojourn time that is less than the target time. Upon
-exiting the dropping mode, CoDel caches the last calculated interval
-(applying varying amounts of hysteresis to it), to be used as the
-starting point on subsequent re-entries into dropping mode.
-
-The _target_ time is normally set to about five milliseconds, and the
-initial _interval_ is normally set to about 100 milliseconds. This
-approach has proven to be quite effective in a wide variety of
-situations.
-
-CoDel drops packets at the head of a queue, rather than at the tail.
+CoDel is described in the the [ACM Queue paper](#CODEL2012), and the
+[AQM working group draft](#CODELDRAFT). The basic idea is to control
+queue length, maintaining sufficient queueing to keep the outgoing link
+busy, but avoiding building up the queue beyond that point. This is done
+by preferentially dropping packets that remain in the queue for “too
+long”. The CoDel algorithm itself will not be described here; instead we
+refer the reader to the [CoDel draft](#CODELDRAFT).
 
 # Flow Queueing
 
