@@ -505,17 +505,17 @@ crucial for this to work.
 The resulting migration of queues between the different states is
 summarised in the following state diagram:
 
-    +-----------------+                +--------------------+
-    |                 |     Empty      |                    |
-    |     Empty       |<---------------+        Old         +-----+
-    |                 |                |                    |     |
-    +-------+---------+                +--------------------+     |
-            |                             ^              ^        |Quantum
-            |Arrival                      |              |        |Exceeded
-            v                             |              |        |
-    +-----------------+                   |              |        |
-    |                 |     Empty or      |              |        |
-    |      New        +-------------------+              +--------+
+    +-----------------+                +------------------+
+    |                 |     Empty      |                  |
+    |     Empty       |<---------------+       Old        +-----+
+    |                 |                |                  |     |
+    +-------+---------+                +------------------+     |
+            |                             ^            ^        |Quantum
+            |Arrival                      |            |        |Exceeded
+            v                             |            |        |
+    +-----------------+                   |            |        |
+    |                 |     Empty or      |            |        |
+    |      New        +-------------------+            +--------+
     |                 |  Quantum exceeded
     +-----------------+
 
@@ -548,40 +548,40 @@ than 64 bytes per queue on 64 bit systems). These are the data
 structures used in the Linux implementation:
 
     struct codel_vars {
-        u32             count;
-        u32             lastcount;
-        bool            dropping;
-        u16             rec_inv_sqrt;
-        codel_time_t    first_above_time;
-        codel_time_t    drop_next;
-        codel_time_t    ldelay;
+       u32             count;
+       u32             lastcount;
+       bool            dropping;
+       u16             rec_inv_sqrt;
+       codel_time_t    first_above_time;
+       codel_time_t    drop_next;
+       codel_time_t    ldelay;
     };
 
     struct fq_codel_flow {
-        struct sk_buff    *head;
-        struct sk_buff    *tail;
-        struct list_head  flowchain;
-        int               deficit;
-        u32               dropped; /* number of drops (or ECN marks) on this flow */
-        struct codel_vars cvars;
+       struct sk_buff    *head;
+       struct sk_buff    *tail;
+       struct list_head  flowchain;
+       int               deficit;
+       u32               dropped; /* # of drops (or ECN marks) on flow */
+       struct codel_vars cvars;
     };
 
 The master table managing all queues looks like this:
 
     struct fq_codel_sched_data {
-        struct tcf_proto *filter_list;  /* optional external classifier */
-        struct fq_codel_flow *flows;    /* Flows table [flows_cnt] */
-        u32             *backlogs;      /* backlog table [flows_cnt] */
-        u32             flows_cnt;      /* number of flows */
-        u32             perturbation;   /* hash perturbation */
-        u32             quantum;        /* psched_mtu(qdisc_dev(sch)); */
-        struct codel_params cparams;
-        struct codel_stats cstats;
-        u32             drop_overlimit;
-        u32             new_flow_count;
+       struct tcf_proto *filter_list;  /* optional external classifier */
+       struct fq_codel_flow *flows;    /* Flows table [flows_cnt] */
+       u32             *backlogs;      /* backlog table [flows_cnt] */
+       u32             flows_cnt;      /* number of flows */
+       u32             perturbation;   /* hash perturbation */
+       u32             quantum;        /* psched_mtu(qdisc_dev(sch)); */
+       struct codel_params cparams;
+       struct codel_stats cstats;
+       u32             drop_overlimit;
+       u32             new_flow_count;
 
-        struct list_head new_flows;     /* list of new flows */
-        struct list_head old_flows;     /* list of old flows */
+       struct list_head new_flows;     /* list of new flows */
+       struct list_head old_flows;     /* list of old flows */
     };
 
 ## Per-Packet Timestamping
