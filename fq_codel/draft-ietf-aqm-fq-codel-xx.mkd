@@ -69,10 +69,6 @@ author:
     email: edumazet@gmail.com
 
 normative:
-  RFC2119:
-  RFC0896:
-  RFC0970:
-  RFC2309:
   CODELDRAFT:
     target: https://datatracker.ietf.org/doc/draft-ietf-aqm-codel/
     title: Controlled Delay Active Queue Management
