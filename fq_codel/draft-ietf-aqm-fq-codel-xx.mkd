@@ -1,11 +1,167 @@
-# Introduction
+---
+coding: utf-8
 
-<?rfc toc="yes"?>
-<?rfc symrefs="yes"?>
-<?rfc sortrefs="yes"?>
-<?rfc subcompact="no"?>
-<?rfc compact="yes"?>
-<?rfc comments="yes"?>
+title: FlowQueue-Codel
+abbrev: fq-codel
+docname: draft-ietf-aqm-fq-codel-01
+category: info
+ipr: trust200902
+area: General
+workgroup: AQM working group
+
+stand_alone: yes
+pi: [toc, sortrefs, symrefs, comments]
+
+author:
+  -
+    ins: T. Høiland-Jørgensen
+    name: Toke Høiland-Jørgensen
+    org: Karlstad University
+    street: Dept. of Computer Science
+    city: Karlstad
+    code: 65637
+    country: Sweden
+    email: toke.hoiland-jorgensen@kau.se
+  -
+    ins: P. McKenney
+    name: Paul McKenney
+    org: IBM Linux Technology Center
+    street: 1385 NW Amberglen Parkway
+    city: Hillsboro
+    region: OR
+    code: 97006
+    country: USA
+    email: paulmck@linux.vnet.ibm.com
+    uri: http://www2.rdrop.com/~paulmck/
+  -
+    ins: D. Taht
+    name: Dave Taht
+    org: Teklibre
+    street:
+      - 2104 W First street
+      - Apt 2002
+    city: FT Myers
+    code: 33901
+    region: FL
+    country: USA
+    email: d+ietf@teklibre.com
+    uri: http://www.teklibre.com/
+  -
+    ins: J. Gettys
+    name: Jim Gettys
+    org: Google, Inc.
+    street: 21 Oak Knoll Road
+    city: Carlisle
+    region: MA
+    code: 01741
+    country: USA
+    email: jg@freedesktop.org
+    uri: https://en.wikipedia.org/wiki/Jim_Gettys
+  -
+    ins: E. Dumazet
+    name: Eric Dumazet
+    org: Google, Inc.
+    street: 1600 Amphitheater Pkwy
+    city: Mountain View
+    region: CA
+    code: 94043
+    country: USA
+    email: edumazet@gmail.com
+
+normative:
+  RFC2119:
+  RFC0896:
+  RFC0970:
+  RFC2309:
+  CODELDRAFT:
+    target: https://datatracker.ietf.org/doc/draft-ietf-aqm-codel/
+    title: Controlled Delay Active Queue Management
+    author:
+      -
+        name: Kathleen Nichols
+        ins: K. Nichols
+      -
+        name: Van Jacobson
+        ins: V. Jacobson
+        organization: Google, Inc
+      -
+        name: Andrew McGregor
+        ins: A. McGregor
+        organization: Google, Inc
+      -
+        name: Jana Iyengar
+        ins: J. Iyengar
+        organization: Google, Inc
+    date: 2014-10
+
+informative:
+  DRR:
+    target: http://users.ece.gatech.edu/~siva/ECE4607/presentations/DRR.pdf
+    title: Efficient Fair Queueing Using Deficit Round Robin
+    author:
+      -
+        name: M. Shreedhar
+        ins: M. Shreedhar
+      -
+        name: George Varghese
+        ins: G. Varghese
+    date: 1996-06
+  DRRPP:
+    target: http://ieeexplore.ieee.org/xpls/abs_all.jsp?arnumber=875803
+    title: "Deficits for Bursty Latency-critical Flows: DRR++"
+    author:
+      -
+        ins: M.H. MacGregor
+      -
+        ins: W. Shi
+    date: 2000
+  SQF2012:
+    target: http://perso.telecom-paristech.fr/~bonald/Publications_files/BMO2011.pdf
+    title: On the impact of TCP and per-flow scheduling on Internet Performance - IEEE/ACM transactions on Networking
+    author:
+      -
+        name: Thomas Bonald
+        ins: T. Bonald
+        organization: Telecom ParisTech
+      -
+        name: Luca Muscariello
+        ins: L. Muscariello
+        organization: Orange Labs
+      -
+        name: Norberto Ostallo
+        ins: N. Ostallo
+        organization: Eurocom
+    date: 2012-04
+  CODEL2012:
+    target: http://queue.acm.org/detail.cfm?id=2209336
+    title: Controlling Queue Delay
+    author:
+      -
+        name: Kathleen Nichols
+        ins: K. Nichols
+      -
+        name: Van Jacobson
+        ins: V. Jacobson
+        organization: Google, Inc
+    date: 2012-07
+
+--- abstract
+
+This memo presents the FQ-CoDel hybrid packet scheduler/AQM algorithm, a
+critical tool for fighting bufferbloat and reducing latency across the
+Internet.
+
+FQ-CoDel mixes packets from multiple flows and reduces the impact of
+head of line blocking from bursty traffic. It provides isolation for
+low-rate traffic such as DNS, web, and videoconferencing traffic. It
+improves utilisation across the networking fabric, especially for
+bidirectional traffic, by keeping queue lengths short; and it can be
+implemented in a memory- and CPU-efficient fashion across a wide range
+of hardware.
+
+--- middle
+
+# Introduction
 
 The FQ-CoDel algorithm is a combined packet scheduler and AQM
 developed as part of the bufferbloat-fighting community effort. It is
@@ -94,7 +250,7 @@ by the scheduler: Such queues are removed from the list, and then
 re-added as a new queue each time a packet arrives for it, and so will
 get priority over queues that do not empty out each round (except for
 a minor modification to protect against starvation, detailed below).
-Exactly how much data a flow has to send to keep its queue in this
+Exactly how little data a flow has to send to keep its queue in this
 state is somewhat difficult to reason about, because it depends on
 both the egress link speed and the number of concurrent
 flows. However, in practice many things that are beneficial to have

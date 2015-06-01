@@ -1,21 +1,20 @@
-title=draft-ietf-aqm-fq_codel-00
-objects=$(title).html $(title).xml $(title).txt
+SOURCE=draft-ietf-aqm-fq-codel-xx.mkd
 
-all: $(title).html $(title).xml $(title).txt
+title=$(shell grep 'docname: ' $(SOURCE) | sed 's/docname: //')
 
-FILES=back.mkd middle.mkd template.xml
+objects=draft-ietf-aqm-fq-codel-??.{xml,html,txt}
 
-$(title).txt: $(FILES)
-	bash pandoc2rfc -t template.xml -x ../transform.xsl -T back.mkd middle.mkd 
-	@mv -f draft.txt $(title).txt
+all: $(title).html $(title).txt
 
-$(title).html: $(FILES)
-	bash pandoc2rfc -t template.xml -x ../transform.xsl -H back.mkd middle.mkd 
-	@mv -f draft.html $(title).html
 
-$(title).xml: $(FILES)
-	bash pandoc2rfc -t template.xml -x ../transform.xsl -X back.mkd middle.mkd 
-	@mv -f draft.xml $(title).xml
+$(title).xml: $(SOURCE)
+	kramdown-rfc2629 $(SOURCE) > $(title).xml
+
+$(title).html: $(title).xml
+	xml2rfc $(title).xml --html
+
+$(title).txt: $(title).xml
+	xml2rfc $(title).xml --text
 
 .PHONY: clean
 clean:
