@@ -90,7 +90,31 @@ normative:
         ins: J. Iyengar
         organization: Google, Inc
     date: 2014-10
-
+  RTCWEB-QOS:
+    target: https://datatracker.ietf.org/doc/draft-dhesikan-tsvwg-rtcweb-qos/
+    title: DSCP and other packet markings for RTCWeb QoS
+    author:
+    -
+      name: Subha Dhesikan
+      ins: S. Dhesikan
+      organization: Cisco
+    -
+      name: Cullen Jennings
+      ins: C. Jennings
+      organization: Cisco
+    -
+      name: Dan Druta
+      ins: D. Druta
+      organization: ATT
+    -
+      name: Paul Jones
+      ins: P. Jones
+      organization: Cisco
+    -
+      name: James Polk
+      ins: J. Polk
+      organization: Cisco
+    date: 2014-12
 informative:
   DRR:
     target: http://users.ece.gatech.edu/~siva/ECE4607/presentations/DRR.pdf
@@ -437,22 +461,10 @@ a packet when the total number of enqueued packets goes over the
 maximum.
 
 When a packet is enqueued, it is first classified into the appropriate
-sub-queue. By default, this is done by hashing on the 5-tuple of IP
-protocol, and source and destination IP and port numbers, permuted by
-a random value selected at initialisation time, and taking the hash
-value modulo the number of sub-queues. However, an implementation MAY
-also specify a configurable classification scheme along a wide variety
-of other possible parameters such as mac address, diffserv, firewall
-and flow specific markings, etc. (the Linux implementation does so in
-the form of the 'tc filter' command).
-
-If a custom filter fails, classification failure results in the packet
-being dropped and no further action taken. By design the standard
-filter cannot fail.
-
-Additionally, the default hashing algorithm presently deployed does
-decapsulation of some common packet types (6in4, IPIP, GRE 0), mixes
-IPv6 IP addresses thoroughly, and uses Jenkins hash on the result.
+sub-queue. By default, this is done by hashing (using a Jenkins hash
+function) on the 5-tuple of IP protocol, and source and destination IP
+and port numbers, permuted by a random value selected at initialisation
+time, and taking the hash value modulo the number of sub-queues.
 
 Once the packet has been successfully classified into a sub-queue, it is
 handed over to the CoDel algorithm for timestamping. It is then added to
@@ -468,6 +480,25 @@ since a packet was just enqueued), a packet is dropped from the head
 of the queue with the largest current byte count. Note that this in most
 cases means that the packet that gets dropped is different from the one
 that was just enqueued, and may even be from a different queue.
+
+### Alternative classification schemes
+
+As mentioned previously, it is possible to modify the classification
+scheme to provide a different notion of a 'flow'. The Linux
+implementation provides this option in the form of the `tc filter`
+command. While this can add capabilities (for instance, matching on
+other possible parameters such as mac address, diffserv, firewall and
+flow specific markings, etc.), care should be taken to preserve the
+notion of 'flow' as much of the benefit of the FQ-CoDel scheduler comes
+from keeping flows in separate queues. We are not aware of any
+deployments utilising the custom classification feature.
+
+An alternative to changing the classification scheme is to perform
+decapsulation prior to hashing. The Linux implementation does this for
+common encapsulations known to the kernel, such as 6in4, IPIP and GRE
+tunnels. This helps to distinguish between flows that share the same
+(outer) 5-tuple, but of course is limited to unencrypted tunnels (see
+{{opaque-encap}}).
 
 ## Dequeue
 
@@ -677,7 +708,7 @@ based on diffserv markings. Some products do more detailed
 classification, including deep packet inspection and
 destination-specific filters to achieve their desired result.
 
-## Flow bunching by opaque encapsulation
+## Flow bunching by opaque encapsulation {#opaque-encap}
 Where possible, FQ-CoDel will attempt to decapsulate packets before
 matching on the header fields for the flow hashing. However, for some
 encapsulation techniques, most notably encrypted VPNs, this is not
@@ -712,6 +743,40 @@ instance by taking into account the vastly reduced level of delay
 afforded by an AQM, or by using a coupled approach to observing the
 behaviour of multiple flows.
 
+# Deployment status and future work
+
+The FQ-CoDel algorithm as described in this document has been shipped as
+part of the Linux kernel since version 3.5, released on the 21st of
+July, 2012. It has seen widespread testing in a variety of contexts and
+is configured as the default in a number of mainline Linux distributions
+(as of this writing at least OpenWRT, Arch Linux and Fedora). We believe
+it to be a safe default and encourage people running Linux to turn it
+on: It is a massive improvement over the previous default FIFO queue.
+
+Of course there is always room for improvement, and this document has
+listed some of the know limitations of the algorithm. As such, we
+encourage further research into algorithm refinements and addressing of
+limitations. One such effort is undertaken by the bufferbloat community
+in the form of the
+[Cake](http://www.bufferbloat.net/projects/codel/wiki/Cake) queue
+management scheme. In addition to this we believe the following
+(non-exhaustive) list of issues to be worthy of further enquiry:
+
+- Variations on the flow classification mechanism to fit different
+  notions of flows. For instance, an ISP might want to deploy
+  per-subscriber scheduling, while in other cases several flows can
+  share a 5-tuple, as exemplified by the RTCWEB QoS recommendations
+  {{RTCWEB-QOS}}.
+
+- Interactions between flow queueing and delay-based congestion control
+  algorithms and scavenger protocols.
+
+- Other scheduling mechanisms to replace the DRR portion of the
+  algorithm, e.g. QFQ or WFQ.
+
+- Sensitivity of parameters, most notably the number of queues and the
+  CoDel parameters.
+
 # Security Considerations
 
 There are no specific security exposures associated with
@@ -724,26 +789,15 @@ This document has no actions for IANA.
 
 # Acknowledgements
 
-Our deepest thanks to Eric Dumazet (author of FQ-CoDel), Kathie
-Nichols, Van Jacobson, and all the members of the bufferbloat.net
-effort.
+Our deepest thanks to Kathie Nichols, Van Jacobson, and all the members
+of the bufferbloat.net effort.
 
 # Conclusions
 
-FQ-CoDel is a very general, efficient, nearly parameterless active
-queue management approach combining flow queueing with CoDel. It is a
-critical tool in solving bufferbloat.
-
-FQ-CoDel's default settings SHOULD be modified for other special-purpose
-networking applications, such as for exceptionally slow links, for use
-in data centres, or on links with inherent delay greater than 800ms
-(e.g. satellite links).
-
-On-going projects are: improving FQ-CoDel with more SFQ-like behaviour
-for lower bandwidth systems, improving the control law, optimising
-sparse packet drop behaviour, etc..
-
-In addition to the Linux kernel sources, ns2 and ns3 models are
-available. Refinements (such as
-[NFQCODEL](http://www.bufferbloat.net/projects/cerowrt/wiki/nfq_codel))
-are being tested in the CeroWrt effort.
+FQ-CoDel is a very general, efficient, nearly parameterless queue
+management approach combining flow queueing with CoDel. It is a critical
+tool in solving bufferbloat, and we believe it to be safe to turn on by
+default, as has already happened in a number of Linux distributions. In
+this document we have documented the Linux implementation in sufficient
+detail for an independent implementation, and we encourage such
+implementations be widely deployed.
