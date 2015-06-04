@@ -3,7 +3,7 @@ coding: utf-8
 
 title: FlowQueue-Codel
 abbrev: fq-codel
-docname: draft-ietf-aqm-fq-codel-01
+docname: draft-ietf-aqm-fq-codel-02
 category: info
 ipr: trust200902
 area: General
@@ -44,7 +44,7 @@ author:
     code: 33901
     region: FL
     country: USA
-    email: d+ietf@teklibre.com
+    email: dave.taht@gmail.com
     uri: http://www.teklibre.com/
   -
     ins: J. Gettys
