@@ -19,7 +19,7 @@ author:
     org: Karlstad University
     street: Dept. of Computer Science
     city: Karlstad
-    code: 65637
+    code: 65188
     country: Sweden
     email: toke.hoiland-jorgensen@kau.se
   -
@@ -69,6 +69,7 @@ author:
     email: edumazet@gmail.com
 
 normative:
+  RFC6817:
   CODELDRAFT:
     target: https://datatracker.ietf.org/doc/draft-ietf-aqm-codel/
     title: Controlled Delay Active Queue Management
@@ -169,12 +170,13 @@ kernel as the FQ-CoDel queueing discipline.
 
 The rest of this document is structured as follows: This section gives
 some concepts and terminology used in the rest of the document, and
-gives a short informal summary of the FQ-CoDel algorithm. Section 2
-gives an overview of the CoDel algorithm. Section 3 covers the DRR
-portion. Section 4 defines the parameters and data structures employed
-by FQ-CoDel. Section 5 describes the working of the algorithm in detail.
-Section 6 describes implementation considerations, and section 7 lists
-some of the limitations of using flow queueing. Finally section 11
+gives a short informal summary of the FQ-CoDel algorithm. {{codel}}
+gives an overview of the CoDel algorithm. {{fq}} covers the flow hashing
+and DRR
+portion. {{parameters-data}} defines the parameters and data structures employed
+by FQ-CoDel. {{scheduler}} describes the working of the algorithm in detail.
+{{implementation}} describes implementation considerations, and {{limitations}} lists
+some of the limitations of using flow queueing. Finally, {{conclusions}}
 concludes.
 
 ## Terminology and concepts
@@ -202,9 +204,9 @@ once.
 
 ## Informal summary of FQ-CoDel
 
-FQ-CoDel is a *hybrid* of [DRR](#DRR) and [CoDel](#CODELDRAFT), with an
-optimisation for sparse flows similar to [SQF](#SQF2012) and
-[DRR++](#DRRPP). We call this "Flow Queueing" rather than "Fair
+FQ-CoDel is a *hybrid* of DRR {{DRR}} and CoDel {{CODELDRAFT}}, with an
+optimisation for sparse flows similar to SQF {{SQF2012}} and
+DRR++ {{DRRPP}}. We call this "Flow Queueing" rather than "Fair
 Queueing" as flows that build a queue are treated differently than flows
 that do not.
 
@@ -261,17 +263,35 @@ explicit classification is still needed.
 This scheduling scheme has some subtlety to it, which is explained in
 detail in the remainder of this document.
 
-# CoDel
+# CoDel {#codel}
 
-CoDel is described in the the [ACM Queue paper](#CODEL2012), and the
-[AQM working group draft](#CODELDRAFT). The basic idea is to control
+CoDel is described in the the ACM Queue paper {{CODEL2012}}, and the
+AQM working group draft {{CODELDRAFT}}. The basic idea is to control
 queue length, maintaining sufficient queueing to keep the outgoing link
 busy, but avoiding building up the queue beyond that point. This is done
 by preferentially dropping packets that remain in the queue for “too
 long”. The CoDel algorithm itself will not be described here; instead we
-refer the reader to the [CoDel draft](#CODELDRAFT).
+refer the reader to the CoDel draft {{CODELDRAFT}}.
 
-# Flow Queueing
+# Flow Queueing {#fq}
+
+The intention of FQ-CoDel's scheduler is to give each _flow_ its own
+queue, hence the term _Flow Queueing_. Rather than a perfect realisation
+of this, a hashing-based scheme is used, where flows are hashed into a
+number of buckets which each has its own queue. The number of buckets
+are configurable, and defaults to 1024. This is enough to avoid hash
+collisions on a moderate number of flows as seen for instance in a home
+gateway. Depending on the characteristics of the link, this can be tuned
+to trade off memory for a lower probability of hash collisions. See
+Section 6 for a more in-depth discussion of this.
+
+The flow hashing is by default performed on the 5-tuple of source and
+destination IP and port numbers and IP protocol number. While the
+hashing can be customised to match on arbitrary packet bytes, care
+should be taken when doing so: Much of the benefit of the FQ-CoDel
+scheduler comes from this per-flow distinction. However, the default
+hashing does have some limitations. See {{limitations}} for a discussion
+of this.
 
 FQ-CoDel's DRR scheduler is byte-based, employing a deficit round-robin
 mechanism between queues. This works by keeping track of the
@@ -292,11 +312,12 @@ quantum determines the scheduling granularity, with the tradeoff from
 too small a quantum being scheduling overhead. For small bandwidths,
 lowering the quantum from the default MTU size can be advantageous.
 
-Unlike DRR there are two sets of flows - a "new" list for flows that
-have not built a queue recently, and an "old" list for flow-building
-queues.
+Unlike plain DRR there are two sets of flows - a "new" list for flows
+that have not built a queue recently, and an "old" list for
+flow-building queues. This distinction is an integral part of the
+FQ-CoDel scheduler and is described in more detail in {{scheduler}}.
 
-# FQ-CoDel Parameters and Data Structures
+# FQ-CoDel Parameters and Data Structures {#parameters-data}
 
 This section goes into the parameters and data structures in FQ-CoDel.
 
@@ -402,7 +423,7 @@ which it is removed when it is no longer active. This behaviour is the
 source of some subtlety in the packet scheduling at dequeue time,
 explained below.
 
-# The FQ-CoDel scheduler and AQM interactions
+# The FQ-CoDel scheduler {#scheduler}
 
 This section describes the operation of the FQ-CoDel scheduler and
 AQM. It is split into two parts explaining the enqueue and dequeue
@@ -516,7 +537,7 @@ summarised in the following state diagram:
     +-----------------+
 
 
-# Implementation considerations
+# Implementation considerations {#implementation}
 
 ## Probability of hash collisions
 
@@ -625,7 +646,7 @@ change (e.g. when new flows start up or the link bandwidth changes);
 while CoDel itself can take a while to respond, fq_codel doesn't miss a
 beat.
 
-# Limitations of flow queueing
+# Limitations of flow queueing {#limitations}
 While FQ-CoDel has been shown in many scenarios to offer significant
 performance gains, there are some scenarios where the scheduling
 algorithm in particular is not a good fit. This section documents some
@@ -678,18 +699,18 @@ way to mitigate this.
 ## Low-priority congestion control algorithms
 
 Because of the flow isolation that FQ-CoDel provides, low-priority
-congestion control algorithms (or, in general, algorithms that try to
-voluntarily use up less than their fair share of bandwidth) can be
-re-prioritised. Because a flow experiences very little added latency
-when the link is congested, such algorithms lack the signal to back off
-that added latency previously afforded them. As such, existing
-algorithms tend to revert to loss-based congestion control, and will
-consume the fair share of bandwidth afforded to them by the FQ-CoDel
-scheduler. However, low-priority congestion control mechanisms may be
-able to take steps to continue to be low priority, for instance by
-taking into account the vastly reduced level of delay afforded by an
-AQM, or by using a coupled approach to observing the behaviour of
-multiple flows.
+congestion control algorithms, such as LEDBAT {{RFC6817}} (or, in
+general, algorithms that try to voluntarily use up less than their fair
+share of bandwidth) can be re-prioritised. Because a flow experiences
+very little added latency when the link is congested, such algorithms
+lack the signal to back off that added latency previously afforded them.
+As such, existing algorithms tend to revert to loss-based congestion
+control, and will consume the fair share of bandwidth afforded to them
+by the FQ-CoDel scheduler. However, low-priority congestion control
+mechanisms may be able to take steps to continue to be low priority, for
+instance by taking into account the vastly reduced level of delay
+afforded by an AQM, or by using a coupled approach to observing the
+behaviour of multiple flows.
 
 # Security Considerations
 
