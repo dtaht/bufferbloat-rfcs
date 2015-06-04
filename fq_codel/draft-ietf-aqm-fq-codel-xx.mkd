@@ -196,12 +196,13 @@ The rest of this document is structured as follows: This section gives
 some concepts and terminology used in the rest of the document, and
 gives a short informal summary of the FQ-CoDel algorithm. {{codel}}
 gives an overview of the CoDel algorithm. {{fq}} covers the flow hashing
-and DRR
-portion. {{parameters-data}} defines the parameters and data structures employed
-by FQ-CoDel. {{scheduler}} describes the working of the algorithm in detail.
-{{implementation}} describes implementation considerations, and {{limitations}} lists
-some of the limitations of using flow queueing. Finally, {{conclusions}}
-concludes.
+and DRR portion. {{parameters-data}} defines the parameters and data
+structures employed by FQ-CoDel. {{scheduler}} describes the working of
+the algorithm in detail. {{implementation}} describes implementation
+considerations, and {{limitations}} lists some of the limitations of
+using flow queueing. {{deployment-status}} outlines the current status
+of FQ-CoDel deployment and lists some possible future areas of inquiry,
+and finally, {{conclusions}} concludes.
 
 ## Terminology and concepts
 
