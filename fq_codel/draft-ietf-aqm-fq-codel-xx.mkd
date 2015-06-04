@@ -237,11 +237,11 @@ that do not.
 
 FQ-CoDel stochastically classifies incoming packets into different
 sub-queues by hashing the 5-tuple of IP protocol number and source and
-destination IP and port numbers, perturbed with a random number selected
-at initiation time (although other flow classification schemes can
-optionally be configured instead). Each queue is managed by the CoDel
-queueing discipline. Packet ordering within a queue is preserved, since
-queues have FIFO ordering.
+destination IP and port numbers, perturbed with a random number
+selected at initiation time (although other flow classification
+schemes can optionally be configured instead). Each queue is managed
+by the CoDel AQM algorithm. Packet ordering within a queue is
+preserved, since queues have FIFO ordering.
 
 The FQ-CoDel algorithm consists of two logical parts: the scheduler
 which selects which queue to dequeue a packet from, and the CoDel AQM
@@ -280,8 +280,8 @@ flows. However, in practice many things that are beneficial to have
 prioritised for typical internet use (ACKs, DNS lookups, interactive
 SSH, HTTP requests, ARP, ICMP, VoIP) *tend* to fall in this category,
 which is why FQ-CoDel performs so well for many practical
-applications. However, the implicitness of the prioritisation means that
-for applications that require guaranteed priority (for instance
+applications. However, the implicitness of the prioritisation means
+that for applications that require guaranteed priority (for instance
 multiplexing the network control plane over the network itself),
 explicit classification is still needed.
 
@@ -420,6 +420,14 @@ marked with ECN can grow to the overall packet limit, but will not
 otherwise affect the performance of the system.
 
 It can be disabled by specifying the _noecn_ parameter.
+
+### CE_THRESHOLD
+
+This parameter enables DCTCP-like processing to enable CE marking
+ECT packets at a lower setpoint than the default codel target.
+
+ce_threshold is disabled by default and can be set to a number of
+usec to enable.
 
 ## Data structures
 
@@ -698,7 +706,7 @@ high for flow-based fairness queueing to be effective.
 Whatever the reason, in a scenario where fairness between flows is not
 desirable, reconfiguring FQ-CoDel to match on a different characteristic
 can be a way forward. The implementation in Linux can leverage the
-powerful packet matching mechanism of the _tc_ subsystem to use any
+packet matching mechanism of the _tc_ subsystem to use any
 available packet field to partition packets into virtual queues, to for
 instance match on address or subnet source/destination pairs,
 application layer characteristics, etc.
@@ -748,13 +756,14 @@ observing the behaviour of multiple flows.
 
 # Deployment status and future work {#deployment-status}
 
-The FQ-CoDel algorithm as described in this document has been shipped as
-part of the Linux kernel since version 3.5, released on the 21st of
-July, 2012. It has seen widespread testing in a variety of contexts and
-is configured as the default in a number of mainline Linux distributions
-(as of this writing at least OpenWRT, Arch Linux and Fedora). We believe
-it to be a safe default and encourage people running Linux to turn it
-on: It is a massive improvement over the previous default FIFO queue.
+The FQ-CoDel algorithm as described in this document has been shipped
+as part of the Linux kernel since version 3.5, released on the 21st of
+July, 2012. The CE_THRESHOLD was added in version 4.0. It has seen
+widespread testing in a variety of contexts and is configured as the
+default in a number of mainline Linux distributions (as of this
+writing at least OpenWRT, Arch Linux and Fedora). We believe it to be
+a safe default and encourage people running Linux to turn it on: It is
+a massive improvement over the previous default FIFO queue.
 
 Of course there is always room for improvement, and this document has
 listed some of the know limitations of the algorithm. As such, we
