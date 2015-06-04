@@ -166,6 +166,32 @@ informative:
         organization: Google, Inc
     date: 2012-07
 
+  GONG2014:
+    target: http://perso.telecom-paristech.fr/~drossi/paper/rossi14comnet-b.pdf
+    title: Fighting the bufferbloat: on the coexistence of AQM and low priority congestion control
+    author:
+      -
+        name: Yixi Gong
+        ins: Y. Gong
+        organization: Telecom ParisTech
+      -
+        name: Dario Rossi
+        ins: D. Rossi
+        organization: Telecom ParisTech
+      -
+        name: Claudio Testa
+        ins: C. Testa
+        organization: Telecom ParisTech
+      -
+        name: Silvio Valenti
+        ins: S. Valenti
+        organization: Telecom ParisTech
+      -
+        name: Dave Taht
+        ins: D. Taht
+        organization: TekLibre
+    date: 2014-07
+
 --- abstract
 
 This memo presents the FQ-CoDel hybrid packet scheduler/AQM algorithm, a
@@ -744,7 +770,7 @@ load, low-priority congestion control algorithms such as LEDBAT
 less than their fair share of bandwidth) experiences very little added
 latency when the link is congested. Thus, they lack the signal to back
 off that added latency previously afforded them. This effect is seen
-with FQ-CoDel as well as with any effective AQM.
+with FQ-CoDel as well as with any effective AQM {{GONG2014}}. 
 
 As such, these delay-based algorithms tend to revert to loss-based
 congestion control, and will consume the fair share of bandwidth

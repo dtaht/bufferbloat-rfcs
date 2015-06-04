@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<reference anchor='GONG2014'
+target='http://perso.telecom-paristech.fr/~drossi/paper/rossi14comnet-b.pdf'>
+<front>
+<title>Fighting the bufferbloat: on the coexistence of AQM and low priority congestion control</title>
+<author initials='Y' surname='Gong' fullname='Yixi Gong'>
+<organization>Telecom ParisTech</organization></author>
+<author initials='D' surname='Rossi' fullname='Dario Rossi'>
+<organization>Telecom ParisTech</organization></author>
+<author initials='C' surname='Testa' fullname='Claudio Testa'>
+<organization>Telecom ParisTech</organization></author>
+<author initials='S' surname='Valenti' fullname='Silvio Valenti'>
+<organization>Telecom ParisTech</organization></author>
+<author initials='D' surname='Taht' fullname='Dave Taht'>
+<organization>TekLibre</organization></author>
+<!--<workgroup>Computer Networks 65:255 pp 255 - 267, 2014
+</workgroup>-->
+<date year='2014' month='July' />
+<abstract>
+<t>
+</t></abstract></front>
+<format type='PDF' octets='' target='http://perso.telecom-paristech.fr/~drossi/paper/rossi14comnet-b.pdf' />
+</reference>
