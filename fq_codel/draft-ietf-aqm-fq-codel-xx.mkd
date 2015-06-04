@@ -730,21 +730,23 @@ way to mitigate this.
 
 ## Low-priority congestion control algorithms
 
-Because of the flow isolation that FQ-CoDel provides, low-priority
-congestion control algorithms, such as LEDBAT {{RFC6817}} (or, in
-general, algorithms that try to voluntarily use up less than their fair
-share of bandwidth) can be re-prioritised. Because a flow experiences
-very little added latency when the link is congested, such algorithms
-lack the signal to back off that added latency previously afforded them.
-As such, existing algorithms tend to revert to loss-based congestion
-control, and will consume the fair share of bandwidth afforded to them
-by the FQ-CoDel scheduler. However, low-priority congestion control
-mechanisms may be able to take steps to continue to be low priority, for
-instance by taking into account the vastly reduced level of delay
-afforded by an AQM, or by using a coupled approach to observing the
-behaviour of multiple flows.
+In the presence of queue management schemes that contain latency under
+load, low-priority congestion control algorithms such as LEDBAT
+{{RFC6817}} (or, in general, algorithms that try to voluntarily use up
+less than their fair share of bandwidth) experiences very little added
+latency when the link is congested. Thus, they lack the signal to back
+off that added latency previously afforded them. This effect is seen
+with FQ-CoDel as well as with any effective AQM.
 
-# Deployment status and future work
+As such, these delay-based algorithms tend to revert to loss-based
+congestion control, and will consume the fair share of bandwidth
+afforded to them by the FQ-CoDel scheduler. However, low-priority
+congestion control mechanisms may be able to take steps to continue to
+be low priority, for instance by taking into account the vastly reduced
+level of delay afforded by an AQM, or by using a coupled approach to
+observing the behaviour of multiple flows.
+
+# Deployment status and future work {#deployment-status}
 
 The FQ-CoDel algorithm as described in this document has been shipped as
 part of the Linux kernel since version 3.5, released on the 21st of
