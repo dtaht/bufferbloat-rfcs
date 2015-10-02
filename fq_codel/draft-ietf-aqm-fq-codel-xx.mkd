@@ -452,13 +452,13 @@ otherwise affect the performance of the system.
 
 It can be disabled by specifying the _noecn_ parameter.
 
-### CE_THRESHOLD
+### CE threshold
 
 This parameter enables DCTCP-like processing to enable CE marking
 ECT packets at a lower setpoint than the default codel target.
 
-ce_threshold is disabled by default and can be set to a number of
-usec to enable.
+The parameter, _ce\_threshold_, is disabled by default and can be set to
+a number of usec to enable.
 
 ## Data structures
 
@@ -790,12 +790,13 @@ observing the behaviour of multiple flows.
 
 The FQ-CoDel algorithm as described in this document has been shipped as
 part of the Linux kernel since version 3.5, released on the 21st of
-July, 2012. The CE_THRESHOLD was added in version 4.0. It has seen
-widespread testing in a variety of contexts and is configured as the
-default queueing discipline in a number of mainline Linux distributions
-(as of this writing at least OpenWRT, Arch Linux and Fedora). We believe
-it to be a safe default and encourage people running Linux to turn it
-on: It is a massive improvement over the previous default FIFO queue.
+July, 2012, with the ce_threshold being added in version 4.2. The
+algorithm has seen widespread testing in a variety of contexts and is
+configured as the default queueing discipline in a number of mainline
+Linux distributions (as of this writing at least OpenWRT, Arch Linux and
+Fedora). We believe it to be a safe default and encourage people running
+Linux to turn it on: It is a massive improvement over the previous
+default FIFO queue.
 
 Of course there is always room for improvement, and this document has
 listed some of the know limitations of the algorithm. As such, we
