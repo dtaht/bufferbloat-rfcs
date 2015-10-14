@@ -215,17 +215,25 @@ algorithm; reference implementations are available for ns2 and ns3 and
 it is included in the mainline Linux kernel as the fq_codel queueing
 discipline.
 
+Since the FQ-CoDel algorithm was originally developed in the Linux
+kernel, that implementation is still considered canonical. This document
+strives to describe the algorithm in the abstract in the first sections
+and separate out most implementation details in subsequent sections, but
+does use the Linux implementation as reference for default behaviour in
+the algorithm description itself.
+
 The rest of this document is structured as follows: This section gives
 some concepts and terminology used in the rest of the document, and
 gives a short informal summary of the FQ-CoDel algorithm. {{codel}}
 gives an overview of the CoDel algorithm. {{fq}} covers the flow hashing
-and DRR portion. {{parameters-data}} defines the parameters and data
-structures employed by FQ-CoDel. {{scheduler}} describes the working of
-the algorithm in detail. {{implementation}} describes implementation
-considerations, and {{limitations}} lists some of the limitations of
-using flow queueing. {{deployment-status}} outlines the current status
-of FQ-CoDel deployment and lists some possible future areas of inquiry,
-and finally, {{conclusions}} concludes.
+and DRR portion. {{scheduler}} then describes the working of the
+algorithm in detail, while {{implementation}} describes implementation
+details and considerations. {{limitations}} lists some of the
+limitations of using flow queueing. {{deployment-status}} outlines the
+current status of FQ-CoDel deployment and lists some possible future
+areas of inquiry, and {{security}} reiterates some important security
+points that must be observed in the implementation. Finally,
+{{conclusions}} concludes.
 
 ## Terminology and concepts
 
@@ -369,128 +377,14 @@ that have not built a queue recently, and an "old" list for
 flow-building queues. This distinction is an integral part of the
 FQ-CoDel scheduler and is described in more detail in {{scheduler}}.
 
-# FQ-CoDel Parameters and Data Structures {#parameters-data}
-
-This section goes into the parameters and data structures in FQ-CoDel.
-
-## Parameters
-
-### Interval
-
-The _interval_ parameter has the same semantics as CoDel and is used to
-ensure that the measured minimum delay does not become too stale. The
-minimum delay MUST be experienced in the last epoch of length
-interval. It SHOULD be set on the order of the worst-case RTT through
-the bottleneck to give end-points sufficient time to react.
-
-The default interval value is 100 ms.
-
-### Target
-
-The _target_ parameter has the same semantics as CoDel. It is the
-acceptable minimum standing/persistent queue delay for each FQ-CoDel
-Queue. This minimum delay is identified by tracking the local minimum
-queue delay that packets experience.
-
-The default target value is 5 ms, but this value should be tuned to be
-at least the transmission time of a single MTU-sized packet at the
-prevalent egress link speed (which for e.g. 1Mbps and MTU 1500 is
-~15ms), to prevent CoDel from being too aggressive at low bandwidths. It
-should otherwise be set to on the order of 5-10% of the configured
-interval.
-
-### Packet limit
-
-Routers do not have infinite memory, so some packet limit MUST be
-enforced.
-
-The _limit_ parameter is the hard limit on the real queue size, measured
-in number of packets. This limit is a global limit on the number of
-packets in all queues; each individual queue does not have an upper
-limit. When the limit is reached and a new packet arrives for enqueue, a
-packet is dropped from the head of the largest queue (measured in bytes)
-to make room for the new packet.
-
-In Linux, the default packet limit is 10240 packets, which is suitable
-for up to 10GigE speeds. In practice, the hard limit is rarely, if ever,
-hit, as drops are performed by the CoDel algorithm long before the limit
-is hit. For platforms that are severely memory constrained, a lower
-limit can be used.
-
-### Quantum
-
-The _quantum_ parameter is the number of bytes each queue gets to
-dequeue on each round of the scheduling algorithm. The default is set to
-1514 bytes which corresponds to the Ethernet MTU plus the hardware
-header length of 14 bytes.
-
-In TSO-enabled systems, where a "packet" consists of an offloaded packet
-train, it can presently be as large as 64K bytes. In GRO-enabled
-systems, up to 17 times the TCP max segment size (or 25K bytes). These
-mega-packets severely impact FQ-CoDel's ability to schedule traffic, and
-hurt latency needlessly. There is ongoing work in Linux to make smarter
-use of offload engines.
-
-### Flows
-
-The _flows_ parameter sets the number of queues into which the
-incoming packets are classified. Due to the stochastic nature of
-hashing, multiple flows may end up being hashed into the same slot.
-
-This parameter can be set only at load time since memory has to be
-allocated for the hash table in the current implementation.
-
-The default value is 1024 in the current Linux implementation.
-
-### ECN
-
-ECN is *enabled* by default. Rather than do anything special with
-misbehaved ECN flows, FQ-CoDel relies on the packet scheduling system
-to minimise their impact, thus unresponsive packets in a flow being
-marked with ECN can grow to the overall packet limit, but will not
-otherwise affect the performance of the system.
-
-It can be disabled by specifying the _noecn_ parameter.
-
-### CE threshold
-
-This parameter enables DCTCP-like processing to enable CE marking
-ECT packets at a lower setpoint than the default codel target.
-
-The parameter, _ce\_threshold_, is disabled by default and can be set to
-a number of usec to enable.
-
-## Data structures
-
-### Internal queues
-
-The main data structure of FQ-CoDel is the array of queues, which is
-instantiated to the number of queues specified by the _flows_ parameter
-at instantiation time. Each queue consists simply of an ordered list of
-packets with FIFO semantics, two state variables tracking the queue
-deficit and total number of bytes enqueued, and the set of CoDel state
-variables. Other state variables to track queue statistics can also be
-included: for instance, the Linux implementation keeps a count of
-dropped packets.
-
-Queue space is shared: there's a global limit on the number of packets
-the queues can hold, but not one per queue.
-
-### New and old queues lists
-
-FQ-CoDel maintains two lists of active queues, called "new" and "old"
-queues. Each list is an ordered list containing references to the array
-of queues. When a packet is added to a queue that is not currently
-active, that queue becomes active by being added to the list of new
-queues. Later on, it is moved to the list of old queues, from which it
-is removed when it is no longer active. This behaviour is the source of
-some subtlety in the packet scheduling at dequeue time, explained below.
-
 # The FQ-CoDel scheduler {#scheduler}
-
-This section describes the operation of the FQ-CoDel scheduler and
-AQM. It is split into two parts explaining the enqueue and dequeue
-operations.
+To make its scheduling decisions, FQ-CoDel maintains two ordered lists
+of active queues, called "new" and "old" queues. When a packet is added
+to a queue that is not currently active, that queue becomes active by
+being added to the list of new queues. Later on, it is moved to the list
+of old queues, from which it is removed when it is no longer active.
+This behaviour is the source of some subtlety in the packet scheduling
+at dequeue time, explained below.
 
 ## Enqueue {#enqueue}
 
@@ -606,7 +500,123 @@ summarised in the following state diagram:
     +-----------------+
 
 
+
 # Implementation considerations {#implementation}
+
+This section contains implementation details for the FQ-CoDel algorithm.
+This includes the data structures and parameters used in the Linux
+implementation, as well as discussion of some required features of the
+target platform and other considerations.
+
+## Data structures
+The main data structure of FQ-CoDel is the array of queues, which is
+instantiated with the number of queues specified by the _flows_ parameter
+at instantiation time. Each queue consists simply of an ordered list of
+packets with FIFO semantics, two state variables tracking the queue
+deficit and total number of bytes enqueued, and the set of CoDel state
+variables. Other state variables to track queue statistics can also be
+included: for instance, the Linux implementation keeps a count of
+dropped packets.
+
+In addition to the queue structures themselves, FQ-CoDel maintains two
+ordered lists of the subset of queues that are currently active. These
+are the list of 'new' queues and the list of 'old' queues, as explained
+in {{scheduler}} above.
+
+In the Linux implementation, queue space is shared: there's a global
+limit on the number of packets the queues can hold, but not one per
+queue.
+
+## Parameters
+
+The following are the user configuration parameters exposed by the Linux
+implementation of FQ-CoDel.
+
+### Interval
+
+The _interval_ parameter has the same semantics as CoDel and is used to
+ensure that the measured minimum delay does not become too stale. The
+minimum delay MUST be experienced in the last epoch of length
+interval. It SHOULD be set on the order of the worst-case RTT through
+the bottleneck to give end-points sufficient time to react.
+
+The default interval value is 100 ms.
+
+### Target
+
+The _target_ parameter has the same semantics as CoDel. It is the
+acceptable minimum standing/persistent queue delay for each FQ-CoDel
+Queue. This minimum delay is identified by tracking the local minimum
+queue delay that packets experience.
+
+The default target value is 5 ms, but this value should be tuned to be
+at least the transmission time of a single MTU-sized packet at the
+prevalent egress link speed (which for e.g. 1Mbps and MTU 1500 is
+~15ms), to prevent CoDel from being too aggressive at low bandwidths. It
+should otherwise be set to on the order of 5-10% of the configured
+interval.
+
+### Packet limit
+
+Routers do not have infinite memory, so some packet limit MUST be
+enforced.
+
+The _limit_ parameter is the hard limit on the real queue size, measured
+in number of packets. This limit is a global limit on the number of
+packets in all queues; each individual queue does not have an upper
+limit. When the limit is reached and a new packet arrives for enqueue, a
+packet is dropped from the head of the largest queue (measured in bytes)
+to make room for the new packet.
+
+In Linux, the default packet limit is 10240 packets, which is suitable
+for up to 10GigE speeds. In practice, the hard limit is rarely, if ever,
+hit, as drops are performed by the CoDel algorithm long before the limit
+is hit. For platforms that are severely memory constrained, a lower
+limit can be used.
+
+### Quantum
+
+The _quantum_ parameter is the number of bytes each queue gets to
+dequeue on each round of the scheduling algorithm. The default is set to
+1514 bytes which corresponds to the Ethernet MTU plus the hardware
+header length of 14 bytes.
+
+In TSO-enabled systems, where a "packet" consists of an offloaded packet
+train, it can presently be as large as 64K bytes. In GRO-enabled
+systems, up to 17 times the TCP max segment size (or 25K bytes). These
+mega-packets severely impact FQ-CoDel's ability to schedule traffic, and
+hurt latency needlessly. There is ongoing work in Linux to make smarter
+use of offload engines.
+
+### Flows
+
+The _flows_ parameter sets the number of queues into which the
+incoming packets are classified. Due to the stochastic nature of
+hashing, multiple flows may end up being hashed into the same slot.
+
+This parameter can be set only at load time since memory has to be
+allocated for the hash table in the current implementation.
+
+The default value is 1024 in the current Linux implementation.
+
+### ECN
+
+ECN is *enabled* by default. Rather than do anything special with
+misbehaved ECN flows, FQ-CoDel relies on the packet scheduling system
+to minimise their impact, thus unresponsive packets in a flow being
+marked with ECN can grow to the overall packet limit, but will not
+otherwise affect the performance of the system.
+
+It can be disabled by specifying the _noecn_ parameter.
+
+### CE threshold
+
+This parameter enables DCTCP-like processing to enable CE marking
+ECT packets at a lower setpoint than the default codel target.
+
+The parameter, _ce\_threshold_, is disabled by default and can be set to
+a number of usec to enable.
+
 
 ## Probability of hash collisions
 
@@ -688,7 +698,9 @@ enqueue and dequeue.
 Much of the scheduling portion of FQ-CoDel is derived from DRR and is
 substantially similar to DRR++. SFQ-based versions have also been
 produced and tested in ns2. Other forms of Fair Queueing, such as WFQ or
-QFQ, have not been thoroughly explored.
+QFQ, have not been thoroughly explored, but there's no a priori reason
+why the round-robin scheduling of FQ-CoDel couldn't be replaced with
+something else.
 
 ## Differences between CoDel and FQ-CoDel behaviour
 
@@ -822,7 +834,7 @@ management scheme. In addition to this we believe the following
 - Sensitivity of parameters, most notably the number of queues and the
   CoDel parameters.
 
-# Security Considerations
+# Security Considerations {#security}
 
 There are no specific security exposures associated with FQ-CoDel that
 are not also present in current FIFO systems. And some are in fact
