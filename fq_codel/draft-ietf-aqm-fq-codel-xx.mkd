@@ -404,7 +404,8 @@ the tail of the selected queue, and the queue's byte count is updated by
 the packet size. Then, if the queue is not currently active (i.e. if it
 is not in either the list of new or the list of old queues), it is added
 to the end of the list of new queues, and its deficit is initiated to
-the configured quantum. Otherwise it is added to the old queue list.
+the configured quantum. Otherwise, the queue is left in its current
+queue list.
 
 Finally, the total number of enqueued packets is compared with the
 configured limit, and if it is *above* this value (which can happen
@@ -440,11 +441,11 @@ actually dequeuing it (employing the CoDel algorithm in the process),
 and some final bookkeeping.
 
 For the first part, the scheduler first looks at the list of new queues;
-for each queue in that list, if that queue has a negative deficit (i.e.
-it has already dequeued at least a quantum of bytes), its deficit is
-increased by one quantum, and the queue is put onto *the end of* the
-list of old queues, and the routine selects the next queue and starts
-again.
+for the queue at the head of that list, if that queue has a negative
+deficit (i.e. it has already dequeued at least a quantum of bytes), its
+deficit is increased by one quantum, and the queue is put onto *the end
+of* the list of old queues, and the routine selects the next queue and
+starts again.
 
 Otherwise, that queue is selected for dequeue. If the list of new
 queues is empty, the scheduler proceeds down the list of old queues in
@@ -458,18 +459,19 @@ and may discard one or more packets from the head of that queue, before
 returning the packet that should be dequeued (or nothing if the queue is
 or becomes empty while being handled by the CoDel algorithm).
 
-Finally, if the CoDel algorithm did not return a packet, the queue is
-empty, and the scheduler does one of two things: if the queue selected
-for dequeue came from the list of new queues, it is moved to *the end
-of* the list of old queues. If instead it came from the list of old
-queues, that queue is removed from the list, to be added back (as a new
-queue) the next time a packet arrives that hashes to that queue. Then
-(since no packet was available for dequeue), the whole dequeue process
-is restarted from the beginning.
+Finally, if the CoDel algorithm does not return a packet, then the queue
+must be empty, and the scheduler does one of two things: if the queue
+selected for dequeue came from the list of new queues, it is moved to
+*the end of* the list of old queues. If instead it came from the list of
+old queues, that queue is removed from the list, to be added back (as a
+new queue) the next time a packet arrives that hashes to that queue.
+Then (since no packet was available for dequeue), the whole dequeue
+process is restarted from the beginning.
 
 If, instead, the scheduler *did* get a packet back from the CoDel
-algorithm, it updates the byte deficit for the selected queue before
-returning the packet as the result of the dequeue operation.
+algorithm, it updates the byte deficit for the selected queue and moves
+it to the end of the list of old queues, before returning the packet as
+the result of the dequeue operation.
 
 The step that moves an empty queue from the list of new queues to *the
 end of* the list of old queues before it is removed is crucial to
@@ -519,9 +521,9 @@ included: for instance, the Linux implementation keeps a count of
 dropped packets.
 
 In addition to the queue structures themselves, FQ-CoDel maintains two
-ordered lists of the subset of queues that are currently active. These
-are the list of 'new' queues and the list of 'old' queues, as explained
-in {{scheduler}} above.
+ordered lists containing references to the subset of queues that are
+currently active. These are the list of 'new' queues and the list of
+'old' queues, as explained in {{scheduler}} above.
 
 In the Linux implementation, queue space is shared: there's a global
 limit on the number of packets the queues can hold, but not one per
@@ -621,24 +623,23 @@ a number of usec to enable.
 ## Probability of hash collisions
 
 Since the Linux FQ-CoDel implementation by default uses 1024 hash
-buckets, the probability that (say) 100 VoIP sessions will all hash to
-the same bucket is something like ten to the power of minus 300.
-Thus, the probability that at least one of the VoIP sessions will hash
-to some other queue is very high indeed.
+buckets, the probability that (say) 100 flows will all hash to the same
+bucket is something like ten to the power of minus 300. Thus, the
+probability that at least one of the flows will hash to some other queue
+is very high indeed.
 
 Expanding on this, based on analytical equations for hash collision
-probabilities, for 100 VoIP sessions, the probability of no collision is
-90.78%; the probability that no more than two of the 100 VoIP sessions
-will be involved in any given collision = 99.57%; and the probability
-that no more than three of the 100 VoIP sessions will be involved in any
-given collision = 99.99%.
+probabilities, for 100 flows, the probability of no collision is 90.78%;
+the probability that no more than two of the 100 flows will be involved
+in any given collision = 99.57%; and the probability that no more than
+three of the 100 flows will be involved in any given collision = 99.99%.
 
 These probabilities can be improved upon by using set-associative
 hashing, a technique used in the Cake algorithm currently being
 developed as a further development upon the FQ-CoDel principles. For a
 4-way associative hash with the same number of total queues, the
-probability of no collisions for 100 VoIP sessions is 99.93%, while for
-an 8-way associative hash it is ~100%.
+probability of no collisions for 100 flows is 99.93%, while for an 8-way
+associative hash it is ~100%.
 
 ## Memory Overhead
 
