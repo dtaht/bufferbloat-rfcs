@@ -3,7 +3,7 @@ coding: utf-8
 
 title: FlowQueue-Codel
 abbrev: fq-codel
-docname: draft-ietf-aqm-fq-codel-02
+docname: draft-ietf-aqm-fq-codel-03
 category: info
 ipr: trust200902
 area: General
