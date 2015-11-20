@@ -866,8 +866,7 @@ the description above, however we reiterate them here:
   reordering and/or adversely affect the performance of the flow.
   Keeping state to match the fragments to the beginning of the packet,
   or simply putting all fragmented packets into the same queue, are two
-  ways to alleviate this. The Linux implementation of FQ-CoDel does the
-  latter.
+  ways to alleviate this.
 
 # IANA Considerations
 
