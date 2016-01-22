@@ -291,11 +291,11 @@ itself.
 On dequeue, FQ-CoDel selects a queue from which to dequeue by a two-tier
 round-robin scheme, in which each queue is allowed to dequeue up to a
 configurable quantum of bytes for each iteration. Deviations from this
-quantum is maintained as a deficit for the queue, which serves to make
-the fairness scheme byte-based rather than a packet-based. The two-tier
-round-robin mechanism distinguishes between "new" queues (which don't
-build up a standing queue) and "old" queues, that have queued enough
-data to be around for more than one iteration of the round-robin
+quantum is maintained as a byte credit for the queue, which serves to
+make the fairness scheme byte-based rather than a packet-based. The
+two-tier round-robin mechanism distinguishes between "new" queues (which
+don't build up a standing queue) and "old" queues, that have queued
+enough data to be around for more than one iteration of the round-robin
 scheduler.
 
 This new/old queue distinction has a particular consequence for queues
@@ -354,13 +354,12 @@ scheduler comes from this per-flow distinction. However, the default
 hashing does have some limitations, as discussed in {{limitations}}.
 
 FQ-CoDel's DRR scheduler is byte-based, employing a deficit round-robin
-mechanism between queues. This works by keeping track of the
-current byte _deficit_ of each queue. This deficit is initialised to
-the configurable quantum; each time a queue gets a dequeue
-opportunity, it gets to dequeue packets, decreasing the deficit by the
-packet size for each packet, until the deficit runs into the negative,
-at which point it is increased by one quantum, and the dequeue
-opportunity ends.
+mechanism between queues. This works by keeping track of the current
+byte _credit_ of each queue. This credit is initialised to the
+configurable quantum; each time a queue gets a dequeue opportunity, it
+gets to dequeue packets, decreasing the credit by the packet size for
+each packet, until the credit runs into the negative, at which point it
+is increased by one quantum, and the dequeue opportunity ends.
 
 This means that if one queue contains packets of, for instance, size
 quantum/3, and another contains quantum-sized packets, the first queue
@@ -403,9 +402,9 @@ handed over to the CoDel algorithm for timestamping. It is then added to
 the tail of the selected queue, and the queue's byte count is updated by
 the packet size. Then, if the queue is not currently active (i.e. if it
 is not in either the list of new or the list of old queues), it is added
-to the end of the list of new queues, and its deficit is initiated to
-the configured quantum. Otherwise, the queue is left in its current
-queue list.
+to the end of the list of new queues, and its credit is initiated to the
+configured quantum. Otherwise, the queue is left in its current queue
+list.
 
 Finally, the total number of enqueued packets is compared with the
 configured limit, and if it is *above* this value (which can happen
@@ -442,16 +441,16 @@ and some final bookkeeping.
 
 For the first part, the scheduler first looks at the list of new queues;
 for the queue at the head of that list, if that queue has a negative
-deficit (i.e. it has already dequeued at least a quantum of bytes), its
-deficit is increased by one quantum, and the queue is put onto *the end
+credit (i.e. it has already dequeued at least a quantum of bytes), its
+credit is increased by one quantum, and the queue is put onto *the end
 of* the list of old queues, and the routine selects the next queue and
 starts again.
 
-Otherwise, that queue is selected for dequeue. If the list of new
-queues is empty, the scheduler proceeds down the list of old queues in
-the same fashion (checking the deficit, and either selecting the queue
-for dequeuing, or increasing the deficit and putting the queue back at
-the end of the list).
+Otherwise, that queue is selected for dequeue. If the list of new queues
+is empty, the scheduler proceeds down the list of old queues in the same
+fashion (checking the credit, and either selecting the queue for
+dequeuing, or increasing the credit and putting the queue back at the
+end of the list).
 
 After having selected a queue from which to dequeue a packet, the CoDel
 algorithm is invoked on that queue. This applies the CoDel control law,
@@ -469,9 +468,9 @@ Then (since no packet was available for dequeue), the whole dequeue
 process is restarted from the beginning.
 
 If, instead, the scheduler *did* get a packet back from the CoDel
-algorithm, it updates the byte deficit for the selected queue and moves
-it to the end of the list of old queues, before returning the packet as
-the result of the dequeue operation.
+algorithm, it subtracts the size of the packet form the the byte credit
+for the selected queue and returns the packet as the result of the
+dequeue operation.
 
 The step that moves an empty queue from the list of new queues to *the
 end of* the list of old queues before it is removed is crucial to
@@ -489,16 +488,16 @@ summarised in the following state diagram:
 
     +-----------------+                +------------------+
     |                 |     Empty      |                  |
-    |     Empty       |<---------------+       Old        +-----+
-    |                 |                |                  |     |
-    +-------+---------+                +------------------+     |
-            |                             ^            ^        |Quantum
-            |Arrival                      |            |        |Exceeded
-            v                             |            |        |
-    +-----------------+                   |            |        |
-    |                 |     Empty or      |            |        |
-    |      New        +-------------------+            +--------+
-    |                 |  Quantum exceeded
+    |     Empty       |<---------------+       Old        +----+
+    |                 |                |                  |    |
+    +-------+---------+                +------------------+    |
+            |                             ^            ^       |Credit
+            |Arrival                      |            |       |Exhausted
+            v                             |            |       |
+    +-----------------+                   |            |       |
+    |                 |     Empty or      |            |       |
+    |      New        +-------------------+            +-------+
+    |                 | Credit exhausted
     +-----------------+
 
 
@@ -515,7 +514,7 @@ The main data structure of FQ-CoDel is the array of queues, which is
 instantiated with the number of queues specified by the _flows_ parameter
 at instantiation time. Each queue consists simply of an ordered list of
 packets with FIFO semantics, two state variables tracking the queue
-deficit and total number of bytes enqueued, and the set of CoDel state
+credit and total number of bytes enqueued, and the set of CoDel state
 variables. Other state variables to track queue statistics can also be
 included: for instance, the Linux implementation keeps a count of
 dropped packets.
@@ -661,7 +660,7 @@ structures used in the Linux implementation:
        struct sk_buff    *head;
        struct sk_buff    *tail;
        struct list_head  flowchain;
-       int               deficit;
+       int               deficit; /* this is the queue credit */
        u32               dropped; /* # of drops (or ECN marks) on flow */
        struct codel_vars cvars;
     };
