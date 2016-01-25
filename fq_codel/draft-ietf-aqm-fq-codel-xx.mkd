@@ -660,7 +660,7 @@ structures used in the Linux implementation:
        struct sk_buff    *head;
        struct sk_buff    *tail;
        struct list_head  flowchain;
-       int               deficit; /* this is the queue credit */
+       int               credit;  /* keeps current queue credit */
        u32               dropped; /* # of drops (or ECN marks) on flow */
        struct codel_vars cvars;
     };
