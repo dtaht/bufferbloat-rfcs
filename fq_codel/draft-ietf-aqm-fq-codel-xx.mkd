@@ -616,7 +616,7 @@ This parameter enables DCTCP-like processing to enable CE marking
 ECT packets at a lower setpoint than the default codel target.
 
 The parameter, _ce\_threshold_, is disabled by default and can be set to
-a number of usec to enable.
+a number of microseconds to enable.
 
 
 ## Probability of hash collisions
