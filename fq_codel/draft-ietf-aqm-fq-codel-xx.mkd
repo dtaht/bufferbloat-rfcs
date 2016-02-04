@@ -4,7 +4,7 @@ coding: utf-8
 title: FlowQueue-Codel
 abbrev: fq-codel
 docname: draft-ietf-aqm-fq-codel-04
-category: info
+category: exp
 ipr: trust200902
 area: General
 workgroup: AQM working group
