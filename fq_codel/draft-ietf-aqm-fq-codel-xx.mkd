@@ -3,7 +3,7 @@ coding: utf-8
 
 title: FlowQueue-Codel
 abbrev: fq-codel
-docname: draft-ietf-aqm-fq-codel-04
+docname: draft-ietf-aqm-fq-codel-05
 category: exp
 ipr: trust200902
 area: General
@@ -68,6 +68,7 @@ author:
     email: edumazet@gmail.com
 
 normative:
+  RFC2119:
   RFC6817:
   CODELDRAFT:
     target: https://datatracker.ietf.org/doc/draft-ietf-aqm-codel/
@@ -234,6 +235,16 @@ current status of FQ-CoDel deployment and lists some possible future
 areas of inquiry, and {{security}} reiterates some important security
 points that must be observed in the implementation. Finally,
 {{conclusions}} concludes.
+
+## Conventions used in this document
+
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+"SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+document are to be interpreted as described in [RFC2119].
+
+In this document, these words will appear with that interpretation only
+when in ALL CAPS. Lower case uses of these words are not to be
+interpreted as carrying [RFC2119] significance.
 
 ## Terminology and concepts
 
@@ -537,8 +548,8 @@ implementation of FQ-CoDel.
 ### Interval
 
 The _interval_ parameter has the same semantics as CoDel and is used to
-ensure that the measured minimum delay does not become too stale. The
-minimum delay MUST be experienced in the last epoch of length
+ensure that the measured minimum delay does not become too stale. That
+is, CoDel only reacts to delay experienced in the last epoch of length
 interval. It SHOULD be set on the order of the worst-case RTT through
 the bottleneck to give end-points sufficient time to react.
 
@@ -647,6 +658,8 @@ FQ-CoDel can be implemented with a very low memory footprint (less
 than 64 bytes per queue on 64 bit systems). These are the data
 structures used in the Linux implementation:
 
+&lt;CODE BEGINS&gt;
+
     struct codel_vars {
        u32             count;
        u32             lastcount;
@@ -666,7 +679,11 @@ structures used in the Linux implementation:
        struct codel_vars cvars;
     };
 
+&lt;CODE ENDS&gt;
+
 The master table managing all queues looks like this:
+
+&lt;CODE BEGINS&gt;
 
     struct fq_codel_sched_data {
        struct tcf_proto *filter_list;  /* optional external classifier */
@@ -683,6 +700,8 @@ The master table managing all queues looks like this:
        struct list_head new_flows;     /* list of new flows */
        struct list_head old_flows;     /* list of old flows */
     };
+
+&lt;CODE ENDS&gt;
 
 ## Per-Packet Timestamping
 
@@ -818,10 +837,10 @@ Of course there is always room for improvement, and this document has
 listed some of the know limitations of the algorithm. As such, we
 encourage further research into algorithm refinements and addressing of
 limitations. One such effort is undertaken by the bufferbloat community
-in the form of the
-[Cake](http://www.bufferbloat.net/projects/codel/wiki/Cake) queue
-management scheme. In addition to this we believe the following
-(non-exhaustive) list of issues to be worthy of further enquiry:
+in the form of the Cake queue management scheme (see
+http://www.bufferbloat.net/projects/codel/wiki/Cake). In addition to
+this we believe the following (non-exhaustive) list of issues to be
+worthy of further enquiry:
 
 - Variations on the flow classification mechanism to fit different
   notions of flows. For instance, an ISP might want to deploy
