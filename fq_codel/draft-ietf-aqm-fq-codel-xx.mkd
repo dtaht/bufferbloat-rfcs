@@ -459,7 +459,6 @@ DoS attacks if the hash is predictable ahead of time (see {{security}}).
 The Linux kernel implements the Jenkins hash function by mixing three
 32-bit values into a single 32-bit output value. Inputs larger than 96
 bits are reduced by additional mixing steps, 96 bits at a time.
-Additionally, the has
 
 Once the packet has been successfully classified into a queue, it is
 handed over to the CoDel algorithm for timestamping. It is then added to
@@ -486,9 +485,7 @@ command. While this can add capabilities (for instance, matching on
 other possible parameters such as MAC address, diffserve code point
 values, firewall rules, flow specific markings, etc.), care should be
 taken to preserve the notion of 'flow' as much of the benefit of the
-FQ-CoDel scheduler comes from keeping flows in separate queues. We are
-not aware of any deployments utilising the custom classification
-feature.
+FQ-CoDel scheduler comes from keeping flows in separate queues.
 
 For protocols that do not contain a port number (such as ICMP), the
 Linux implementation simply sets the port numbers to zero and performs
@@ -914,7 +911,7 @@ Linux to turn it on: It is a massive improvement over the previous
 default FIFO queue.
 
 Of course there is always room for improvement, and this document has
-listed some of the know limitations of the algorithm. As such, we
+listed some of the known limitations of the algorithm. As such, we
 encourage further research into algorithm refinements and addressing of
 limitations. One such effort is undertaken by the bufferbloat community
 in the form of the Cake queue management scheme {{CAKE}}. In addition to
@@ -939,10 +936,11 @@ worthy of further enquiry:
 # Security Considerations {#security}
 
 There are no specific security exposures associated with FQ-CoDel that
-are not also present in current FIFO systems. And some are in fact
-reduced (e.g., simple minded packet floods). However, some care is needed
-in the implementation to ensure this is the case. These are included in
-the description above, however we reiterate them here:
+are not also present in current FIFO systems. On the contrary, some
+vulnerabilities of FIFO systems are reduced with FQ-CoDel (e.g., simple
+minded packet floods). However, some care is needed in the
+implementation to ensure this is the case. These are included in the
+description above, however we reiterate them here:
 
 - To prevent packets in the new queues from starving old queues, it is
   important that when a queue on the list of new queues empties, it is
