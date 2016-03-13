@@ -1,9 +1,9 @@
 ---
 coding: utf-8
 
-title: FlowQueue-Codel
+title: FlowQueue-CoDel
 abbrev: fq-codel
-docname: draft-ietf-aqm-fq-codel-05
+docname: draft-ietf-aqm-fq-codel-06
 category: exp
 ipr: trust200902
 area: General
@@ -69,53 +69,38 @@ author:
 
 normative:
   RFC2119:
+  RFC3168:
   RFC6817:
-  CODELDRAFT:
-    target: https://datatracker.ietf.org/doc/draft-ietf-aqm-codel/
-    title: Controlled Delay Active Queue Management
-    author:
-      -
-        name: Kathleen Nichols
-        ins: K. Nichols
-      -
-        name: Van Jacobson
-        ins: V. Jacobson
-        organization: Google, Inc
-      -
-        name: Andrew McGregor
-        ins: A. McGregor
-        organization: Google, Inc
-      -
-        name: Jana Iyengar
-        ins: J. Iyengar
-        organization: Google, Inc
-    date: 2014-10
-  RTCWEB-QOS:
-    target: https://datatracker.ietf.org/doc/draft-dhesikan-tsvwg-rtcweb-qos/
-    title: DSCP and other packet markings for RTCWeb QoS
-    author:
-    -
-      name: Subha Dhesikan
-      ins: S. Dhesikan
-      organization: Cisco
-    -
-      name: Cullen Jennings
-      ins: C. Jennings
-      organization: Cisco
-    -
-      name: Dan Druta
-      ins: D. Druta
-      organization: ATT
-    -
-      name: Paul Jones
-      ins: P. Jones
-      organization: Cisco
-    -
-      name: James Polk
-      ins: J. Polk
-      organization: Cisco
-    date: 2014-12
+  I-D.ietf-aqm-codel:
+  I-D.ietf-tsvwg-rtcweb-qos:
+  I-D.ietf-tcpm-dctcp:
 informative:
+  BLOAT:
+    target:  http://www.bufferbloat.net/attachments/27/IC-15-03-Backspace.pdf
+    title: "Bufferbloat: Dark buffers in the Internet."
+    author:
+      -
+        name: Jim Gettys
+    date: 2011
+    seriesinfo:
+      in: IEEE Internet Comput. 15, 3
+      DOI: http://dx.doi.org/10.1109/MIC.2011.56
+  CAKE:
+    target: http://www.bufferbloat.net/projects/codel/wiki/Cake
+    title: Cake queue management system
+    date: []
+  BLOATWEB:
+    target: https://www.bufferbloat.net
+    title: Bufferbloat web site
+    date: []
+  NS2:
+    target: http://nsnam.sourceforge.net/wiki
+    title: NS2 web site
+    date: []
+  NS3:
+    target: https://www.nsnam.org/wiki
+    title: NS3 web site
+    date: []
   DRR:
     target: http://users.ece.gatech.edu/~siva/ECE4607/presentations/DRR.pdf
     title: Efficient Fair Queueing Using Deficit Round Robin
@@ -126,6 +111,8 @@ informative:
       -
         name: George Varghese
         ins: G. Varghese
+    seriesinfo:
+      in:  IEEE/ACM Trans. Netw. 4, 3
     date: 1996-06
   DRRPP:
     target: http://ieeexplore.ieee.org/xpls/abs_all.jsp?arnumber=875803
@@ -135,10 +122,12 @@ informative:
         ins: M.H. MacGregor
       -
         ins: W. Shi
+    seriesinfo:
+      in:  Proceedings IEEE International Conference on Networks 2000 (ICON 2000)
     date: 2000
-  SQF2012:
+  SQF:
     target: http://perso.telecom-paristech.fr/~bonald/Publications_files/BMO2011.pdf
-    title: On the impact of TCP and per-flow scheduling on Internet Performance - IEEE/ACM transactions on Networking
+    title: On the impact of TCP and per-flow scheduling on Internet Performance
     author:
       -
         name: Thomas Bonald
@@ -152,8 +141,10 @@ informative:
         name: Norberto Ostallo
         ins: N. Ostallo
         organization: Eurocom
+    seriesinfo:
+      in:  IEEE/ACM transactions on Networking
     date: 2012-04
-  CODEL2012:
+  CODEL:
     target: http://queue.acm.org/detail.cfm?id=2209336
     title: Controlling Queue Delay
     author:
@@ -189,12 +180,45 @@ informative:
         name: Dave Taht
         ins: D. Taht
         organization: TekLibre
+    seriesinfo:
+      in:  2013 IEEE Conference on Computer Communications Workshops (INFOCOM WKSHPS)
     date: 2014-07
+  JENKINS:
+    target: http://www.burtleburtle.net/bob/hash/doobs.html
+    title: A Hash Function for Hash Table Lookup
+    author:
+      -
+        name: Bob Jenkins
+    date: 1996
+  SFQ:
+    target: http://dx.doi.org/10.1109/INFCOM.1990.91316
+    title: Stochastic fairness queueing
+    author:
+      -
+        name: P.E. McKenney
+    seriesinfo:
+      in: Proceedings. IEEE INFOCOM ’90
+      DOI: http://dx.doi.org/10.1109/INFCOM.1990.91316
+    date: 1990
+  QFQ:
+    target: http://dl.acm.org/citation.cfm?id=2525552
+    title: "QFQ: Efficient packet scheduling with tight guarantees"
+    author:
+      -
+        name: Fabio Checconi
+      -
+        name: Luigi Rizzo
+      -
+        name: Paolo Valente
+    seriesinfo:
+      in: IEEE/ACM Transactions on Networking (TON)
+    date: 2013
 
 --- abstract
 
-This memo presents the FQ-CoDel hybrid packet scheduler/AQM algorithm, a
-powerful tool for fighting bufferbloat and reducing latency.
+This memo presents the FQ-CoDel hybrid packet scheduler/Active Queue
+Management algorithm, a powerful tool for fighting bufferbloat and
+reducing latency.
 
 FQ-CoDel mixes packets from multiple flows and reduces the impact of
 head of line blocking from bursty traffic. It provides isolation for
@@ -208,13 +232,23 @@ of hardware.
 
 # Introduction
 
-The FQ-CoDel algorithm is a combined packet scheduler and AQM developed
-as part of the bufferbloat-fighting community effort. It is based on a
-modified Deficit Round Robin (DRR) queue scheduler, with the CoDel AQM
-algorithm operating on each queue. This document describes the combined
-algorithm; reference implementations are available for ns2 and ns3 and
-it is included in the mainline Linux kernel as the fq_codel queueing
-discipline.
+The FlowQueue-CoDel (FQ-CoDel) algorithm is a combined packet scheduler
+and Active Queue Management (AQM) {{RFC3168}} algorithm developed as
+part of the bufferbloat-fighting community effort {{BLOATWEB}}. It is
+based on a modified Deficit Round Robin (DRR) queue scheduler
+{{DRR}}{{DRRPP}}, with the CoDel AQM algorithm operating on each queue.
+This document describes the combined algorithm; reference
+implementations are available for the ns2 {{NS2}} and ns3 {{NS3}}
+network simulators, and it is included in the mainline Linux kernel as
+the fq_codel queueing discipline.
+
+FQ-CoDel is a general, efficient, nearly parameterless queue management
+approach combining flow queueing with CoDel. It is a powerful tool for
+solving bufferbloat {{BLOAT}}, and we believe it to be safe to turn on by
+default, as has already happened in a number of Linux distributions. In
+this document we have documented the Linux implementation in sufficient
+detail for an independent implementation, and we encourage such
+implementations be widely deployed.
 
 Since the FQ-CoDel algorithm was originally developed in the Linux
 kernel, that implementation is still considered canonical. This document
@@ -230,28 +264,29 @@ gives an overview of the CoDel algorithm. {{fq}} covers the flow hashing
 and DRR portion. {{scheduler}} then describes the working of the
 algorithm in detail, while {{implementation}} describes implementation
 details and considerations. {{limitations}} lists some of the
-limitations of using flow queueing. {{deployment-status}} outlines the
-current status of FQ-CoDel deployment and lists some possible future
-areas of inquiry, and {{security}} reiterates some important security
-points that must be observed in the implementation. Finally,
-{{conclusions}} concludes.
+limitations of using flow queueing. Finally, {{deployment-status}}
+outlines the current status of FQ-CoDel deployment and lists some
+possible future areas of inquiry, and {{security}} reiterates some
+important security points that must be observed in the implementation.
 
 ## Conventions used in this document
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
 "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
-document are to be interpreted as described in [RFC2119].
+document are to be interpreted as described in {{RFC2119}}.
 
 In this document, these words will appear with that interpretation only
 when in ALL CAPS. Lower case uses of these words are not to be
-interpreted as carrying [RFC2119] significance.
+interpreted as carrying {{RFC2119}} significance.
 
 ## Terminology and concepts
 
 Flow: A flow is typically identified by a 5-tuple of source IP,
-destination IP, source port, destination port, and protocol. It can also
-be identified by a superset or subset of those parameters, or by mac
-address, or other means.
+destination IP, source port, destination port, and protocol number. It
+can also be identified by a superset or subset of those parameters, or
+by media access control (MAC) address, or other means. FQ-CoDel hashes
+flows into a configurable number of buckets to assign packets to
+internal Queues.
 
 Queue: A queue of packets represented internally in FQ-CoDel. In most
 instances each flow gets its own queue; however because of the
@@ -262,28 +297,38 @@ packets being delivered to the FQ-CoDel algorithm.
 
 Scheduler: A mechanism to select which queue a packet is dequeued from.
 
-CoDel AQM: The Active Queue Management algorithm employed by FQ-CoDel.
+CoDel AQM: The Active Queue Management algorithm employed by FQ-CoDel
+{{I-D.ietf-aqm-codel}}.
 
-DRR: Deficit round-robin scheduling.
+DRR: Deficit round-robin scheduling {{DRR}}.
 
 Quantum: The maximum amount of bytes to be dequeued from a queue at
 once.
 
+Interval: Characteristic time period used by the control loop of CoDel
+to detect when a persistent Queue is developing (see Section 4.3 of
+{{I-D.ietf-aqm-codel}}).
+
+Target: Setpoint value of the minimum sojourn time of packets in a Queue
+used as the target of the control loop in CoDel (see Section 4.4 of
+{{I-D.ietf-aqm-codel}}).
+
+
 ## Informal summary of FQ-CoDel
 
-FQ-CoDel is a *hybrid* of DRR {{DRR}} and CoDel {{CODELDRAFT}}, with an
-optimisation for sparse flows similar to SQF {{SQF2012}} and
-DRR++ {{DRRPP}}. We call this "Flow Queueing" rather than "Fair
-Queueing" as flows that build a queue are treated differently than flows
-that do not.
+FQ-CoDel is a *hybrid* of DRR {{DRR}} and CoDel {{I-D.ietf-aqm-codel}},
+with an optimisation for sparse flows similar to Shortest Queue First
+(SQF) {{SQF}} and DRR++ {{DRRPP}}. We call this "Flow Queueing" rather
+than "Fair Queueing" as flows that build a queue are treated differently
+from flows that do not.
 
-FQ-CoDel stochastically classifies incoming packets into different
-queues by hashing the 5-tuple of IP protocol number and source and
-destination IP and port numbers, perturbed with a random number selected
-at initiation time (although other flow classification schemes can
-optionally be configured instead). Each queue is managed by the CoDel
-AQM algorithm. Packet ordering within a queue is preserved, since queues
-have FIFO ordering.
+By default, FQ-CoDel stochastically classifies incoming packets into
+different queues by hashing the 5-tuple of IP protocol number and source
+and destination IP and port numbers, perturbed with a random number
+selected at initiation time (although other flow classification schemes
+can optionally be configured instead). Each queue is managed by the
+CoDel AQM algorithm {{CODEL}}. Packet ordering within a queue is
+preserved, since queues have FIFO ordering.
 
 The FQ-CoDel algorithm consists of two logical parts: the scheduler
 which selects which queue to dequeue a packet from, and the CoDel AQM
@@ -292,18 +337,18 @@ in the scheduling part, whereas the interaction between the scheduler
 and the CoDel algorithm are fairly straight forward:
 
 At initialisation, each queue is set up to have a separate set of CoDel
-state variables. By default, 1024 queues are created. The current
-implementation supports anywhere from one to 64K separate queues, and
-each queue maintains the state variables throughout its lifetime, and so
-acts the same as the non-FQ CoDel variant would. This means that with
-only one queue, FQ-CoDel behaves essentially the same as CoDel by
-itself.
+state variables. By default, 1024 queues are created. The Linux
+implementation at the time of writing supports anywhere from one to 64K
+separate queues, and each queue maintains the state variables throughout
+its lifetime, and so acts the same as the non-FQ CoDel variant would.
+This means that with only one queue, FQ-CoDel behaves essentially the
+same as CoDel by itself.
 
 On dequeue, FQ-CoDel selects a queue from which to dequeue by a two-tier
 round-robin scheme, in which each queue is allowed to dequeue up to a
 configurable quantum of bytes for each iteration. Deviations from this
 quantum is maintained as byte credits for the queue, which serves to
-make the fairness scheme byte-based rather than a packet-based. The
+make the fairness scheme byte-based rather than packet-based. The
 two-tier round-robin mechanism distinguishes between "new" queues (which
 don't build up a standing queue) and "old" queues, that have queued
 enough data to be around for more than one iteration of the round-robin
@@ -320,7 +365,7 @@ state is somewhat difficult to reason about, because it depends on
 both the egress link speed and the number of concurrent
 flows. However, in practice many things that are beneficial to have
 prioritised for typical internet use (ACKs, DNS lookups, interactive
-SSH, HTTP requests, ARP, RA, ICMP, VoIP) *tend* to fall in this category,
+SSH, HTTP requests, VoIP) *tend* to fall in this category,
 which is why FQ-CoDel performs so well for many practical
 applications. However, the implicitness of the prioritisation means
 that for applications that require guaranteed priority (for instance
@@ -332,25 +377,25 @@ detail in the remainder of this document.
 
 # CoDel {#codel}
 
-CoDel is described in the the ACM Queue paper {{CODEL2012}}, and the AQM
-working group draft {{CODELDRAFT}}. The basic idea is to control queue
-length, maintaining sufficient queueing to keep the outgoing link busy,
-but avoiding building up the queue beyond that point. This is done by
-preferentially dropping packets that remain in the queue for “too long”.
-Packets are dropped by head drop, which lowers the time for the drop
-signal to propagate back to the sender by the length of the queue, and
-helps trigger TCP fast retransmit sooner.
+CoDel is described in the the ACM Queue paper {{CODEL}}, and the AQM
+working group draft {{I-D.ietf-aqm-codel}}. The basic idea is to control
+queue length, maintaining sufficient queueing to keep the outgoing link
+busy, but avoiding building up the queue beyond that point. This is done
+by preferentially dropping packets that remain in the queue for “too
+long”. Packets are dropped by head drop, which lowers the time for the
+drop signal to propagate back to the sender by the length of the queue,
+and helps trigger TCP fast retransmit sooner.
 
 The CoDel algorithm itself will not be described here; instead we refer
-the reader to the CoDel draft {{CODELDRAFT}}.
+the reader to the CoDel draft {{I-D.ietf-aqm-codel}}.
 
 # Flow Queueing {#fq}
 
 The intention of FQ-CoDel's scheduler is to give each _flow_ its own
 queue, hence the term _Flow Queueing_. Rather than a perfect realisation
 of this, a hashing-based scheme is used, where flows are hashed into a
-number of buckets which each has its own queue. The number of buckets
-are configurable, and presently defaults to 1024 in the Linux
+number of buckets which each has its own queue. The number of buckets is
+configurable, and presently defaults to 1024 in the Linux
 implementation. This is enough to avoid hash collisions on a moderate
 number of flows as seen for instance in a home gateway. Depending on the
 characteristics of the link, this can be tuned to trade off memory for a
@@ -366,27 +411,28 @@ hashing does have some limitations, as discussed in {{limitations}}.
 
 FQ-CoDel's DRR scheduler is byte-based, employing a deficit round-robin
 mechanism between queues. This works by keeping track of the current
-number _byte credits_ of each queue. This number is is initialised to
-the configurable quantum; each time a queue gets a dequeue opportunity,
-it gets to dequeue packets, decreasing the number of credits by the
-packet size for each packet. This continues until the number of credits
-runs into the negative, at which point it is increased by one quantum,
-and the dequeue opportunity ends.
+number _byte credits_ of each queue. This number is initialised to the
+configurable quantum; each time a queue gets a dequeue opportunity, it
+gets to dequeue packets, decreasing the number of credits by the packet
+size for each packet. This continues until the value of _byte credits_
+becomes zero or less, at which point it is increased by one quantum, and
+the dequeue opportunity ends.
 
 This means that if one queue contains packets of, for instance, size
 quantum/3, and another contains quantum-sized packets, the first queue
 will dequeue three packets each time it gets a turn, whereas the second
 only dequeues one. This means that flows that send small packets are not
 penalised by the difference in packet sizes; rather, the DRR scheme
-approximates a (single-)byte-based fairness queueing. The size of the
-quantum determines the scheduling granularity, with the tradeoff from
-too small a quantum being scheduling overhead. For small bandwidths,
-lowering the quantum from the default MTU size can be advantageous.
+approximates a (single-)byte-based fairness queueing scheme. The size of
+the quantum determines the scheduling granularity, with the tradeoff
+from too small a quantum being scheduling overhead. For small
+bandwidths, lowering the quantum from the default MTU size can be
+advantageous.
 
 Unlike plain DRR there are two sets of flows - a "new" list for flows
-that have not built a queue recently, and an "old" list for
-flow-building queues. This distinction is an integral part of the
-FQ-CoDel scheduler and is described in more detail in {{scheduler}}.
+that have not built a queue recently, and an "old" list for queues that
+build a backlog. This distinction is an integral part of the FQ-CoDel
+scheduler and is described in more detail in {{scheduler}}.
 
 # The FQ-CoDel scheduler {#scheduler}
 To make its scheduling decisions, FQ-CoDel maintains two ordered lists
@@ -405,14 +451,20 @@ packet when the total number of enqueued packets goes over the maximum.
 
 When a packet is enqueued, it is first classified into the appropriate
 queue. By default, this is done by hashing (using a Jenkins hash
-function) on the 5-tuple of IP protocol, and source and destination IP
-and port numbers, permuted by a random value selected at initialisation
-time, and taking the hash value modulo the number of queues.
+function {{JENKINS}}) on the 5-tuple of IP protocol, and source and
+destination IP and port numbers (if they exist), and taking the hash
+value modulo the number of queues. The hash is salted by modulo addition
+of a random value selected at initialisation time, to prevent possible
+DoS attacks if the hash is predictable ahead of time (see {{security}}).
+The Linux kernel implements the Jenkins hash function by mixing three
+32-bit values into a single 32-bit output value. Inputs larger than 96
+bits are reduced by additional mixing steps, 96 bits at a time.
+Additionally, the has
 
 Once the packet has been successfully classified into a queue, it is
 handed over to the CoDel algorithm for timestamping. It is then added to
 the tail of the selected queue, and the queue's byte count is updated by
-the packet size. Then, if the queue is not currently active (i.e. if it
+the packet size. Then, if the queue is not currently active (i.e., if it
 is not in either the list of new or the list of old queues), it is added
 to the end of the list of new queues, and its number of credits is
 initiated to the configured quantum. Otherwise, the queue is left in its
@@ -431,16 +483,27 @@ As mentioned previously, it is possible to modify the classification
 scheme to provide a different notion of a 'flow'. The Linux
 implementation provides this option in the form of the `tc filter`
 command. While this can add capabilities (for instance, matching on
-other possible parameters such as mac address, diffserv, firewall and
-flow specific markings, etc.), care should be taken to preserve the
-notion of 'flow' as much of the benefit of the FQ-CoDel scheduler comes
-from keeping flows in separate queues. We are not aware of any
-deployments utilising the custom classification feature.
+other possible parameters such as MAC address, diffserve code point
+values, firewall rules, flow specific markings, etc.), care should be
+taken to preserve the notion of 'flow' as much of the benefit of the
+FQ-CoDel scheduler comes from keeping flows in separate queues. We are
+not aware of any deployments utilising the custom classification
+feature.
 
-An alternative to changing the classification scheme is to perform
-decapsulation prior to hashing. The Linux implementation does this for
-common encapsulations known to the kernel, such as 6in4, IPIP and GRE
-tunnels. This helps to distinguish between flows that share the same
+For protocols that do not contain a port number (such as ICMP), the
+Linux implementation simply sets the port numbers to zero and performs
+the hashing as usual. In practice, this results in such protocols to
+each get their own queue (except in the case of hash collisions). An
+implementation can perform other classifications for protocols that have
+their own notion of a flow, but SHOULD fall back to simply hashing on
+source and destination IP address and IP protocol number in the absence
+of other information.
+
+The default classification scheme can additionally be improved by
+performing decapsulation of tunnelled packets prior to hashing on the
+5-tuple in the encapsulated payload. The Linux implementation does this
+for common encapsulations known to the kernel, such as 6in4, IPIP and
+GRE tunnels. This helps to distinguish between flows that share the same
 (outer) 5-tuple, but of course is limited to unencrypted tunnels (see
 {{opaque-encap}}).
 
@@ -453,7 +516,7 @@ and some final bookkeeping.
 
 For the first part, the scheduler first looks at the list of new queues;
 for the queue at the head of that list, if that queue has a negative
-number of credits (i.e. it has already dequeued at least a quantum of
+number of credits (i.e., it has already dequeued at least a quantum of
 bytes), it is given an additional quantum of credits, the queue is put
 onto *the end of* the list of old queues, and the routine selects the
 next queue and starts again.
@@ -512,6 +575,10 @@ summarised in the following state diagram:
     |                 | Credits exhausted
     +-----------------+
 
+Figure 1: Partial state diagram for queues between different states.
+    Both the new and old queue states can additionally have arrival and
+    dequeue events that do not change the state; these are omitted
+    here.
 
 
 # Implementation considerations {#implementation}
@@ -548,10 +615,12 @@ implementation of FQ-CoDel.
 ### Interval
 
 The _interval_ parameter has the same semantics as CoDel and is used to
-ensure that the measured minimum delay does not become too stale. That
-is, CoDel only reacts to delay experienced in the last epoch of length
-interval. It SHOULD be set on the order of the worst-case RTT through
-the bottleneck to give end-points sufficient time to react.
+ensure that the minimum sojourn time of packets in a queue used as an
+estimator by the CoDel control algorithm is a relatively up-to-date
+value. That is, CoDel only reacts to delay experienced in the last epoch
+of length interval. It SHOULD be set to be on the order of the
+worst-case RTT through the bottleneck to give end-points sufficient time
+to react.
 
 The default interval value is 100 ms.
 
@@ -564,7 +633,7 @@ queue delay that packets experience.
 
 The default target value is 5 ms, but this value should be tuned to be
 at least the transmission time of a single MTU-sized packet at the
-prevalent egress link speed (which for e.g. 1Mbps and MTU 1500 is
+prevalent egress link speed (which for, e.g., 1Mbps and MTU 1500 is
 ~15ms), to prevent CoDel from being too aggressive at low bandwidths. It
 should otherwise be set to on the order of 5-10% of the configured
 interval.
@@ -582,10 +651,10 @@ packet is dropped from the head of the largest queue (measured in bytes)
 to make room for the new packet.
 
 In Linux, the default packet limit is 10240 packets, which is suitable
-for up to 10GigE speeds. In practice, the hard limit is rarely, if ever,
-hit, as drops are performed by the CoDel algorithm long before the limit
-is hit. For platforms that are severely memory constrained, a lower
-limit can be used.
+for up to 10 Gigabit Ethernet speeds. In practice, the hard limit is
+rarely, if ever, hit, as drops are performed by the CoDel algorithm long
+before the limit is hit. For platforms that are severely memory
+constrained, a lower limit can be used.
 
 ### Quantum
 
@@ -594,9 +663,10 @@ dequeue on each round of the scheduling algorithm. The default is set to
 1514 bytes which corresponds to the Ethernet MTU plus the hardware
 header length of 14 bytes.
 
-In TSO-enabled systems, where a "packet" consists of an offloaded packet
-train, it can presently be as large as 64K bytes. In GRO-enabled
-systems, up to 17 times the TCP max segment size (or 25K bytes). These
+In systems employing TCP Segmentation Offload (TSO), where a "packet"
+consists of an offloaded packet train, it can presently be as large as
+64K bytes. In systems using Generic Receive Offload (GRO), they can be
+up to 17 times the TCP max segment size (or 25K bytes). These
 mega-packets severely impact FQ-CoDel's ability to schedule traffic, and
 hurt latency needlessly. There is ongoing work in Linux to make smarter
 use of offload engines.
@@ -607,25 +677,28 @@ The _flows_ parameter sets the number of queues into which the
 incoming packets are classified. Due to the stochastic nature of
 hashing, multiple flows may end up being hashed into the same slot.
 
-This parameter can be set only at load time since memory has to be
-allocated for the hash table in the current implementation.
+This parameter can be set only at initialisation time since memory has
+to be allocated for the hash table in the current implementation.
 
 The default value is 1024 in the current Linux implementation.
 
-### ECN
+### Explicit Congestion Notification (ECN)
 
 ECN is *enabled* by default. Rather than do anything special with
-misbehaved ECN flows, FQ-CoDel relies on the packet scheduling system
-to minimise their impact, thus unresponsive packets in a flow being
-marked with ECN can grow to the overall packet limit, but will not
+misbehaved ECN flows, FQ-CoDel relies on the packet scheduling system to
+minimise their impact, thus the number of unresponsive packets in a flow
+being marked with ECN can grow to the overall packet limit, but will not
 otherwise affect the performance of the system.
 
 It can be disabled by specifying the _noecn_ parameter.
 
 ### CE threshold
 
-This parameter enables DCTCP-like processing to enable CE marking
-ECT packets at a lower setpoint than the default codel target.
+This parameter enables Date Centre TCP (DCTCP)-like processing resulting
+in CE (Congestion Encountered) marking on ECN-Capable Transport (ECT)
+packets {{RFC3168}} starting at a lower sojourn delay setpoint than the
+default CoDel Target. Details of DCTCP can be found in
+{{I-D.ietf-tcpm-dctcp}}.
 
 The parameter, _ce\_threshold_, is disabled by default and can be set to
 a number of microseconds to enable.
@@ -635,15 +708,17 @@ a number of microseconds to enable.
 
 Since the Linux FQ-CoDel implementation by default uses 1024 hash
 buckets, the probability that (say) 100 flows will all hash to the same
-bucket is something like ten to the power of minus 300. Thus, the
-probability that at least one of the flows will hash to some other queue
-is very high indeed.
+bucket is something like ten to the power of minus 300. Thus, at least
+one of the flows will almost certainly hash to some other queue.
 
 Expanding on this, based on analytical equations for hash collision
 probabilities, for 100 flows, the probability of no collision is 90.78%;
 the probability that no more than two of the 100 flows will be involved
 in any given collision = 99.57%; and the probability that no more than
 three of the 100 flows will be involved in any given collision = 99.99%.
+These probabilities assume a hypothetical perfect hashing function, so
+in practice they may be a bit lower. We have not found this difference
+to matter in practice.
 
 These probabilities can be improved upon by using set-associative
 hashing, a technique used in the Cake algorithm currently being
@@ -654,27 +729,27 @@ associative hash it is ~100%.
 
 ## Memory Overhead
 
-FQ-CoDel can be implemented with a very low memory footprint (less
-than 64 bytes per queue on 64 bit systems). These are the data
-structures used in the Linux implementation:
+FQ-CoDel can be implemented with a low memory footprint (less than 64
+bytes per queue on 64 bit systems). These are the data structures used
+in the Linux implementation:
 
 &lt;CODE BEGINS&gt;
 
     struct codel_vars {
-       u32             count;
-       u32             lastcount;
-       bool            dropping;
-       u16             rec_inv_sqrt;
-       codel_time_t    first_above_time;
-       codel_time_t    drop_next;
-       codel_time_t    ldelay;
+       u32             count;             /* number of dropped packets */
+       u32             lastcount;     /* count entry to dropping state */
+       bool            dropping;                /* currently dropping? */
+       u16             rec_inv_sqrt;    /* reciprocal sqrt computation */
+       codel_time_t    first_above_time;    /* when delay above target */
+       codel_time_t    drop_next;                 /* next time to drop */
+       codel_time_t    ldelay; /* sojourn time of last dequeued packet */
     };
 
     struct fq_codel_flow {
        struct sk_buff    *head;
        struct sk_buff    *tail;
        struct list_head  flowchain;
-       int               credits;  /* current number of queue credits */
+       int               credits;   /* current number of queue credits */
        u32               dropped; /* # of drops (or ECN marks) on flow */
        struct codel_vars cvars;
     };
@@ -711,24 +786,25 @@ software-based routers, it may be impossible to retrofit devices that do
 most of their processing in silicon and lack space or mechanism for
 timestamping.
 
-Also, while perfect resolution is not needed, timestamp resolution below
-the target is necessary. Furthermore, timestamping functions in the core
-OS need to be efficient as they are called at least once on each packet
-enqueue and dequeue.
+Also, while perfect resolution is not needed, timestamp resolution finer
+than the CoDel target setting is necessary. Furthermore, timestamping
+functions in the core OS need to be efficient as they are called at
+least once on each packet enqueue and dequeue.
 
 ## Other forms of "Fair Queueing"
 
 Much of the scheduling portion of FQ-CoDel is derived from DRR and is
-substantially similar to DRR++. SFQ-based versions have also been
-produced and tested in ns2. Other forms of Fair Queueing, such as WFQ or
-QFQ, have not been thoroughly explored, but there's no a priori reason
-why the round-robin scheduling of FQ-CoDel couldn't be replaced with
-something else.
+substantially similar to DRR++. Versions based on Stochastic Fair
+Queueing {{SFQ}} have also been produced and tested in ns2. Other forms
+of Fair Queueing, such as Weighed Fair Queueing or Quick Fair Queueing
+{{QFQ}}, have not been thoroughly explored, but there's no a priori
+reason why the round-robin scheduling of FQ-CoDel couldn't be replaced
+with something else.
 
 ## Differences between CoDel and FQ-CoDel behaviour
 
 CoDel can be applied to a single queue system as a straight AQM, where
-it converges towards an "ideal" drop rate (i.e. one that minimises delay
+it converges towards an "ideal" drop rate (i.e., one that minimises delay
 while keeping a high link utilisation), and then optimises around that
 control point.
 
@@ -747,9 +823,9 @@ mechanism operates on the flows actually building queues, which results
 in packets being dropped more accurately from the largest flows than
 CoDel alone manages. Additionally, flow isolation radically improves the
 transient behaviour of the network when traffic or link characteristics
-change (e.g. when new flows start up or the link bandwidth changes);
-while CoDel itself can take a while to respond, fq_codel doesn't miss a
-beat.
+change (e.g., when new flows start up or the link bandwidth changes);
+while CoDel itself can take a while to respond, fq_codel reacts almost
+immediately.
 
 # Limitations of flow queueing {#limitations}
 While FQ-CoDel has been shown in many scenarios to offer significant
@@ -777,8 +853,8 @@ instance match on address or subnet source/destination pairs,
 application layer characteristics, etc.
 
 Furthermore, as commonly deployed today, FQ-CoDel is used with three or
-more tiers of classification: priority, best effort and background,
-based on diffserv markings. Some products do more detailed
+more tiers of service classification: priority, best effort and
+background, based on diffserv markings. Some products do more detailed
 classification, including deep packet inspection and
 destination-specific filters to achieve their desired result.
 
@@ -801,14 +877,18 @@ behaviour. In cases where it is not, changing FQ-CoDel's matching to not
 be flow-based (as detailed in the previous subsection above) can be a
 mitigation. Going forward, having some mechanism for opaque
 encapsulations to express to the outer layer which flow a packet belongs
-to, could be a way to mitigate this.
+to, could be a way to mitigate this. Naturally, care needs to be taken
+when designing such a mechanism to ensure no new privacy and security
+issues are raised by exposing information from inside the encapsulation
+to the outside world. Keeping the extra information out-of-band and
+dropping it before it hits the network could be one way to achieve this.
 
 ## Low-priority congestion control algorithms
 
 In the presence of queue management schemes that contain latency under
 load, low-priority congestion control algorithms such as LEDBAT
 {{RFC6817}} (or, in general, algorithms that try to voluntarily use up
-less than their fair share of bandwidth) experiences very little added
+less than their fair share of bandwidth) experiences little added
 latency when the link is congested. Thus, they lack the signal to back
 off that added latency previously afforded them. This effect is seen
 with FQ-CoDel as well as with any effective AQM {{GONG2014}}.
@@ -837,8 +917,7 @@ Of course there is always room for improvement, and this document has
 listed some of the know limitations of the algorithm. As such, we
 encourage further research into algorithm refinements and addressing of
 limitations. One such effort is undertaken by the bufferbloat community
-in the form of the Cake queue management scheme (see
-http://www.bufferbloat.net/projects/codel/wiki/Cake). In addition to
+in the form of the Cake queue management scheme {{CAKE}}. In addition to
 this we believe the following (non-exhaustive) list of issues to be
 worthy of further enquiry:
 
@@ -846,13 +925,13 @@ worthy of further enquiry:
   notions of flows. For instance, an ISP might want to deploy
   per-subscriber scheduling, while in other cases several flows can
   share a 5-tuple, as exemplified by the RTCWEB QoS recommendations
-  {{RTCWEB-QOS}}.
+  {{I-D.ietf-tsvwg-rtcweb-qos}}.
 
 - Interactions between flow queueing and delay-based congestion control
   algorithms and scavenger protocols.
 
 - Other scheduling mechanisms to replace the DRR portion of the
-  algorithm, e.g. QFQ or WFQ.
+  algorithm, e.g., QFQ or WFQ.
 
 - Sensitivity of parameters, most notably the number of queues and the
   CoDel parameters.
@@ -861,7 +940,7 @@ worthy of further enquiry:
 
 There are no specific security exposures associated with FQ-CoDel that
 are not also present in current FIFO systems. And some are in fact
-reduced (e.g. simple minded packet floods). However, some care is needed
+reduced (e.g., simple minded packet floods). However, some care is needed
 in the implementation to ensure this is the case. These are included in
 the description above, however we reiterate them here:
 
@@ -877,8 +956,8 @@ the description above, however we reiterate them here:
   the hash function is obviously a tradeoff between performance and
   security. The Linux implementation uses a 32 bit random value as the
   salt and a Jenkins hash function. This makes it possible to achieve
-  very high throughput, and we consider it sufficient to ward off the
-  most obvious attacks.
+  high throughput, and we consider it sufficient to ward off the most
+  obvious attacks.
 
 - Packet fragments without a layer 4 header can be hashed into different
   bins than the first fragment with the header intact. This can cause
@@ -897,13 +976,3 @@ Our deepest thanks to Kathie Nichols, Van Jacobson, and all the members
 of the bufferbloat.net effort for all the help on developing and testing
 the algorithm. In addition, our thanks to Anil Agarwal for his help with
 getting the hash collision probabilities in this document right.
-
-# Conclusions
-
-FQ-CoDel is a very general, efficient, nearly parameterless queue
-management approach combining flow queueing with CoDel. It is a very
-powerful tool for solving bufferbloat, and we believe it to be safe to
-turn on by default, as has already happened in a number of Linux
-distributions. In this document we have documented the Linux
-implementation in sufficient detail for an independent implementation,
-and we encourage such implementations be widely deployed.
