@@ -1,7 +1,7 @@
 ---
 coding: utf-8
 
-title: FlowQueue-CoDel
+title: The FlowQueue-CoDel Packet Scheduler and Active Queue Management Algorithm
 abbrev: fq-codel
 docname: draft-ietf-aqm-fq-codel-06
 category: exp
@@ -244,9 +244,9 @@ the fq_codel queueing discipline.
 
 FQ-CoDel is a general, efficient, nearly parameterless queue management
 approach combining flow queueing with CoDel. It is a powerful tool for
-solving bufferbloat {{BLOAT}}, and we believe it to be safe to turn on by
-default, as has already happened in a number of Linux distributions. In
-this document we have documented the Linux implementation in sufficient
+solving bufferbloat {{BLOAT}}, and we believe it to be safe to turn on
+by default, as has already happened in a number of Linux distributions.
+In this document we document the Linux implementation in sufficient
 detail for an independent implementation, and we encourage such
 implementations be widely deployed.
 
@@ -377,14 +377,14 @@ detail in the remainder of this document.
 
 # CoDel {#codel}
 
-CoDel is described in the the ACM Queue paper {{CODEL}}, and the AQM
-working group draft {{I-D.ietf-aqm-codel}}. The basic idea is to control
-queue length, maintaining sufficient queueing to keep the outgoing link
-busy, but avoiding building up the queue beyond that point. This is done
-by preferentially dropping packets that remain in the queue for “too
-long”. Packets are dropped by head drop, which lowers the time for the
-drop signal to propagate back to the sender by the length of the queue,
-and helps trigger TCP fast retransmit sooner.
+CoDel is described in the ACM Queue paper {{CODEL}}, and the AQM working
+group draft {{I-D.ietf-aqm-codel}}. The basic idea is to control queue
+length, maintaining sufficient queueing to keep the outgoing link busy,
+but avoiding building up the queue beyond that point. This is done by
+preferentially dropping packets that remain in the queue for “too long”.
+Packets are dropped by head drop, which lowers the time for the drop
+signal to propagate back to the sender by the length of the queue, and
+helps trigger TCP fast retransmit sooner.
 
 The CoDel algorithm itself will not be described here; instead we refer
 the reader to the CoDel draft {{I-D.ietf-aqm-codel}}.
@@ -540,9 +540,9 @@ Then (since no packet was available for dequeue), the whole dequeue
 process is restarted from the beginning.
 
 If, instead, the scheduler *did* get a packet back from the CoDel
-algorithm, it subtracts the size of the packet from the the byte credits
-for the selected queue and returns the packet as the result of the
-dequeue operation.
+algorithm, it subtracts the size of the packet from the byte credits for
+the selected queue and returns the packet as the result of the dequeue
+operation.
 
 The step that moves an empty queue from the list of new queues to *the
 end of* the list of old queues before it is removed is crucial to
