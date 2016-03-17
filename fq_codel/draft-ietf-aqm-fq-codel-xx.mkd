@@ -198,15 +198,14 @@ informative:
         name: Bob Jenkins
     date: 1996
   SFQ:
-    target: http://dx.doi.org/10.1109/INFCOM.1990.91316
+    target: https://web.archive.org/web/20151003174154/http://www2.rdrop.com/~paulmck/scalability/paper/sfq.2002.06.04.pdf
     title: Stochastic fairness queueing
     author:
       -
-        name: P.E. McKenney
+        name: Paul E. McKenney
     seriesinfo:
-      in: Proceedings. IEEE INFOCOM ’90
-      DOI: http://dx.doi.org/10.1109/INFCOM.1990.91316
-    date: 1990
+      published: as technical report
+    date: 2002
   QFQ:
     target: http://dl.acm.org/citation.cfm?id=2525552
     title: "QFQ: Efficient packet scheduling with tight guarantees"
