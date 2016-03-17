@@ -503,10 +503,11 @@ As mentioned previously, it is possible to modify the classification
 scheme to provide a different notion of a 'flow'. The Linux
 implementation provides this option in the form of the `tc filter`
 command. While this can add capabilities (for instance, matching on
-other possible parameters such as MAC address, diffserve code point
-values, firewall rules, flow specific markings, etc.), care should be
-taken to preserve the notion of 'flow' as much of the benefit of the
-FQ-CoDel scheduler comes from keeping flows in separate queues.
+other possible parameters such as MAC address, diffserv code point
+values, firewall rules, flow specific markings, IPv6 flow label, etc.),
+care should be taken to preserve the notion of 'flow' as much of the
+benefit of the FQ-CoDel scheduler comes from keeping flows in separate
+queues.
 
 For protocols that do not contain a port number (such as ICMP), the
 Linux implementation simply sets the port numbers to zero and performs
@@ -548,11 +549,11 @@ the list).
 
 After having selected a queue from which to dequeue a packet, the CoDel
 algorithm is invoked on that queue. This applies the CoDel control law,
-which is the mechanism that CoDel uses to determine when to drop packets
-(see {{I-D.ietf-aqm-codel}}). This may discard one or more packets from
-the head of the selected queue, before returning the packet that should
-be dequeued (or nothing if the queue is or becomes empty while being
-handled by the CoDel algorithm).
+which is the mechanism CoDel uses to determine when to drop packets (see
+{{I-D.ietf-aqm-codel}}). As a result of this, one or more packets may be
+discarded from the head of the selected queue, before the packet that
+should be dequeued is returned (or nothing is returned if the queue is
+or becomes empty while being handled by the CoDel algorithm).
 
 Finally, if the CoDel algorithm does not return a packet, then the queue
 must be empty, and the scheduler does one of two things: if the queue
@@ -845,15 +846,17 @@ in packets being dropped more accurately from the largest flows than
 CoDel alone manages. Additionally, flow isolation radically improves the
 transient behaviour of the network when traffic or link characteristics
 change (e.g., when new flows start up or the link bandwidth changes);
-while CoDel itself can take a while to respond, fq_codel reacts almost
+while CoDel itself can take a while to respond, FQ-CoDel reacts almost
 immediately.
 
 # Limitations of flow queueing {#limitations}
+
 While FQ-CoDel has been shown in many scenarios to offer significant
-performance gains, there are some scenarios where the scheduling
-algorithm in particular is not a good fit. This section documents some
-of the known cases which either may require tweaking the default
-behaviour, or where alternatives to flow queueing should be considered.
+performance gains compared to alternative queue management strategies,
+there are some scenarios where the scheduling algorithm in particular is
+not a good fit. This section documents some of the known cases which
+either may require tweaking the default behaviour, or where alternatives
+to flow queueing should be considered.
 
 ## Fairness between things other than flows
 In some parts of the network, enforcing flow-level fairness may not be
@@ -986,8 +989,8 @@ description above, however we reiterate them here:
   reordering and/or adversely affect the performance of the flow.
   Keeping state to match the fragments to the beginning of the packet,
   or simply putting all packet fragments (including the first fragment
-  of fragmented packets) into the same queue, are two ways to alleviate
-  this.
+  of each fragmented packet) into the same queue, are two ways to
+  alleviate this.
 
 # IANA Considerations
 
