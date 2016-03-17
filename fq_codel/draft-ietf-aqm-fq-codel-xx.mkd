@@ -74,6 +74,7 @@ normative:
   RFC3168:
   RFC4213:
   RFC6817:
+  I-D.ietf-ietf-aqm-fq-implementation:
   I-D.ietf-aqm-codel:
   I-D.ietf-tsvwg-rtcweb-qos:
   I-D.ietf-tcpm-dctcp:
@@ -90,7 +91,7 @@ informative:
       DOI: http://dx.doi.org/10.1109/MIC.2011.56
   CAKE:
     target: http://www.bufferbloat.net/projects/codel/wiki/Cake
-    title: Cake queue management system
+    title: Cake comprehensive queue management system
     date: []
   BLOATWEB:
     target: https://www.bufferbloat.net
@@ -108,10 +109,38 @@ informative:
     target: https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/net/sched/sch_fq_codel.c
     title: Current FQ-CoDel Linux source code
     date: []
+  BQL:
+    target: https://lwn.net/Articles/454390/
+    title: Network Byte Queue Limits
+    date: 2011-08
+    author
+      -
+        name: Tom Herbert
+        ins: T. Herbert
+  HTB:
+    target: https://en.wikipedia.org/wiki/Token_bucket#Variations
+    title: Hierarchical Token Bucket
+    date: []
+  HFSC:
+    target: http://conferences.sigcomm.org/sigcomm/1997/papers/p011.pdf
+    title: Hierarchical fair-service curve
+    author
+      -
+        name: Ion Stoica
+        ins: I. Stoica
+      -
+        name: Hui Zhang
+        ins: H. Zhang
+      -
+        name: T. S. Eugene Ng
+        ins:  T. S. Eugene
+    seriesinfo:
+      in:  Sigcomm 1997 proceedings
+    date: 1997
   DRR:
     target: http://users.ece.gatech.edu/~siva/ECE4607/presentations/DRR.pdf
     title: Efficient Fair Queueing Using Deficit Round Robin
-    author:
+    author
       -
         name: M. Shreedhar
         ins: M. Shreedhar
@@ -349,8 +378,9 @@ can optionally be configured instead; see {{alternate-class}}). Each
 queue is managed by the CoDel AQM algorithm {{CODEL}}. Packet ordering
 within a queue is preserved, since queues have FIFO ordering.
 
-The FQ-CoDel algorithm consists of two logical parts: the scheduler
-which selects which queue to dequeue a packet from, and the CoDel AQM
+The FQ-CoDel algorithm consists of {{I-D.ietf-ietf-aqm-fq-implementation}
+two logical parts: the scheduler which selects which queue to dequeue a
+packet from, and the CoDel AQM
 which works on each of the queues. The subtleties of FQ-CoDel are mostly
 in the scheduling part, whereas the interaction between the scheduler
 and the CoDel algorithm are fairly straight forward:
@@ -811,6 +841,19 @@ Also, while perfect resolution is not needed, timestamp resolution finer
 than the CoDel target setting is necessary. Furthermore, timestamping
 functions in the core OS need to be efficient as they are called at
 least once on each packet enqueue and dequeue.
+
+## Device queues must also be well controlled
+
+It is best that these AQM and FQ algorithms run as close to the hardware
+as possible. Scheduling such complexity at interrupt time is difficult, so
+a small standing queue between the algorithm and the wire is often needed
+at higher transmit rates.
+
+In Linux, this is accomplished via "Byte Queue Limits" {{BQL}} in the
+device driver ring buffer (for physical line rates), and via a software
+rate limiter such as {HTB}}, {{HFSC}}, or {{CAKE}} otherwise.
+
+Other issues with concatinated queues are described in {{CODEL}}.
 
 ## Other forms of "Fair Queueing"
 
