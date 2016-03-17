@@ -104,6 +104,10 @@ informative:
     target: https://www.nsnam.org/wiki
     title: NS3 web site
     date: []
+  LINUX:
+    target: https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/net/sched/sch_fq_codel.c
+    title: Current FQ-CoDel Linux source code
+    date: []
   DRR:
     target: http://users.ece.gatech.edu/~siva/ECE4607/presentations/DRR.pdf
     title: Efficient Fair Queueing Using Deficit Round Robin
@@ -256,7 +260,7 @@ based on a modified Deficit Round Robin (DRR) queue scheduler
 operating on each queue. This document describes the combined algorithm;
 reference implementations are available for the ns2 {{NS2}} and ns3
 {{NS3}} network simulators, and it is included in the mainline Linux
-kernel as the fq_codel queueing discipline.
+kernel as the fq_codel queueing discipline {{LINUX}}.
 
 FQ-CoDel is a general, efficient, nearly parameterless queue management
 approach combining flow queueing with CoDel. It is a powerful tool for
