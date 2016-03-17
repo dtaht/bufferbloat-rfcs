@@ -113,7 +113,7 @@ informative:
     target: https://lwn.net/Articles/454390/
     title: Network Byte Queue Limits
     date: 2011-08
-    author
+    author:
       -
         name: Tom Herbert
         ins: T. Herbert
@@ -124,7 +124,7 @@ informative:
   HFSC:
     target: http://conferences.sigcomm.org/sigcomm/1997/papers/p011.pdf
     title: Hierarchical fair-service curve
-    author
+    author:
       -
         name: Ion Stoica
         ins: I. Stoica
@@ -140,7 +140,7 @@ informative:
   DRR:
     target: http://users.ece.gatech.edu/~siva/ECE4607/presentations/DRR.pdf
     title: Efficient Fair Queueing Using Deficit Round Robin
-    author
+    author:
       -
         name: M. Shreedhar
         ins: M. Shreedhar
