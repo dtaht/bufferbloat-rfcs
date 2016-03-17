@@ -853,7 +853,7 @@ In Linux, this is accomplished via "Byte Queue Limits" {{BQL}} in the
 device driver ring buffer (for physical line rates), and via a software
 rate limiter such as {HTB}}, {{HFSC}}, or {{CAKE}} otherwise.
 
-Other issues with concatinated queues are described in {{CODEL}}.
+Other issues with concatenated queues are described in {{CODEL}}.
 
 ## Other forms of "Fair Queueing"
 
