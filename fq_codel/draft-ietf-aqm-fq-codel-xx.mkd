@@ -378,7 +378,7 @@ can optionally be configured instead; see {{alternate-class}}). Each
 queue is managed by the CoDel AQM algorithm {{CODEL}}. Packet ordering
 within a queue is preserved, since queues have FIFO ordering.
 
-The FQ-CoDel algorithm consists of {{I-D.ietf-ietf-aqm-fq-implementation}
+The FQ-CoDel algorithm consists of {{I-D.ietf-ietf-aqm-fq-implementation}}
 two logical parts: the scheduler which selects which queue to dequeue a
 packet from, and the CoDel AQM
 which works on each of the queues. The subtleties of FQ-CoDel are mostly
