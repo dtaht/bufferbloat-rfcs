@@ -252,11 +252,11 @@ The FlowQueue-CoDel (FQ-CoDel) algorithm is a combined packet scheduler
 and Active Queue Management (AQM) {{RFC3168}} algorithm developed as
 part of the bufferbloat-fighting community effort {{BLOATWEB}}. It is
 based on a modified Deficit Round Robin (DRR) queue scheduler
-{{DRR}}{{DRRPP}}, with the CoDel AQM algorithm operating on each queue.
-This document describes the combined algorithm; reference
-implementations are available for the ns2 {{NS2}} and ns3 {{NS3}}
-network simulators, and it is included in the mainline Linux kernel as
-the fq_codel queueing discipline.
+{{DRR}}{{DRRPP}}, with the CoDel AQM {{I-D.ietf-aqm-codel}} algorithm
+operating on each queue. This document describes the combined algorithm;
+reference implementations are available for the ns2 {{NS2}} and ns3
+{{NS3}} network simulators, and it is included in the mainline Linux
+kernel as the fq_codel queueing discipline.
 
 FQ-CoDel is a general, efficient, nearly parameterless queue management
 approach combining flow queueing with CoDel. It is a powerful tool for
@@ -342,9 +342,9 @@ By default, FQ-CoDel stochastically classifies incoming packets into
 different queues by hashing the 5-tuple of IP protocol number and source
 and destination IP and port numbers, perturbed with a random number
 selected at initiation time (although other flow classification schemes
-can optionally be configured instead). Each queue is managed by the
-CoDel AQM algorithm {{CODEL}}. Packet ordering within a queue is
-preserved, since queues have FIFO ordering.
+can optionally be configured instead; see {{alternate-class}}). Each
+queue is managed by the CoDel AQM algorithm {{CODEL}}. Packet ordering
+within a queue is preserved, since queues have FIFO ordering.
 
 The FQ-CoDel algorithm consists of two logical parts: the scheduler
 which selects which queue to dequeue a packet from, and the CoDel AQM
@@ -493,7 +493,7 @@ of the queue with the largest current byte count. Note that this in most
 cases means that the packet that gets dropped is different from the one
 that was just enqueued, and may even be from a different queue.
 
-### Alternative classification schemes
+### Alternative classification schemes {#alternate-class}
 
 As mentioned previously, it is possible to modify the classification
 scheme to provide a different notion of a 'flow'. The Linux
@@ -544,9 +544,11 @@ the list).
 
 After having selected a queue from which to dequeue a packet, the CoDel
 algorithm is invoked on that queue. This applies the CoDel control law,
-and may discard one or more packets from the head of that queue, before
-returning the packet that should be dequeued (or nothing if the queue is
-or becomes empty while being handled by the CoDel algorithm).
+which is the mechanism that CoDel uses to determine when to drop packets
+(see {{I-D.ietf-aqm-codel}}). This may discard one or more packets from
+the head of the selected queue, before returning the packet that should
+be dequeued (or nothing if the queue is or becomes empty while being
+handled by the CoDel algorithm).
 
 Finally, if the CoDel algorithm does not return a packet, then the queue
 must be empty, and the scheduler does one of two things: if the queue
@@ -692,8 +694,8 @@ The _flows_ parameter sets the number of queues into which the
 incoming packets are classified. Due to the stochastic nature of
 hashing, multiple flows may end up being hashed into the same slot.
 
-This parameter can be set only at initialisation time since memory has
-to be allocated for the hash table in the current implementation.
+This parameter can be set only at initialisation time in the current
+implementation, since memory has to be allocated for the hash table.
 
 The default value is 1024 in the current Linux implementation.
 
@@ -900,7 +902,7 @@ dropping it before it hits the network could be one way to achieve this.
 
 ## Low-priority congestion control algorithms
 
-In the presence of queue management schemes that contain latency under
+In the presence of queue management schemes that limit latency under
 load, low-priority congestion control algorithms such as LEDBAT
 {{RFC6817}} (or, in general, algorithms that try to voluntarily use up
 less than their fair share of bandwidth) experiences little added
@@ -979,8 +981,9 @@ description above, however we reiterate them here:
   bins than the first fragment with the header intact. This can cause
   reordering and/or adversely affect the performance of the flow.
   Keeping state to match the fragments to the beginning of the packet,
-  or simply putting all fragmented packets into the same queue, are two
-  ways to alleviate this.
+  or simply putting all packet fragments (including the first fragment
+  of fragmented packets) into the same queue, are two ways to alleviate
+  this.
 
 # IANA Considerations
 
