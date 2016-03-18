@@ -842,18 +842,27 @@ than the CoDel target setting is necessary. Furthermore, timestamping
 functions in the core OS need to be efficient as they are called at
 least once on each packet enqueue and dequeue.
 
-## Device queues must also be well controlled
+## Limiting queueing in lower layers
 
-It is best that these AQM and FQ algorithms run as close to the hardware
-as possible. Scheduling such complexity at interrupt time is difficult, so
-a small standing queue between the algorithm and the wire is often needed
-at higher transmit rates.
+When deploying a queue management algorithm such as FQ-CoDel, it is
+important to ensure that the algorithm actually runs in the right place
+to control the queue. In particular lower layers of the operating system
+networking stack can have queues of their own, as can device drivers and
+hardware. Thus, it is desirable that the queue management algorithm runs
+as close to the hardware as possible. However, scheduling such
+complexity at interrupt time is difficult, so a small standing queue
+between the algorithm and the wire is often needed at higher transmit
+rates.
 
-In Linux, this is accomplished via "Byte Queue Limits" {{BQL}} in the
-device driver ring buffer (for physical line rates), and via a software
-rate limiter such as {HTB}}, {{HFSC}}, or {{CAKE}} otherwise.
+In Linux, the mechanism to ensure these different needs are balanced is
+called "Byte Queue Limits" {{BQL}}, which controls the device driver
+ring buffer (for physical line rates). For cases where this
+functionality is not available, the queue can be controlled by means of
+a software rate limiter such as Hierarchical Token Bucket {{HTB}} or
+Hierarchical Fair-Service Curve {{HFSC}}. The Cake algorithm {{CAKE}}
+integrates a software rate limiter for this purpose.
 
-Other issues with concatenated queues are described in {{CODEL}}.
+Other issues with queues at lower layers are described in {{CODEL}}.
 
 ## Other forms of "Fair Queueing"
 
