@@ -74,7 +74,7 @@ normative:
   RFC3168:
   RFC4213:
   RFC6817:
-  I-D.ietf-ietf-aqm-fq-implementation:
+  I-D.ietf-aqm-fq-implementation:
   I-D.ietf-aqm-codel:
   I-D.ietf-tsvwg-rtcweb-qos:
   I-D.ietf-tcpm-dctcp:
@@ -378,9 +378,8 @@ can optionally be configured instead; see {{alternate-class}}). Each
 queue is managed by the CoDel AQM algorithm {{CODEL}}. Packet ordering
 within a queue is preserved, since queues have FIFO ordering.
 
-The FQ-CoDel algorithm consists of {{I-D.ietf-ietf-aqm-fq-implementation}}
-two logical parts: the scheduler which selects which queue to dequeue a
-packet from, and the CoDel AQM
+The FQ-CoDel algorithm consists of two logical parts: the scheduler
+which selects which queue to dequeue a packet from, and the CoDel AQM
 which works on each of the queues. The subtleties of FQ-CoDel are mostly
 in the scheduling part, whereas the interaction between the scheduler
 and the CoDel algorithm are fairly straight forward:
@@ -873,6 +872,9 @@ of Fair Queueing, such as Weighted Fair Queueing {{WFQ}} or Quick Fair
 Queueing {{QFQ}}, have not been thoroughly explored, but there's no a
 priori reason why the round-robin scheduling of FQ-CoDel couldn't be
 replaced with something else.
+
+For a comprehensive discussion of fairness queueing algorithms and their
+combination with AQM, see {{I-D.ietf-aqm-fq-implementation}}.
 
 ## Differences between CoDel and FQ-CoDel behaviour
 
