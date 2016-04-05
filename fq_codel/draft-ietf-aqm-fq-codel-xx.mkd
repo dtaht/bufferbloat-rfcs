@@ -68,17 +68,17 @@ author:
     email: edumazet@gmail.com
 
 normative:
-  RFC2003:
   RFC2119:
+  I-D.ietf-aqm-fq-implementation:
+  I-D.ietf-aqm-codel:
+informative:
+  RFC2003:
   RFC2890:
   RFC3168:
   RFC4213:
   RFC6817:
-  I-D.ietf-aqm-fq-implementation:
-  I-D.ietf-aqm-codel:
   I-D.ietf-tsvwg-rtcweb-qos:
   I-D.ietf-tcpm-dctcp:
-informative:
   BLOAT:
     target:  http://www.bufferbloat.net/attachments/27/IC-15-03-Backspace.pdf
     title: "Bufferbloat: Dark buffers in the Internet."
