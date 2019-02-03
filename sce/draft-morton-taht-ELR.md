@@ -65,6 +65,19 @@ RED/PIE/FQ_PIE/CODEL/FQ_CODEL, and newer protocols such as QUIC.
 The keywords **MUST**, **MUST NOT**, **REQUIRED**, **SHALL**, **SHALL NOT**, **SHOULD**, **SHOULD NOT**, **RECOMMENDED**, **MAY**, and **OPTIONAL**, when they appear in this document, are to be interpreted as described in [@!RFC2119].
 
 # Introduction
+at we don't *only* have 2 bits to work with, but a whole sequence of packets carrying these 2-bit codepoints.  We can convey fine-grained information by setting codepoints stochastically or in a pattern, rather than by merely choosing one of the three available (ignoring Not-ECT).  The receiver can then observe the density of codepoints and report that to the sender.
+
+Which is more-or-less the premise of DCTCP.  However, DCTCP changes the meaning of CE, instead of making use of ECT(1), which I think is the big mistake that makes it undeployable.
+
+So, from the middlebox perspective, very little changes.  ECN-capable packets still carry ECT(0) or ECT(1).  You still set CE on ECT packets, or drop Non-ECT packets, to signal when a serious level of persistent queue has developed, so that the sender needs to back off a lot.  But if a less serious congestion condition exists, you can now signal *that* by changing some proportion of ECT(0) codepoints to ECT(1), with the intention that senders either reduce their cwnd growth rate, halt growth entirely, or enter a gradual decline.  Those are three things that ECN cannot currently signal.
+
+This change is invisible to existing, RFC-compliant, deployed middleboxes and endpoints, so should be completely backwards-compatible and incrementally deployable in the network.  (The only thing it breaks is the optional ECN integrity RFC that, according to fairly recent measurements, literally nobody bothered implementing.)
+
+Through TCP Timestamps, both sender and receiver can know fairly precisely when a round-trip has occurred.  The receiver can use this information to calculate the ratio of ECT(0) and ECT(1) codepoints received in the most recent RTT.  A new TCP Option could replace TCP Timestamps and the two bytes of padding that usually go with it, allowing reporting of this ratio without actually increasing the size of the TCP header.  Large cwnds can be accommodated at the receiver by shifting both counters right until they both fit in a byte each; it is the ratio between them that is significant.
+
+It is then incumbent on the sender to do something useful with that information.  A reasonable idea would be to aim for a 1:1 ratio via an integrating control loop.  Receipt of even one ECT(1) signal might be considered grounds for exiting slow-start, while exceeding 1:2 ratio should limit growth rate to "Reno linear" semantics (significant for CUBIC), and exceeding 2:1 ratio should trigger a "Reno linear" *decrease* of cwnd.  Through all this, a single CE mark (reported in the usual way via ECE and CWR) still has the usual effect of a multiplicative decrease.
+
+That's my proposal.
 
 # SGE flow diagram
 
