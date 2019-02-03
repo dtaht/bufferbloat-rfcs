@@ -68,17 +68,17 @@ author:
     email: edumazet@gmail.com
 
 normative:
-  RFC2003:
   RFC2119:
+  I-D.ietf-aqm-fq-implementation:
+  I-D.ietf-aqm-codel:
+informative:
+  RFC2003:
   RFC2890:
   RFC3168:
   RFC4213:
   RFC6817:
-  I-D.ietf-ietf-aqm-fq-implementation:
-  I-D.ietf-aqm-codel:
   I-D.ietf-tsvwg-rtcweb-qos:
   I-D.ietf-tcpm-dctcp:
-informative:
   BLOAT:
     target:  http://www.bufferbloat.net/attachments/27/IC-15-03-Backspace.pdf
     title: "Bufferbloat: Dark buffers in the Internet."
@@ -105,7 +105,7 @@ informative:
     target: https://www.nsnam.org/wiki
     title: NS3 web site
     date: []
-  LINUX:
+  LINUXSRC:
     target: https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/net/sched/sch_fq_codel.c
     title: Current FQ-CoDel Linux source code
     date: []
@@ -288,7 +288,7 @@ based on a modified Deficit Round Robin (DRR) queue scheduler
 operating on each queue. This document describes the combined algorithm;
 reference implementations are available for the ns2 {{NS2}} and ns3
 {{NS3}} network simulators, and it is included in the mainline Linux
-kernel as the fq_codel queueing discipline {{LINUX}}.
+kernel as the fq_codel queueing discipline {{LINUXSRC}}.
 
 FQ-CoDel is a general, efficient, nearly parameterless queue management
 approach combining flow queueing with CoDel. It is a powerful tool for
@@ -378,9 +378,8 @@ can optionally be configured instead; see {{alternate-class}}). Each
 queue is managed by the CoDel AQM algorithm {{CODEL}}. Packet ordering
 within a queue is preserved, since queues have FIFO ordering.
 
-The FQ-CoDel algorithm consists of {{I-D.ietf-ietf-aqm-fq-implementation}}
-two logical parts: the scheduler which selects which queue to dequeue a
-packet from, and the CoDel AQM
+The FQ-CoDel algorithm consists of two logical parts: the scheduler
+which selects which queue to dequeue a packet from, and the CoDel AQM
 which works on each of the queues. The subtleties of FQ-CoDel are mostly
 in the scheduling part, whereas the interaction between the scheduler
 and the CoDel algorithm are fairly straight forward:
@@ -448,8 +447,8 @@ configurable, and presently defaults to 1024 in the Linux
 implementation. This is enough to avoid hash collisions on a moderate
 number of flows as seen for instance in a home gateway. Depending on the
 characteristics of the link, this can be tuned to trade off memory for a
-lower probability of hash collisions. See Section 6 for a more in-depth
-discussion of this.
+lower probability of hash collisions. See Section {{scheduler}} for a
+more in-depth discussion of this.
 
 By default, the flow hashing is performed on the 5-tuple of source and
 destination IP addresses and port numbers and IP protocol number. While
@@ -842,18 +841,27 @@ than the CoDel target setting is necessary. Furthermore, timestamping
 functions in the core OS need to be efficient as they are called at
 least once on each packet enqueue and dequeue.
 
-## Device queues must also be well controlled
+## Limiting queueing in lower layers
 
-It is best that these AQM and FQ algorithms run as close to the hardware
-as possible. Scheduling such complexity at interrupt time is difficult, so
-a small standing queue between the algorithm and the wire is often needed
-at higher transmit rates.
+When deploying a queue management algorithm such as FQ-CoDel, it is
+important to ensure that the algorithm actually runs in the right place
+to control the queue. In particular lower layers of the operating system
+networking stack can have queues of their own, as can device drivers and
+hardware. Thus, it is desirable that the queue management algorithm runs
+as close to the hardware as possible. However, scheduling such
+complexity at interrupt time is difficult, so a small standing queue
+between the algorithm and the wire is often needed at higher transmit
+rates.
 
-In Linux, this is accomplished via "Byte Queue Limits" {{BQL}} in the
-device driver ring buffer (for physical line rates), and via a software
-rate limiter such as {HTB}}, {{HFSC}}, or {{CAKE}} otherwise.
+In Linux, the mechanism to ensure these different needs are balanced is
+called "Byte Queue Limits" {{BQL}}, which controls the device driver
+ring buffer (for physical line rates). For cases where this
+functionality is not available, the queue can be controlled by means of
+a software rate limiter such as Hierarchical Token Bucket {{HTB}} or
+Hierarchical Fair-Service Curve {{HFSC}}. The Cake algorithm {{CAKE}}
+integrates a software rate limiter for this purpose.
 
-Other issues with concatenated queues are described in {{CODEL}}.
+Other issues with queues at lower layers are described in {{CODEL}}.
 
 ## Other forms of "Fair Queueing"
 
@@ -864,6 +872,9 @@ of Fair Queueing, such as Weighted Fair Queueing {{WFQ}} or Quick Fair
 Queueing {{QFQ}}, have not been thoroughly explored, but there's no a
 priori reason why the round-robin scheduling of FQ-CoDel couldn't be
 replaced with something else.
+
+For a comprehensive discussion of fairness queueing algorithms and their
+combination with AQM, see {{I-D.ietf-aqm-fq-implementation}}.
 
 ## Differences between CoDel and FQ-CoDel behaviour
 
