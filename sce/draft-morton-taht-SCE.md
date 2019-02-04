@@ -64,9 +64,10 @@ The keywords **MUST**, **MUST NOT**, **REQUIRED**, **SHALL**, **SHALL NOT**, **S
 
 # Introduction
 
-# SGE flow diagram
+# SCE flow diagram
 
 ```
+if ECT(0) or ECT(1) is set
 ECT(0) -> ECT(1) -> ECT(1) | ECT(0) (CE) -> DROP
 ```
 
@@ -77,6 +78,8 @@ The existing CE_THRESHOLD portion of FQ_CODEL can be repurposed for this.
 # Implementation guidelines
 
 # Related Work
+
+[@RFC8087] [@RFC7567] [@RFC7928] [@RFC8290] [@RFC8289]
 
 # IANA Considerations
 
