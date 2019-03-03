@@ -1,7 +1,7 @@
 %%%
 title = "The Some Congestion Experienced Bit"
 abbrev = "sceb"
-updates = [3168]
+updates = [3168, 8289, 8290, 8033, 8034]
 ipr = "trust200902"
 area = "Internet"
 docname = "draft-morton-taht-SCE"
@@ -51,18 +51,21 @@ organization = "TekLibre"
 .# Abstract
 
 This memo reclassifies ECT(0) to be an early notification of congestion
-on ECT(1) marked packets, which can be used by AQM algorithms and transports
-as an earlier signal of congestion than CE. It is transparent, backward
-compatible upgrade to existing AQM algorithms such as
-RED/PIE/FQ_PIE/CODEL/FQ_CODEL.
+on ECT(1) marked packets, which can be used by AQM algorithms and transports as an earlier signal of congestion than CE.. It is transparent, backward
+compatible upgrade to the existing AQM algorithms such as
+RED[@RFC2309], PIE [@RFC8033], [@RFC8034], FQ_PIE, CODEL [@RFC8289], and FQ_CODEL[@RFC8290].
 
 {mainmatter}
+
+# Introduction
 
 # Terminology
 
 The keywords **MUST**, **MUST NOT**, **REQUIRED**, **SHALL**, **SHALL NOT**, **SHOULD**, **SHOULD NOT**, **RECOMMENDED**, **MAY**, and **OPTIONAL**, when they appear in this document, are to be interpreted as described in [@!RFC2119].
 
 # Introduction
+
+Since the deprecation of the ECN Nonce
 
 # SCE flow diagram
 
@@ -75,6 +78,16 @@ ECT(0) -> ECT(1) -> ECT(1) | ECT(0) (CE) -> DROP
 
 The existing CE_THRESHOLD portion of FQ_CODEL can be repurposed for this.
 
+# Efficts
+
+#
+
+
+Reciever - side has a couple advantages - we alredy do it -android clamps rwind.
+That can decide or not, to send the ECT bit, based on it's local viewpoint of the congestion problem.
+
+ECE bit
+
 # Implementation guidelines
 
 # Related Work
@@ -86,6 +99,8 @@ The existing CE_THRESHOLD portion of FQ_CODEL can be repurposed for this.
 There are no IANA considerations.
 
 # Security Considerations
+
+There are no security considerations.
 
 # Acknowledgements
 
@@ -103,36 +118,4 @@ There are no IANA considerations.
 </front>
 </reference>
 
-<reference anchor='I.D.WILSON10' target='https://tools.ietf.org/id/draft-wilson-class-e-02'>
-<front>
-<title>Redesignation of 240/4 from "Future Use" to "Private Use"</title>
-<author initials='G.' surname='Huston' fullname='Geoff Huston'>
-<address>
-<email>gih@apnic.net</email>
-</address>
-</author>
-<author initials='G.' surname='Michaelson' fullname='George Michaelson'>
-<email>ggm@apnic.net</email>
-</author>
-<author initials='P.' surname='Wilson' fullname='Paul Wilson'>
-<email>pwilson@apnic.net</email>
-</author>
-<date year='2010' />
-</front>
-</reference>
-
-<reference anchor='I.D.FULLER08' target='https://tools.ietf.org/id/draft-fuller-240space-02.txt'>
-<front>
-<title>240 address space</title>
-<author initials='V.' surname='Fuller' fullname='Vince Fuller'>
-<address>
-<email>vince.fuller@gmail.com </email>
-</address>
-</author>
-
-<author initials='E.' surname='Lear' fullname='Elliot Lear'></author>
-<author initials='D.' surname='Meyer' fullname='David Meyer'></author>
-<date year='2008' />
-</front>
-</reference>
 
