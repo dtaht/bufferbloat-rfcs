@@ -37,4 +37,4 @@ xml: $(XML)
 
 .PHONY: clean
 clean:
-	rm -f *.txt *.xml *.html
+	rm -f *.xml *.html
