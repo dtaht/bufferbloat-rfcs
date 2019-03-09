@@ -12,6 +12,15 @@ The first document in this series introduces the SCE (Some Congestion Experience
 
 Briefly, SCE markings are treated identically to ECT by existing RFC-compliant transports, and are thus transparently backwards compatible.  SCE-aware transports, however, interpret varying proportions of SCE marking as indicating varying levels of congestion, and may evolve their send rates to avoid the harsher response required by a CE mark, which should be interpreted as signalling more serious congestion.  Ideally, this should result in smoother and more accurate control of send rates to match the actual bottleneck bandwidth with minimal induced delay.
 
+Existing AQMs are able to mark CE on both ECT and SCE marked packets, and this will continue with SCE-aware AQMs.  An SCE marked packet MUST NOT be changed back to ECT, and likewise a CE marked packet MUST NOT be changed downward to SCE or ECT; these actions would erase congestion information from earlier in the path.
+
+Permitted ECN codepoint replacements by middleboxes:
+
+   	Not-ECT ->   MUST remain at Not-ECT.
+   	ECT     ->   ECT or SCE or CE
+   	SCE     ->   SCE or CE
+   	CE      ->   MUST remain at CE.
+
 Broadly, AQMs can be categorised as being RED-like (signalling on some proportion of packets) or Codel-like (signalling at some frequency over time).  Signalling here means dropping Not-ECT packets or marking ECT packets with CE; the ECN RFC advocates treating both as identical.
 
 Codel-like AQMs rely on the specification of TCP to perform a Multiplicative Decrease upon receiving even a single congestion signal (lost packet or CE mark) per RTT.  RED-like AQMs, such as PIE, assume less about the character of the traffic and can effectively control latency even for unresponsive traffic, but at the expense of generally higher packet loss.
