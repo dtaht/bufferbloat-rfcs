@@ -1,0 +1,280 @@
+
+
+
+
+Transport Area Working Group                                   J. Morton
+Internet-Draft                                           Bufferbloat.net
+Updates: 3168, 8289, 8290, 8033, 8034                           D. Taeht
+         (if approved)                                          TekLibre
+Intended status: Standards Track                           March 9, 2019
+Expires: September 10, 2019
+
+
+                Adapting AQMs to use SCE bit transitions
+                        draft-morton-taht-SCE-00
+
+Abstract
+
+   This memo reclassifies ECT(0) to be an early notification of
+   congestion on ECT(1) marked packets, which can be used by AQM
+   algorithms and transports as an earlier signal of congestion than
+   CE.. It is transparent, backward compatible upgrade to the existing
+
+Status of This Memo
+
+   This Internet-Draft is submitted in full conformance with the
+   provisions of BCP 78 and BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF).  Note that other groups may also distribute
+   working documents as Internet-Drafts.  The list of current Internet-
+   Drafts is at https://datatracker.ietf.org/drafts/current/.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   This Internet-Draft will expire on September 10, 2019.
+
+Copyright Notice
+
+   Copyright (c) 2019 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents
+   (https://trustee.ietf.org/license-info) in effect on the date of
+   publication of this document.  Please review these documents
+   carefully, as they describe your rights and restrictions with respect
+   to this document.  Code Components extracted from this document must
+   include Simplified BSD License text as described in Section 4.e of
+
+
+
+
+Morton & Taeht         Expires September 10, 2019               [Page 1]
+
+Internet-Draft                    scebt                       March 2019
+
+
+   the Trust Legal Provisions and are provided without warranty as
+   described in the Simplified BSD License.
+
+Table of Contents
+
+   1.  Generating SCE in AQMs  . . . . . . . . . . . . . . . . . . .   2
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .   4
+
+1.  Generating SCE in AQMs
+
+   A guide to generating useful fine-grained congestion signals in the
+   network, by adapting existing AQM algorithms to support SCE as well
+   as CE marking in ECN.
+
+   ------------------------------------------------------------
+
+   The first document in this series introduces the SCE (Some Congestion
+   Experienced) codepoint of the ECN field in the IP header, which
+   replaces the otherwise unused ECT(1) codepoint.  The ubiquitous
+   ECT(0) codepoint is simply renamed ECT, and the existing CE and Not-
+   ECT codepoints also retain their existing meanings.
+
+   SCE markings are treated identically to ECT by existing RFC-compliant
+   transports, and are thus transparently backwards compatible.
+
+   SCE-aware transports, however, MAY interpret varying proportions of
+   SCE marking as indicating varying levels of congestion, and can
+   evolve their send rates to avoid the harsher response required by a
+   CE mark, which should be interpreted as signalling more serious
+   congestion.  Ideally, this should result in smoother and more
+   accurate control of send rates to match the actual bottleneck
+   bandwidth with minimal induced delay.
+
+   Existing AQMs are able to mark CE on both ECT and SCE marked packets,
+   and this will continue with SCE-aware AQMs.  An SCE marked packet
+   MUST NOT be changed back to ECT, and likewise a CE marked packet MUST
+   NOT be changed downward to SCE or ECT; these actions would erase
+   congestion information from earlier in the path.
+
+   Permitted ECN codepoint replacements by middleboxes:
+
+   Not-ECT -> ECT or DROP ECT -> ECT or SCE or CE SCE -> SCE or CE or
+   DROP CE -> CE or DROP
+
+   Broadly, AQMs can be categorised as being RED-like (signalling on
+   some proportion of packets) or Codel-like (signalling at some
+   frequency over time).  Signalling here means dropping Not-ECT packets
+
+
+
+
+Morton & Taeht         Expires September 10, 2019               [Page 2]
+
+Internet-Draft                    scebt                       March 2019
+
+
+   or marking ECT packets with CE; the ECN RFC advocates treating both
+   as identical.
+
+   Codel-like AQMs rely on the specification of TCP to perform a
+   Multiplicative Decrease upon receiving even a single congestion
+   signal (lost packet or CE mark) per RTT.  RED-like AQMs, such as PIE,
+   assume less about the character of the traffic and can effectively
+   control latency even for unresponsive traffic, but at the expense of
+   generally higher packet loss.
+
+   Another important dimension of AQM classification is between single
+   queue (flow blind) and multiqueue (flow aware) AQMs.  Some of the
+   latter implement both an independent queue of packets and an
+   independent AQM instance per identified flow, while others only
+   provide an independent or pseudo-independent AQM per flow.  SCE is
+   likely to work best with flow-aware AQMs, as it changes the AIMD
+   behaviour of TCP that flow-blind AQMs implicitly rely on in flow-
+   fairness arguments.
+
+   However, any AQM (or even a dumb FIFO) can implement SCE at the most
+   basic level by choosing a hard threshold of queue depth,
+   corresponding to (say) one millisecond of induced delay or one full
+   MTU or aggregate in the queue (whichever is greater), and marking all
+   ECT packets as SCE if the instantaneous queue depth is above that
+   threshold, but none otherwise.  Though highly simplistic, the
+   relatively gentle response of transports to SCE makes this basic
+   strategy likely to improve on basic AQM behaviour.
+
+   RED-like AQMs may implement SCE by adding a second stochastic marking
+   function alongside the main one, activating at lower queue depths or
+   as the lower half of a biphase control function.  This should be
+   arranged so that high levels of SCE marking (greater than 80%)
+   reliably occur before CE marking begins.  This maximises the
+   likelihood that an SCE-aware transport can avoid the throughput
+   penalty associated with a Multiplicative Decrease, by making
+   relatively small adjustments to its send rate strategy.
+
+   Codel-like AQMs may directly convert the measured queue sojourn time
+   into an SCE marking rate, either using a continuously-variable
+   stochastic method, or a series of fixed marking patterns with defined
+   activation thresholds (effectively implementing a stepped function).
+   The "target" sojourn time, which Codel treats as the maximum
+   tolerable level of persistent queue, should trigger 100% SCE marking;
+   hence any CE mark will be surrounded by SCEs rather than ECTs.  Lower
+   ranges of sojourn time may be represented by 2:1, 1:1, and 1:2
+   patterns of SCE and ECT.
+
+
+
+
+
+Morton & Taeht         Expires September 10, 2019               [Page 3]
+
+Internet-Draft                    scebt                       March 2019
+
+
+   In general, AQMs should aim to provide 50% (or 1:1 ratio) SCE marking
+   at the desired operating point of the queue, which should be at 100%
+   link throughput and the minimum sustainable queue depth.  The
+   threshold for dropping packets or applying CE marks MUST be somewhat
+   higher than this, to compensate for the wide oscillations in send
+   rate that these stronger signals induce in typical transports.
+
+   Intuitively, an empty queue (inducing no delay to packets passing
+   through it) should not result in SCE marks.  However, there is an
+   argument for detecting incipient congestion through comparing actual
+   throughput to link capacity, and signalling this through a low rate
+   of SCE marking (from 25% or 1:3 downward).  Low SCE rates do not
+   prevent the transport from growing its send rate to match remaining
+   capacity, but by reducing that growth rate, may help to prevent
+   overshooting the ideal send rate and building a queue.  In control
+   theory, this is the function of the D section of a PID controller.
+
+   In particular, research into TCP congestion control has long sought a
+   reliable method for determining when to exit the exponential-growth
+   slow-start phase.  Since the standard for TCP slow-start is a
+   doubling of growth per RTT, the correct time to begin low-rate SCE
+   signalling is when throughput reaches 50% of link capacity; this
+   ensures that the signal to exit slow-start reaches the sender just as
+   its send rate reaches capacity.
+
+   Examining the raw link throughput is sufficient for flow-blind AQMs,
+   but flow-aware AQMs should also avoid signalling congestion
+   unnecessarily to flows using less than their fair share of the link.
+   The details of this will necessarily vary with the precise mechanism
+   used to implement flow-awareness.
+
+   For the DRR++ scheme used by fq_codel and Cake, which classifies
+   flows as either "bulk" or "sparse", it should be sufficient to
+   suppress SCE marking for "sparse" flows.  A global state may be used
+   to determine the capacity-marking rate for bulk flows, but if a
+   deterministic pattern of marking is employed, the pattern should be
+   maintained independently per queue, to ensure that the correct ratio
+   of marks is seen by each flow even if the number of active flows is
+   not relatively prime to the pattern length.
+
+Authors' Addresses
+
+
+
+
+
+
+
+
+
+
+Morton & Taeht         Expires September 10, 2019               [Page 4]
+
+Internet-Draft                    scebt                       March 2019
+
+
+   Jonathon Morton
+   Bufferbloat.net
+   PO Box
+   San Francisco, Ca  94117
+   USA
+
+   Phone: +1
+   Email: chromatix99@gmail.com
+
+
+   David M. Taeht
+   TekLibre
+   20600 Aldercroft Heights Rd
+   Los Gatos, Ca  95033
+   USA
+
+   Phone: +18312059740
+   Email: dave@taht.net
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Morton & Taeht         Expires September 10, 2019               [Page 5]

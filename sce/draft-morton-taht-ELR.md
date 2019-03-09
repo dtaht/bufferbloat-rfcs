@@ -4,7 +4,7 @@ abbrev = "ELR"
 updates = [3168]
 ipr = "trust200902"
 area = "Internet"
-docname = "draft-morton-taht-ELR"
+docname = "draft-morton-taht-ELR-00"
 workgroup = "Network Working Group"
 submissiontype = "IETF"
 keyword = [""]
@@ -12,7 +12,7 @@ keyword = [""]
 
 [seriesInfo]
 name = "Internet-Draft"
-value = "draft-morton-taht-ELR"
+value = "draft-morton-taht-ELR-00"
 stream = "IETF"
 status = "standard"
 
@@ -96,6 +96,15 @@ The existing CE_THRESHOLD portion of FQ_CODEL can be repurposed for this.
 # Adding multi-bit congestion control to QUIC
 
 # RTP changes
+
+# ELR
+A brief note on ELR:
+
+The name "Explicit Load Regulation" comes from the action of the Load Regulator in older types of diesel-electric locomotive.  This senses the torque load on the engine (through the amount of fuel injection needed to maintain constant speed) and adjusts the excitation of the main generator to hold engine torque constant.  A typical model of the 1960s has "fast up" and "fast down" segments to handle rapid changes in load, "slow up" and "slow down" segments for fine adjustments, and a "hold" segment for constant-speed cruising.
+
+Until now, there has been no standardised equivalent to "hold" or "slow down" in TCP congestion control.  In Reno terms, the exponential growth of slow-start is "fast up", the linear growth of steady-state is "slow up", and the multiplicative-decrease in response to packet loss or a CE mark is "fast down".  Other loss-based TCPs, such as CUBIC, differ in quantitive detail but are qualitatively similar.
+
+The result has been a system which inherently oscillates around some steady state instead of settling on it.  The send rate is at times too high and induces latency through building queues, and at other times too low and wastes path capacity.  ELR is an attempt to adjust this system into one which does settle into an ideal steady state.
 
 # Implementation guidelines
 
