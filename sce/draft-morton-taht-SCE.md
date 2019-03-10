@@ -88,7 +88,7 @@ illustrations of how it may be used.
 
 Research has shown that the ECT(1) codepoint goes essentially unused,
 with the "Nonce Sum" extension to ECN having not been implemented in
-practice and subsequently obsoleted by some RFCBLA. Additionally, known
+practice and subsequently obsoleted by [@!RFC8311]. Additionally, known
 [@!RFC3168]-compliant senders do not emit ECT(1), and compliant
 middleboxes do not alter the field to ECT(1), while compliant
 receivers all interpret ECT(1) identically to ECT(0).  These are
