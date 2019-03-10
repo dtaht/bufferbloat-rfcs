@@ -221,6 +221,6 @@ There are no security considerations.
 
 # Acknowledgements
 
-Much thanks to the members of the ecn-sane project, the "cake" bufferbloat.net mailing list, the ietf AQM mailing list, and tsvwg.
+Much thanks to the members of the ecn-sane project, the "cake" bufferbloat.net mailing list, the ietf AQM mailing list, tsvwg, and John Gilmore.
 
 {backmatter}
