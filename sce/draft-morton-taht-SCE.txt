@@ -67,7 +67,7 @@ Table of Contents
    2.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   2
    3.  Background  . . . . . . . . . . . . . . . . . . . . . . . . .   2
    4.  Some Congestion Experienced . . . . . . . . . . . . . . . . .   3
-   5.  Examples of use . . . . . . . . . . . . . . . . . . . . . . .   4
+   5.  Examples of use . . . . . . . . . . . . . . . . . . . . . . .   5
      5.1.  Cubic . . . . . . . . . . . . . . . . . . . . . . . . . .   5
      5.2.  TCP receiver side handling  . . . . . . . . . . . . . . .   5
      5.3.  Other . . . . . . . . . . . . . . . . . . . . . . . . . .   5
@@ -94,7 +94,7 @@ Table of Contents
    ("Congestion Experienced").
 
    This memo limits its scope to the redefinition of the ECT(1)
-   codepoint as SCE, "Some Congestion Experienced", with few brief
+   codepoint as SCE, "Some Congestion Experienced", with a few brief
    illustrations of how it may be used.
 
 3.  Background
@@ -121,11 +121,12 @@ Internet-Draft                    sceb                        March 2019
 
    Research has shown that the ECT(1) codepoint goes essentially unused,
    with the "Nonce Sum" extension to ECN having not been implemented in
-   practice and subsequently obsoleted by [RFC8311].  Additionally,
-   known [RFC3168]-compliant senders do not emit ECT(1), and compliant
-   middleboxes do not alter the field to ECT(1), while compliant
-   receivers all interpret ECT(1) identically to ECT(0).  These are
-   useful properties which represent an opportunity for improvement.
+   practice and thus subsequently obsoleted by [RFC8311] (section 3).
+   Additionally, known [RFC3168] compliant senders do not emit ECT(1),
+   and compliant middleboxes do not alter the field to ECT(1), while
+   compliant receivers all interpret ECT(1) identically to ECT(0).
+   These are useful properties which represent an opportunity for
+   improvement.
 
    Experience gained with 7 years of [RFC8290] deployment in the field
    suggests that it remains difficult to maintain the desired 100% link
@@ -160,8 +161,7 @@ Internet-Draft                    sceb                        March 2019
     10     ECT (ECN-Capable Transport)             [@RFC3168]
     11     CE (Congestion Experienced)             [@RFC3168]
 
-   This permits middleboxes implementing AQM to signal incipient
-   congestion, below the threshold required to justify setting CE, by
+
 
 
 
@@ -170,14 +170,13 @@ Morton & Taeht         Expires September 11, 2019               [Page 3]
 Internet-Draft                    sceb                        March 2019
 
 
+   This permits middleboxes implementing AQM to signal incipient
+   congestion, below the threshold required to justify setting CE, by
    converting some proportion of ECT codepoints to SCE ("SCE marking").
    Existing [RFC3168] compliant receivers MUST transparently ignore this
-   new signal, and existing middleboxes MUST still be able to convert
-   SCE to CE as they presently do for ECT, thus ensuring backwards
-   compatibility.
-
-   Additionally, SCE-aware middleboxes MUST still produce CE markings as
-   at present, retaining current behavior with [RFC3168] ECN endpoints.
+   new signal, and both existing and SCE-aware middleboxes MAY convert
+   SCE to CE in the same circumstances as for ECT, thus ensuring
+   backwards compatibility with [RFC3168] ECN endpoints.
 
    Permitted ECN codepoint packet transitions by middleboxes are:
 
@@ -188,33 +187,34 @@ Internet-Draft                    sceb                        March 2019
 
    In other words, for ECN-aware flows, the ECN marking of an individual
    packet MAY be increased by a middlebox to signal congestion, but MUST
-   NOT be decreased, and packets MUST NOT be altered to appear to be
+   NOT be decreased, and packets SHALL NOT be altered to appear to be
    ECN-aware if they were not originally, nor vice versa.  Note however
    that SCE is numerically less than ECT, but semantically greater, and
    the latter definition applies for this rule.
 
-   New SCE-aware receivers and transport protocols must continue to
+   New SCE-aware receivers and transport protocols SHALL continue to
    apply the [RFC3168] interpretation of the CE codepoint, that is, to
    signal the sender to back off send rate to the same extent as if a
    packet loss were detected.  This maintains compatibility with
    existing middleboxes, senders and receivers.
 
-   New SCE-aware receivers and transport protocols should interpret the
-   SCE codepoint as an indication of mild congestion, with the relative
-   incidence of ECT and SCE codepoints received indicating the relative
-   severity of such congestion, and respond accordingly by applying send
-   rates intermediate between those resulting from a continuous sequence
-   of ECT codepoints, and those resulting from a CE codepoint.
+   New SCE-aware receivers and transport protocols SHOULD interpret the
+   SCE codepoint as an indication of mild congestion, and respond
+   accordingly by applying send rates intermediate between those
+   resulting from a continuous sequence of ECT codepoints, and those
+   resulting from a CE codepoint.  The ratio of ECT and SCE codepoints
+   received indicates the relative severity of such congestion, such
+   that 100% SCE is very close to the threshold of CE marking, 100% ECT
+   indicates that the bottleneck link may not be fully utilised, and a
+   1:1 balance of ECT and SCE codepoints indicates that the present send
+   rate is a good match to the bottleneck link.
 
    Details of how to implement SCE awareness at the transport layer will
    be left to additional Internet Drafts yet to be submitted.
 
-   To maximise the benefit of SCE, middleboxes MUST be capable of
-   producing SCE markings earlier than they presently produce CE
-   markings.
-
-5.  Examples of use
-
+   To maximise the benefit of SCE, middleboxes SHOULD produce SCE
+   markings sooner than they produce CE markings, when the level of
+   congestion increases.
 
 
 
@@ -225,6 +225,8 @@ Morton & Taeht         Expires September 11, 2019               [Page 4]
 
 Internet-Draft                    sceb                        March 2019
 
+
+5.  Examples of use
 
 5.1.  Cubic
 
@@ -237,28 +239,23 @@ Internet-Draft                    sceb                        March 2019
    SCE marking, switch from polynomial to Reno-linear cwnd growth when
    the SCE:ECT ratio exceeds 1:2, halt cwnd growth entirely when it
    exceeds 1:1, and implement a Reno-linear decline when it exceeds 2:1,
-   in addition to retaining the sharp 40% decrease on detecting CE.  In
-   ideal circumstances, this would result in the cwnd stabilising at a
-   level which produces between 50% and 66% SCE marking at some
-   bottleneck on the path.
+   in addition to retaining the sharp 40% decrease on detecting CE.
+
+   In ideal circumstances, the above behaviour would result in the send
+   rate stabilising at a level which produces between 50% and 66% SCE
+   marking at some bottleneck on the path.  The middlebox performing
+   this marking can thus control the send rate smoothly to an ideal
+   value, maximising throughput with minimum average queue length.
 
 5.2.  TCP receiver side handling
 
    SCE can potentially be handled entirely by the receiver and be
    entirely independent of any of the dozens of [RFC3168] compliant
-   congestion control algorithms.
+   congestion control algorithms, for example by manipulating the TCP
+   receive window in a similar manner to the sender's congestion window.
 
-   A SCE TCP aware receiver MAY (based on a setsockopt option) choose to
-   interpret SCE markings as CE and send ECE notifications back to the
-   sender based on the ratio of markings, and/or variations in TCP
-   timestamps.
-
-   A TCP receiver desiring low latency SHOULD respond with ECE signals
-   earlier, one desiring higher bandwidth, later.
-
-   Alternatively, a SCE aware reciever can attempt to infer what
-   congestion control is being used on the sender side of the
-   connection.
+   Alternatively, some mechanism may be defined to feed back SCE signals
+   to the sender explicitly.  Details of this are left to future I-Ds.
 
 5.3.  Other
 
@@ -277,6 +274,9 @@ Internet-Draft                    sceb                        March 2019
 
 
 
+
+
+
 Morton & Taeht         Expires September 11, 2019               [Page 5]
 
 Internet-Draft                    sceb                        March 2019
@@ -288,8 +288,9 @@ Internet-Draft                    sceb                        March 2019
 
 9.  Acknowledgements
 
-   Much thanks to the members of the ecn-sane project, the "cake"
-   bufferbloat.net mailing list, the ietf AQM mailing list, and tsvwg.
+   Many thanks to John Gilmore, the members of the ecn-sane project, the
+   "cake" bufferbloat.net mailing list, the IETF AQM mailing list, and
+   the IETF TSVWG.
 
 10.  References
 
@@ -332,7 +333,6 @@ Internet-Draft                    sceb                        March 2019
 
 
 
-
 Morton & Taeht         Expires September 11, 2019               [Page 6]
 
 Internet-Draft                    sceb                        March 2019
@@ -362,7 +362,7 @@ Internet-Draft                    sceb                        March 2019
 
 Authors' Addresses
 
-   Jonathon Morton
+   Jonathan Morton
    Bufferbloat.net
    Koekkoenranta 21
    PITKAeJAeRVI  31520
