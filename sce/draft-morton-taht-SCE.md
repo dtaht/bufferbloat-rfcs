@@ -88,11 +88,12 @@ illustrations of how it may be used.
 
 Research has shown that the ECT(1) codepoint goes essentially unused,
 with the "Nonce Sum" extension to ECN having not been implemented in
-practice and subsequently obsoleted by [@!RFC8311]. Additionally, known
-[@!RFC3168]-compliant senders do not emit ECT(1), and compliant
-middleboxes do not alter the field to ECT(1), while compliant
-receivers all interpret ECT(1) identically to ECT(0).  These are
-useful properties which represent an opportunity for improvement.
+practice and thus subsequently obsoleted by [@!RFC8311] (section
+3). Additionally, known [@!RFC3168] compliant senders do not emit
+ECT(1), and compliant middleboxes do not alter the field to ECT(1),
+while compliant receivers all interpret ECT(1) identically to ECT(0).
+These are useful properties which represent an opportunity for
+improvement.
 
 Experience gained with 7 years of [@RFC8290] deployment in the field
 suggests that it remains difficult to maintain the desired 100% link
@@ -221,6 +222,6 @@ There are no security considerations.
 
 # Acknowledgements
 
-Much thanks to the members of the ecn-sane project, the "cake" bufferbloat.net mailing list, the ietf AQM mailing list, tsvwg, and John Gilmore.
+Many thanks to John Gilmore, the members of the ecn-sane project, the "cake" bufferbloat.net mailing list, the IETF AQM mailing list, and the IETF TSVWG.
 
 {backmatter}
