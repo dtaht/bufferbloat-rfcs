@@ -129,12 +129,9 @@ This permits middleboxes implementing AQM to signal incipient
 congestion, below the threshold required to justify setting CE, by
 converting some proportion of ECT codepoints to SCE ("SCE marking").
 Existing [@RFC3168] compliant receivers MUST transparently ignore this new
-signal, and existing middleboxes MUST still be able to convert SCE to
-CE as they presently do for ECT, thus ensuring backwards
-compatibility. 
-
-Additionally, SCE-aware middleboxes MUST still produce CE markings as
-at present, retaining current behavior with [@RFC3168] ECN endpoints.
+signal, and both existing and SCE-aware middleboxes MAY convert SCE to
+CE in the same circumstances as for ECT, thus ensuring backwards
+compatibility with [@RFC3168] ECN endpoints.
 
 Permitted ECN codepoint packet transitions by middleboxes are:
 
@@ -147,23 +144,26 @@ Permitted ECN codepoint packet transitions by middleboxes are:
 
 In other words, for ECN-aware flows, the ECN marking of an individual
 packet MAY be increased by a middlebox to signal congestion, but MUST
-NOT be decreased, and packets MUST NOT be altered to appear to be
+NOT be decreased, and packets SHALL NOT be altered to appear to be
 ECN-aware if they were not originally, nor vice versa.  Note however
 that SCE is numerically less than ECT, but semantically greater, and
 the latter definition applies for this rule.
 
-New SCE-aware receivers and transport protocols must continue to apply
+New SCE-aware receivers and transport protocols SHALL continue to apply
 the [@RFC3168] interpretation of the CE codepoint, that is, to signal
 the sender to back off send rate to the same extent as if a packet
 loss were detected.  This maintains compatibility with existing
 middleboxes, senders and receivers.
 
-New SCE-aware receivers and transport protocols should interpret the SCE
-codepoint as an indication of mild congestion, with the relative
-incidence of ECT and SCE codepoints received indicating the relative
-severity of such congestion, and respond accordingly by applying send
-rates intermediate between those resulting from a continuous sequence
-of ECT codepoints, and those resulting from a CE codepoint.
+New SCE-aware receivers and transport protocols SHOULD interpret the SCE
+codepoint as an indication of mild congestion, and respond accordingly by
+applying send rates intermediate between those resulting from a continuous
+sequence of ECT codepoints, and those resulting from a CE codepoint.  The
+ratio of ECT and SCE codepoints received indicates the relative severity
+of such congestion, such that 100% SCE is very close to the threshold of
+CE marking, 100% ECT indicates that the bottleneck link may not be fully
+utilised, and a 1:1 balance of ECT and SCE codepoints indicates that the
+present send rate is a good match to the bottleneck link.
 
 Details of how to implement SCE awareness at the transport layer will
 be left to additional Internet Drafts yet to be submitted.
@@ -194,20 +194,13 @@ bottleneck on the path.
 
 SCE can potentially be handled entirely by the receiver and be
 entirely independent of any of the dozens of [@RFC3168] compliant
-congestion control algorithms.
+congestion control algorithms, for example by manipulating the TCP
+receive window in a similar manner to the sender's congestion window.
 
-A SCE TCP aware receiver MAY (based on a setsockopt option) choose to
-interpret SCE markings as CE and send ECE notifications back to the
-sender based on the ratio of markings, and/or variations in TCP
-timestamps.
+Alternatively, some mechanism may be defined to feed back SCE signals
+to the sender explicitly.  Details of this are left to future I-Ds.
 
-A TCP receiver desiring low latency SHOULD respond with ECE signals
-earlier, one desiring higher bandwidth, later.
-
-Alternatively, a SCE aware reciever can attempt to infer what
-congestion control is being used on the sender side of the connection.
-
-## Other 
+## Other
 
 New transports under development such as QUIC SHOULD implement a
 multi-bit and finer grained signal back to the sender based on SCE.
