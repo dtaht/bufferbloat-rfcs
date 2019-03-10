@@ -55,7 +55,7 @@ This memo reclassifies ECT(1) to be an early notification of
 congestion on ECT(0) marked packets, which can be used by AQM
 algorithms and transports as an earlier signal of congestion than
 CE. It is a simple, transparent, and backward compatible upgrade to
-existing IETF-approved AQMs, [@!RFC3138], and nearly all congestion
+existing IETF-approved AQMs, [@!RFC3168], and nearly all congestion
 control algorithms.
 
 {mainmatter}
