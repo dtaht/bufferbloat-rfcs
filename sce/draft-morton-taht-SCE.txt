@@ -18,7 +18,7 @@ Abstract
    congestion on ECT(0) marked packets, which can be used by AQM
    algorithms and transports as an earlier signal of congestion than CE.
    It is a simple, transparent, and backward compatible upgrade to
-   existing IETF-approved AQMs, [RFC3138], and nearly all congestion
+   existing IETF-approved AQMs, [RFC3168], and nearly all congestion
    control algorithms.
 
 Status of This Memo
@@ -300,10 +300,6 @@ Internet-Draft                    sceb                        March 2019
               DOI 10.17487/RFC2119, March 1997,
               <https://www.rfc-editor.org/info/rfc2119>.
 
-   [RFC3138]  Meyer, D., "Extended Assignments in 233/8", RFC 3138,
-              DOI 10.17487/RFC3138, June 2001,
-              <https://www.rfc-editor.org/info/rfc3138>.
-
    [RFC8311]  Black, D., "Relaxing Restrictions on Explicit Congestion
               Notification (ECN) Experimentation", RFC 8311,
               DOI 10.17487/RFC8311, January 2018,
@@ -326,7 +322,11 @@ Internet-Draft                    sceb                        March 2019
               Management (AQM)", RFC 7928, DOI 10.17487/RFC7928, July
               2016, <https://www.rfc-editor.org/info/rfc7928>.
 
-
+   [RFC8033]  Pan, R., Natarajan, P., Baker, F., and G. White,
+              "Proportional Integral Controller Enhanced (PIE): A
+              Lightweight Control Scheme to Address the Bufferbloat
+              Problem", RFC 8033, DOI 10.17487/RFC8033, February 2017,
+              <https://www.rfc-editor.org/info/rfc8033>.
 
 
 
@@ -337,12 +337,6 @@ Morton & Taeht         Expires September 11, 2019               [Page 6]
 
 Internet-Draft                    sceb                        March 2019
 
-
-   [RFC8033]  Pan, R., Natarajan, P., Baker, F., and G. White,
-              "Proportional Integral Controller Enhanced (PIE): A
-              Lightweight Control Scheme to Address the Bufferbloat
-              Problem", RFC 8033, DOI 10.17487/RFC8033, February 2017,
-              <https://www.rfc-editor.org/info/rfc8033>.
 
    [RFC8034]  White, G. and R. Pan, "Active Queue Management (AQM) Based
               on Proportional Integral Controller Enhanced PIE) for
@@ -386,6 +380,12 @@ Authors' Addresses
 
    Phone: +18312059740
    Email: dave@taht.net
+
+
+
+
+
+
 
 
 
