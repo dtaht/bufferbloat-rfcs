@@ -168,9 +168,8 @@ present send rate is a good match to the bottleneck link.
 Details of how to implement SCE awareness at the transport layer will
 be left to additional Internet Drafts yet to be submitted.
 
-To maximise the benefit of SCE, middleboxes MUST be capable of
-producing SCE markings earlier than they presently produce CE
-markings.
+To maximise the benefit of SCE, middleboxes SHOULD produce SCE markings
+sooner than they produce CE markings, when the level of congestion increases.
 
 # Examples of use
 
