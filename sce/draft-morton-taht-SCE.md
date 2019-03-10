@@ -184,10 +184,13 @@ With SCE awareness, it might exit slow-start upon detecting a single
 SCE marking, switch from polynomial to Reno-linear cwnd growth when
 the SCE:ECT ratio exceeds 1:2, halt cwnd growth entirely when it
 exceeds 1:1, and implement a Reno-linear decline when it exceeds 2:1,
-in addition to retaining the sharp 40% decrease on detecting CE.  In
-ideal circumstances, this would result in the cwnd stabilising at a
-level which produces between 50% and 66% SCE marking at some
-bottleneck on the path.
+in addition to retaining the sharp 40% decrease on detecting CE.
+
+In ideal circumstances, the above behaviour would result in the send
+rate stabilising at a level which produces between 50% and 66% SCE
+marking at some bottleneck on the path.  The middlebox performing
+this marking can thus control the send rate smoothly to an ideal value,
+maximising throughput with minimum average queue length.
 
 ## TCP receiver side handling
 
