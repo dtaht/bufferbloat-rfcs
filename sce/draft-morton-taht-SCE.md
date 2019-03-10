@@ -20,7 +20,7 @@ status = "standard"
 [[author]]
 initials = "J."
 surname = "Morton"
-fullname = "Jonathon Morton"
+fullname = "Jonathan Morton"
 #role = "editor"
 organization = "Bufferbloat.net"
   [author.address]
@@ -72,7 +72,7 @@ algorithms and transports as an earlier signal of congestion than
 CE ("Congestion Experienced").
 
 This memo limits its scope to the redefinition of the ECT(1)
-codepoint as SCE, "Some Congestion Experienced", with few brief
+codepoint as SCE, "Some Congestion Experienced", with a few brief
 illustrations of how it may be used.
 
 # Background
