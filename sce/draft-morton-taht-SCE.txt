@@ -121,7 +121,7 @@ Internet-Draft                    sceb                        March 2019
 
    Research has shown that the ECT(1) codepoint goes essentially unused,
    with the "Nonce Sum" extension to ECN having not been implemented in
-   practice and subsequently obsoleted by some RFCBLA.  Additionally,
+   practice and subsequently obsoleted by [RFC8311].  Additionally,
    known [RFC3168]-compliant senders do not emit ECT(1), and compliant
    middleboxes do not alter the field to ECT(1), while compliant
    receivers all interpret ECT(1) identically to ECT(0).  These are
@@ -288,8 +288,8 @@ Internet-Draft                    sceb                        March 2019
 
 9.  Acknowledgements
 
-   Much thanks to the members of the "cake" bufferbloat.net mailing
-   list, the ietf AQM mailing list, and tsvwg.
+   Much thanks to the members of the ecn-sane project, the "cake"
+   bufferbloat.net mailing list, the ietf AQM mailing list, and tsvwg.
 
 10.  References
 
@@ -303,6 +303,11 @@ Internet-Draft                    sceb                        March 2019
    [RFC3138]  Meyer, D., "Extended Assignments in 233/8", RFC 3138,
               DOI 10.17487/RFC3138, June 2001,
               <https://www.rfc-editor.org/info/rfc3138>.
+
+   [RFC8311]  Black, D., "Relaxing Restrictions on Explicit Congestion
+              Notification (ECN) Experimentation", RFC 8311,
+              DOI 10.17487/RFC8311, January 2018,
+              <https://www.rfc-editor.org/info/rfc8311>.
 
 10.2.  Informative References
 
@@ -321,11 +326,6 @@ Internet-Draft                    sceb                        March 2019
               Management (AQM)", RFC 7928, DOI 10.17487/RFC7928, July
               2016, <https://www.rfc-editor.org/info/rfc7928>.
 
-   [RFC8033]  Pan, R., Natarajan, P., Baker, F., and G. White,
-              "Proportional Integral Controller Enhanced (PIE): A
-              Lightweight Control Scheme to Address the Bufferbloat
-              Problem", RFC 8033, DOI 10.17487/RFC8033, February 2017,
-              <https://www.rfc-editor.org/info/rfc8033>.
 
 
 
@@ -337,6 +337,12 @@ Morton & Taeht         Expires September 11, 2019               [Page 6]
 
 Internet-Draft                    sceb                        March 2019
 
+
+   [RFC8033]  Pan, R., Natarajan, P., Baker, F., and G. White,
+              "Proportional Integral Controller Enhanced (PIE): A
+              Lightweight Control Scheme to Address the Bufferbloat
+              Problem", RFC 8033, DOI 10.17487/RFC8033, February 2017,
+              <https://www.rfc-editor.org/info/rfc8033>.
 
    [RFC8034]  White, G. and R. Pan, "Active Queue Management (AQM) Based
               on Proportional Integral Controller Enhanced PIE) for
@@ -380,12 +386,6 @@ Authors' Addresses
 
    Phone: +18312059740
    Email: dave@taht.net
-
-
-
-
-
-
 
 
 
