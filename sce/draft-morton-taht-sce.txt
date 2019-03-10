@@ -10,7 +10,7 @@ Expires: September 11, 2019                               March 10, 2019
 
 
              The Some Congestion Experienced ECN Codepoint
-                        draft-morton-taht-SCE-00
+                        draft-morton-taht-sce-00
 
 Abstract
 

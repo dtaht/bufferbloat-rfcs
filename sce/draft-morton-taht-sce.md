@@ -5,7 +5,7 @@ updates = [3168, 8311]
 obsoletes = [ ]
 ipr = "trust200902"
 area = "Internet"
-docname = "draft-morton-taht-SCE-00"
+docname = "draft-morton-taht-sce-00"
 workgroup = "Transport Working Group"
 submissiontype = "IETF"
 keyword = [""]
@@ -13,7 +13,7 @@ keyword = [""]
 
 [seriesInfo]
 name = "Internet-Draft"
-value = "draft-morton-taht-SCE-00"
+value = "draft-morton-taht-sce-00"
 stream = "IETF"
 status = "standard"
 
