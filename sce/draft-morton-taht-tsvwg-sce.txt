@@ -10,7 +10,7 @@ Expires: September 11, 2019                               March 10, 2019
 
 
              The Some Congestion Experienced ECN Codepoint
-                        draft-morton-taht-sce-00
+                     draft-morton-taht-tsvwg-sce-00
 
 Abstract
 
@@ -260,7 +260,8 @@ Internet-Draft                    sceb                        March 2019
 5.3.  Other
 
    New transports under development such as QUIC SHOULD implement a
-   multi-bit and finer grained signal back to the sender based on SCE.
+   multi-bit, sub-RTT, and finer grained signal back to the sender based
+   on SCE.
 
 6.  Related Work
 
@@ -269,7 +270,6 @@ Internet-Draft                    sceb                        March 2019
 7.  IANA Considerations
 
    There are no IANA considerations.
-
 
 
 
@@ -288,9 +288,9 @@ Internet-Draft                    sceb                        March 2019
 
 9.  Acknowledgements
 
-   Many thanks to John Gilmore, the members of the ecn-sane project, the
-   "cake" bufferbloat.net mailing list, the IETF AQM mailing list, and
-   the IETF TSVWG.
+   Many thanks to John Gilmore, the members of the ecn-sane project and
+   the cake@lists.bufferbloat.net mailing list, and the former IETF AQM
+   working group.
 
 10.  References
 

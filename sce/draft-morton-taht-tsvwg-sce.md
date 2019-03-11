@@ -5,7 +5,7 @@ updates = [3168, 8311]
 obsoletes = [ ]
 ipr = "trust200902"
 area = "Internet"
-docname = "draft-morton-taht-sce-00"
+docname = "draft-morton-taht-tsvwg-sce-00"
 workgroup = "Transport Working Group"
 submissiontype = "IETF"
 keyword = [""]
@@ -13,7 +13,7 @@ keyword = [""]
 
 [seriesInfo]
 name = "Internet-Draft"
-value = "draft-morton-taht-sce-00"
+value = "draft-morton-taht-tsvwg-sce-00"
 stream = "IETF"
 status = "standard"
 
@@ -206,7 +206,7 @@ to the sender explicitly.  Details of this are left to future I-Ds.
 ## Other
 
 New transports under development such as QUIC SHOULD implement a
-multi-bit and finer grained signal back to the sender based on SCE.
+multi-bit, sub-RTT, and finer grained signal back to the sender based on SCE.
 
 # Related Work
 
@@ -222,6 +222,6 @@ There are no security considerations.
 
 # Acknowledgements
 
-Many thanks to John Gilmore, the members of the ecn-sane project, the "cake" bufferbloat.net mailing list, the IETF AQM mailing list, and the IETF TSVWG.
+Many thanks to John Gilmore, the members of the ecn-sane project and the cake@lists.bufferbloat.net mailing list, and the former IETF AQM working group.
 
 {backmatter}
