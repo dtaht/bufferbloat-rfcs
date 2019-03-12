@@ -6,7 +6,7 @@ Transport Working Group                                        J. Morton
 Internet-Draft                                           Bufferbloat.net
 Updates: 3168, 8311 (if approved)                               D. Taeht
 Intended status: Standards Track                                TekLibre
-Expires: September 11, 2019                               March 10, 2019
+Expires: September 12, 2019                               March 11, 2019
 
 
              The Some Congestion Experienced ECN Codepoint
@@ -36,7 +36,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on September 11, 2019.
+   This Internet-Draft will expire on September 12, 2019.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-Morton & Taeht         Expires September 11, 2019               [Page 1]
+Morton & Taeht         Expires September 12, 2019               [Page 1]
 
 Internet-Draft                    sceb                        March 2019
 
@@ -109,7 +109,7 @@ Table of Contents
 
 
 
-Morton & Taeht         Expires September 11, 2019               [Page 2]
+Morton & Taeht         Expires September 12, 2019               [Page 2]
 
 Internet-Draft                    sceb                        March 2019
 
@@ -165,7 +165,7 @@ Internet-Draft                    sceb                        March 2019
 
 
 
-Morton & Taeht         Expires September 11, 2019               [Page 3]
+Morton & Taeht         Expires September 12, 2019               [Page 3]
 
 Internet-Draft                    sceb                        March 2019
 
@@ -221,7 +221,7 @@ Internet-Draft                    sceb                        March 2019
 
 
 
-Morton & Taeht         Expires September 11, 2019               [Page 4]
+Morton & Taeht         Expires September 12, 2019               [Page 4]
 
 Internet-Draft                    sceb                        March 2019
 
@@ -230,10 +230,11 @@ Internet-Draft                    sceb                        March 2019
 
 5.1.  Cubic
 
-   Consider a TCP transport implementing CUBIC congestion control.  This
-   presently exhibits exponential cwnd growth during slow-start,
-   polynomial cwnd growth in steady-state, and multiplicative decrease
-   upon detecting a single CE marking or packet loss in one RTT cycle.
+   Consider a TCP transport implementing a CUBIC-like congestion
+   control.  This presently exhibits exponential cwnd growth during
+   slow-start, polynomial cwnd growth in steady-state, and
+   multiplicative decrease upon detecting a single CE marking or packet
+   loss in one RTT cycle.
 
    With SCE awareness, it might exit slow-start upon detecting a single
    SCE marking, switch from polynomial to Reno-linear cwnd growth when
@@ -251,8 +252,8 @@ Internet-Draft                    sceb                        March 2019
 
    SCE can potentially be handled entirely by the receiver and be
    entirely independent of any of the dozens of [RFC3168] compliant
-   congestion control algorithms, for example by manipulating the TCP
-   receive window in a similar manner to the sender's congestion window.
+   congestion control algorithms by measuring and interpreting the
+   actual effect of any given ECE feedback loop.
 
    Alternatively, some mechanism may be defined to feed back SCE signals
    to the sender explicitly.  Details of this are left to future I-Ds.
@@ -276,8 +277,7 @@ Internet-Draft                    sceb                        March 2019
 
 
 
-
-Morton & Taeht         Expires September 11, 2019               [Page 5]
+Morton & Taeht         Expires September 12, 2019               [Page 5]
 
 Internet-Draft                    sceb                        March 2019
 
@@ -333,7 +333,7 @@ Internet-Draft                    sceb                        March 2019
 
 
 
-Morton & Taeht         Expires September 11, 2019               [Page 6]
+Morton & Taeht         Expires September 12, 2019               [Page 6]
 
 Internet-Draft                    sceb                        March 2019
 
@@ -389,4 +389,4 @@ Authors' Addresses
 
 
 
-Morton & Taeht         Expires September 11, 2019               [Page 7]
+Morton & Taeht         Expires September 12, 2019               [Page 7]
