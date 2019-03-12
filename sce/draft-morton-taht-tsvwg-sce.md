@@ -176,7 +176,7 @@ sooner than they produce CE markings, when the level of congestion increases.
 
 ## Cubic
 
-Consider a TCP transport implementing CUBIC congestion control.  This
+Consider a TCP transport implementing a CUBIC-like congestion control.  This
 presently exhibits exponential cwnd growth during slow-start,
 polynomial cwnd growth in steady-state, and multiplicative decrease
 upon detecting a single CE marking or packet loss in one RTT cycle.
@@ -197,8 +197,8 @@ maximising throughput with minimum average queue length.
 
 SCE can potentially be handled entirely by the receiver and be
 entirely independent of any of the dozens of [@RFC3168] compliant
-congestion control algorithms, for example by manipulating the TCP
-receive window in a similar manner to the sender's congestion window.
+congestion control algorithms by measuring and interpreting 
+the actual effect of any given ECE feedback loop.
 
 Alternatively, some mechanism may be defined to feed back SCE signals
 to the sender explicitly.  Details of this are left to future I-Ds.
