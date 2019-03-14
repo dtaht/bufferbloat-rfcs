@@ -1,0 +1,55 @@
+===========================================
+Interpreting SCE for TCP Congestion Control
+===========================================
+
+A guide to successfully implementing TCP congestion control algorithms which make use of SCE signals from the network, and remain compatible with both legacy middleboxes and legacy flows sharing the same path.
+
+Jonathan Morton <chromatix99@gmail.com>
+
+---
+
+The first two documents in this series introduce the SCE (Some Congestion Experienced) codepoint of the ECN field in the IP header, which replaces the otherwise unused ECT(1) codepoint, and describe possible ways to generate these signals in middleboxes.  The ubiquitous ECT(0) codepoint is simply renamed ECT, and the existing CE and Not-ECT codepoints also retain their existing meanings.
+
+The goal of SCE is to have the send rate of each flow converge on a steady value which exactly matches the path capacity, instead of oscillating wildly around it as conventional congestion control does.  This latter behaviour results from the limited congestion information conveyed by packet drops and CE marks, and the mandated response to those signals to maintain stability of the network.
+
+The desired steady state occurs when half the inbound data packets are marked with SCE, and the other half with ECT; this corresponds to the path capacity being reached with minimal additional delay.  At higher delays, a higher proportion of SCE marks acts as a signal to reduce send rate, while when below available capacity, a lower proportion of SCE permits growing the send rate.
+
+This can only happen when both endpoints negotiate an ECN-Capable connection (causing all data packets to be marked ECT at origin), and the bottleneck link is managed by an SCE-aware AQM.  Such an AQM will also mark CE if the queue it manages grows too much, as might happen if the send rate overshoots the ideal value, or if the available capacity decreases after convergence was achieved.  Legacy AQMs in the network may emit CE without an accompanying SCE, or congestion may be signalled only by drops if the bottleneck queue doesn't support ECN at all.
+
+---
+
+SCE Feedback to the Sender
+==========================
+
+
+
+---
+
+NewReno-SCE
+===========
+
+NewReno congestion control is a staple of academic papers studying the subject, largely due to its simplicity which makes it relatively easy to analyse, and its former ubiquity.
+
+In broad summary, a congestion window (cwnd) is maintained starting at some small number of MSS segments, grows according to first the slow-start rule and then the congestion-avoidance rule until congestion is detected (by either a packet loss or a CE mark) or the receive window is reached as a limiting factor.  Congestion signals cause a halving of the cwnd over the course of one RTT, during which loss recovery also occurs as necessary.
+
+The slow-start growth rule is that the cwnd is grown by one MSS segment for each MSS segment acknowledged.  This effectively results in the cwnd doubling each RTT, which is an exponential growth curve.  Slow-start is traditionally exited when the first congestion signal is detected, but other rules have also been tried.
+
+The growth rule when in congestion-avoidance is that the cwnd grows by one MSS per RTT.  This is typically implemented through a separate counter of acknowledged MSS units, which overflows and carries into the cwnd when it reaches the current cwnd.  This is also knows as the Reno-linear growth rule.
+
+The cwnd reduction on detecting congestion is generally implemented by subtracting one MSS from the cwnd for every two MSS segments transmitted, until the new cwnd matches the number of segments transmitted since the congestion signal arrived.
+
+Extending the above behaviour to include SCE is straightforward:
+
+Slow-start growth is terminated as soon as the first SCE mark is detected (in addition to all other valid reasons).  This generally occurs sooner than CE, so the likelihood of a major overshoot of the cwnd value is reduced.
+
+Reno-linear growth occurs for every MSS segment with ECT or Not-ECT marking, but an analogous Reno-linear shrink of the cwnd occurs for every MSS segment with SCE marking.  With an equal number of ECT and SCE segments, the cwnd will thus remain steady.  A preponderance of SCE markings will shrink the cwnd smoothly.
+
+Additionally, if a CE marked packet immediately follows an SCE marked packet, it is appropriate to implement a reduced congestion backoff by terminating the cwnd reduction steps when the new cwnd equals four times the number of segments transmitted since the congestion signal arrived.  This results in the new cwnd being 80% of the prior value, instead of only 50%.  Restricting this modification to cases where SCE is observed in conjunction with the CE ensures that the traditional behaviour is retained in response to legacy AQM action.
+
+These adaptations retain traditional AIMD behaviour in a CE-marking environment, but adopt an AIAD behaviour when SCE signals are detected.  AIAD is stable, but does not converge to fairly sharing the path when multiple SCE-aware flows are involved, and will tend to defer to legacy SCE-ignorant flows because the latter continue to grow cwnd in the face of SCE signals.  The latter effect is explicitly countered by reducing the multiplicative congestion backoff when SCE is observed in conjunction with CE, but achieving fairness with other SCE-aware flows remains a challenge.
+
+---
+
+CUBIC-SCE
+=========
+
