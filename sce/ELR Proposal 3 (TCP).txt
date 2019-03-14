@@ -120,7 +120,7 @@ The slow-start growth rule is that the cwnd is grown by one MSS segment for each
 
 The growth rule when in congestion-avoidance is that the cwnd grows by one MSS per RTT.  This is typically implemented through a separate counter of acknowledged MSS units, which overflows and carries into the cwnd when it reaches the current cwnd.  This is also known as the Reno-linear growth rule.
 
-The cwnd reduction on detecting congestion is generally implemented by subtracting one MSS from the cwnd for every two MSS segments transmitted, until the new cwnd matches the number of segments transmitted since the congestion signal arrived.
+The cwnd reduction on detecting congestion is generally implemented by subtracting one MSS from the cwnd for every two MSS segments transmitted, until the new cwnd matches the reduction in cwnd since the congestion signal arrived.  This results in the new cwnd being 50% of the old one.
 
 Extending the above behaviour to include SCE is straightforward:
 
@@ -128,7 +128,7 @@ Slow-start growth is terminated as soon as the first SCE mark is detected (in ad
 
 Reno-linear growth occurs for every MSS segment with ECT or Not-ECT marking, but an analogous Reno-linear shrink of the cwnd occurs for every MSS segment with SCE marking.  With an equal number of ECT and SCE segments, the cwnd will thus remain steady.  A preponderance of SCE markings will shrink the cwnd smoothly.
 
-Additionally, if a CE marked packet immediately follows an SCE marked packet, it is appropriate to implement a reduced congestion backoff by terminating the cwnd reduction steps when the new cwnd equals four times the number of segments transmitted since the congestion signal arrived.  This results in the new cwnd being 80% of the prior value, instead of only 50%.  Restricting this modification to cases where SCE is observed in conjunction with the CE ensures that the traditional behaviour is retained in response to legacy AQM action.
+Additionally, if a CE marked packet immediately follows an SCE marked packet, it is appropriate to implement a reduced congestion backoff by terminating the cwnd reduction steps when the new cwnd equals four times the reduction in cwnd since the congestion signal arrived.  This results in the new cwnd being 80% of the prior value, instead of only 50%.  Restricting this modification to cases where SCE is observed in conjunction with the CE ensures that the traditional behaviour is retained in response to legacy AQM action.
 
 These adaptations retain traditional AIMD behaviour in a CE-marking environment, but adopt an AIAD behaviour when SCE signals are detected.  AIAD is stable, but does not converge to fairly sharing the path when multiple SCE-aware flows are involved, and will tend to defer to legacy SCE-ignorant flows because the latter continue to grow cwnd in the face of SCE signals.  The latter effect is explicitly countered by reducing the multiplicative congestion backoff when SCE is observed in conjunction with CE, but achieving fairness with other SCE-aware flows remains a challenge.
 
