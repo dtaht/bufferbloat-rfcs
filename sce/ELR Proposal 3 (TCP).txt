@@ -21,20 +21,104 @@ This can only happen when both endpoints negotiate an ECN-Capable connection (ca
 SCE Feedback to the Sender
 ==========================
 
+This memo outlines three potential methods of informing the sender about SCE signals detected at the receiver, in increasing order of presumed implementation difficulty.  These are, in brief:
 
+ - Implementing congestion control at the receiver through the TCP Receive Window.
+
+ - Reusing the obsoleted Nonce Sum (NS) bit.
+
+ - Replacing TCP Timestamps with a new TCP option incorporating SCE data.
+
+
+TCP Receive Window
+------------------
+
+This method makes no changes to the on-wire TCP definition or the TCP sender, and uses only a mechanism that has been present in TCP from the very beginning; the Receive Window (rwnd).  Senders are already required to limit the range of data sent to a window bounded on the left by the ack pointer and on the right by the rwnd offset from the ack pointer.
+
+Since rwnd is transmitted as a 16-bit value, a scaling factor is negotiated during the handshake for each direction of the connection, allowing rwnd to grow up to 1GB, albeit with less precision.  Scaling factors of 64-512 bytes are commonly observed at present, which are sufficient to denote actual rwnd values to a precision better than one MSS while handling BDPs up to 32MB.
+
+Congestion control was traditionally implemented at the sender, because that was the best place to observe packet loss, especially "tail loss" where the newest packets in the stream are dropped en route.  However with ECN and especially SCE, the most information about congestion is now present at the receiver.  Since legacy queues not implementing ECN and legacy receivers not implementing their own congestion control still exist in the Internet, congestion control must still be implemented at the sender, but it may additionally be implemented at the receiver without conflict.
+
+Implementation is conceptually straightforward: a congestion control algorithm, modified to incorporate SCE information, is implemented on the receiver; the calculated cwnd is then communicated to the sender through the rwnd value.  If the actual rwnd is lower than the calculated cwnd, the former takes precedence.
+
+Obviously, the receiver is not responsible for loss recovery through retransmission, except by indicating missing packets through appropriately formed acknowledgements (including SACK where implemented).  Where such discontiguous acknowledgments are sent, the rwnd should be modified so that it encompasses unreceived segments totalling the calculated cwnd, again subject to not exceeding the actual rwnd.  This mirrors the action of a conventional sender-side cwnd.
+
+
+Reusing the Nonce Sum bit
+-------------------------
+
+Since the Nonce Sum extension to ECN was never implemented widely, and has been declared obsolete in favour of experimental use of ECT(1) (which SCE already takes advantage of), the NS bit in the TCP header is spare.  Since NS is already associated with ECN usage and should be capable of traversing firewalls and other middleboxes unmolested, it is appropriate to propose using it for SCE feedback.
+
+Feedback of CE via ECE and CWR continues as normal.  The receiver does not get explicit confirmation that the sender acts on SCE feedback.
+
+This will require both sender and receiver modifications to work correctly.  The congestion control at the sender will need to interpret the SCE data returned, and the receiver will need to appropriately return SCE data.  Unless both of these things occur, the connection will behave as for Classic ECN.
+
+The receiver maintains distinct counts of the payload bytes received carrying ECT and SCE codepoints.  Packets carrying CE or Not-ECT are counted as ECT for this purpose.  Pure ack packets and spurious retransmissions are not counted for this purpose.
+
+Acknowledgements sent by the receiver to advance the ack-pointer or add a SACK block are then modified to accurately convey the counts to the sender, as follows:
+
+ - Acknowledgements of new data with the NS bit set imply that the SCE counter contained that much data.  The SCE counter is then decremented by that amount.
+
+ - Acknowledgements of new data with the NS bit cleared imply that the non-SCE counter contained that much data.  The non-SCE counter is then decremented by that amount.
+
+Since ECT and SCE are expected to alternate when an SCE connection reaches steady-state, it will be necessary to delay acknowledgements, accumulating several received packets of each type, to avoid sending too many pure acks.  It may be appropriate to consider implementing AckCC to reduce the frequency of acks in general.  If an ack needs to be sent immediately (including in response to a suspected loss or a CE mark), it should reflect the counter with the larger value, or the SCE counter if both are equal.  Otherwise, the counter reflected will usually alternate in consecutive acks.
+
+The sender typically already uses the concept of newly-acknowledged bytes in its cwnd calculations (see RFC3465, Appropriate Byte Counting).  SCE-ignorant senders should be unaffected by the fact that some acknowledged bytes are associated with a set NS bit (indicating that a corresponding number of bytes - not necessarily the ones just acknowledged - arrived with an SCE mark) while others are associated with a cleared NS bit (indicating bytes received without SCE).  SCE-aware senders should use the distinction to evolve their cwnd values appropriately.
+
+If acks with the NS bit set are never received, the sender may infer that either the receiver is not SCE aware, or no SCE signals are generated by middleboxes on the forward path, and should ensure that it behaves as though it supports only Classic ECN.
+
+It is presently unclear how existing ECN-Capable receivers will react to SCE marks with respect to NS in corresponding acknowledgements.  They may ignore it completely and leave NS cleared, or they may respond as would be appropriate for the Nonce Sum extension, by setting NS to the least significant bit of the count of SCE marks received.  The latter is likely to confuse a sender relying on this particular reuse of NS, and may cause it to adopt send rates somewhat below the optimum in some cases.  It may be necessary for the sender to detect this behaviour, and disable its handling of SCE when faced with a legacy Nonce Sum receiver.
+
+
+Enhanced TCP Timestamps Option
+------------------------------
+
+The TCP Timestamps Option has always occupied an awkward physical position in the TCP header, since it has a two-byte header but its payload is generally 4-byte aligned, leading to two bytes of NOP options being prepended purely for alignment purposes.  These two bytes can, by themselves, only be used for a TCP Option conveying binary information by its presence or absence.
+
++---------------+---------------+---------------+---------------+
+| NOP           | NOP           | Timestamps=8  | Length = 10   |
++---------------+---------------+---------------+---------------+
+| TSval                                                         |  Timestamps option.
++---------------+---------------+---------------+---------------+
+| TSecr                                                         |
++---------------+---------------+---------------+---------------+
+
+A new TCP Option could reasonably replace TCP Timestamps with a 12-byte option, carrying the TSval and TSecr fields in an aligned position as at present, but making 16 bits of space available for more productive use, without increasing the total size of pure-ack packets, nor reducing the payload of data segments.  Two such ideas are outlined below.
+
+Explicit Congestion Window (ECW) moves congestion control into the receiver as outlined above, but without overloading the rwnd field, and incorporating an explicit scaling factor to represent any reasonable cwnd as a floating-point value.  This also incorporates control of Delayed ACKs as in AckCC:
+
++---------------+---------------+-----------+---+---+-----------+
+| ECW (TBD)     | Length = 12   | Ack Ratio | Expon | Mantissa  |
++---------------+---------------+-----------+---+---+-----------+
+| TSval                                                         |  Explicit Congestion
++---------------+---------------+---------------+---------------+  Window option.
+| TSecr                                                         |
++---------------+---------------+---------------+---------------+
+
+SCE Feedback (SCEF) keeps congestion control in the sender as traditionally, but supplies a ratio of ECT and SCE bytes recently received (where "recently" is left vague for the present).  For this purpose, CE and Not-ECT codepoints are not counted at all, only explicit ECT and SCE codepoints.  If the relevant counters are both zero, both fields are zeroed; if either exceeds the range of an unsigned byte, both are scaled down so that the larger one fits and the other retains the same ratio.
+
++---------------+---------------+---------------+---------------+
+| SCEF (TBD)    | Length = 12   | SCE count     | ECT count     |
++---------------+---------------+---------------+---------------+
+| TSval                                                         |  SCE Feedback option.
++---------------+---------------+---------------+---------------+
+| TSecr                                                         |
++---------------+---------------+---------------+---------------+
+
+These options are presented for discussion and further development, not as working specifications.
 
 ---
 
 NewReno-SCE
 ===========
 
-NewReno congestion control is a staple of academic papers studying the subject, largely due to its simplicity which makes it relatively easy to analyse, and its former ubiquity.
+NewReno congestion control is a staple of academic papers studying the subject, largely due to its simplicity which makes it relatively easy to analyse, and its former ubiquity.  In this description, I assume that Appropriate Byte Counting [RFC3465] is used.
 
 In broad summary, a congestion window (cwnd) is maintained starting at some small number of MSS segments, grows according to first the slow-start rule and then the congestion-avoidance rule until congestion is detected (by either a packet loss or a CE mark) or the receive window is reached as a limiting factor.  Congestion signals cause a halving of the cwnd over the course of one RTT, during which loss recovery also occurs as necessary.
 
 The slow-start growth rule is that the cwnd is grown by one MSS segment for each MSS segment acknowledged.  This effectively results in the cwnd doubling each RTT, which is an exponential growth curve.  Slow-start is traditionally exited when the first congestion signal is detected, but other rules have also been tried.
 
-The growth rule when in congestion-avoidance is that the cwnd grows by one MSS per RTT.  This is typically implemented through a separate counter of acknowledged MSS units, which overflows and carries into the cwnd when it reaches the current cwnd.  This is also knows as the Reno-linear growth rule.
+The growth rule when in congestion-avoidance is that the cwnd grows by one MSS per RTT.  This is typically implemented through a separate counter of acknowledged MSS units, which overflows and carries into the cwnd when it reaches the current cwnd.  This is also known as the Reno-linear growth rule.
 
 The cwnd reduction on detecting congestion is generally implemented by subtracting one MSS from the cwnd for every two MSS segments transmitted, until the new cwnd matches the number of segments transmitted since the congestion signal arrived.
 
