@@ -195,10 +195,9 @@ maximising throughput with minimum average queue length.
 
 ## TCP receiver side handling
 
-SCE can potentially be handled entirely by the receiver and be
+SCE can potentially be handled entirely by the receiver, and thus be
 entirely independent of any of the dozens of [@RFC3168] compliant
-congestion control algorithms by measuring and interpreting 
-the actual effect of any given ECE feedback loop.
+congestion control algorithms on the sender side.
 
 Alternatively, some mechanism may be defined to feed back SCE signals
 to the sender explicitly.  Details of this are left to future I-Ds.
@@ -218,7 +217,23 @@ There are no IANA considerations.
 
 # Security Considerations
 
-There are no security considerations.
+An adversary could inappropriately set SCE marks at middleboxes he controls to slow
+down SCE-aware flows, eventually reaching a minimum congestion window.  However,
+the same threat already exists with respect to inappropriately setting CE marks on
+Classic ECN flows, and this would have a greater impact per mark.  Therefore no new
+threat is exposed by SCE in practice.
+
+An adversary could also simply ignore SCE marks at the receiver, or ignore SCE
+information fed back from the receiver to the sender, in an attempt to gain some
+advantage in throughput.  Again, the same could be said about ignoring CE marks, so
+no truly new threat is exposed.  Additionally, correctly implemented SCE detection
+may actually improve long-term goodput compared to ignoring SCE.
+
+An adversary could erase congestion information by converting SCE marks to ECT or
+Not-ECT codepoints, thus hiding it from the receiver.  This has equivalent effects
+to ignoring SCE signals at the receiver.  An identical threat already exists for
+erasing congestion information from CE marked packets, and may be mitigated by AQMs
+switching to dropping packets from flows observed to be non-responsive to CE.
 
 # Acknowledgements
 
