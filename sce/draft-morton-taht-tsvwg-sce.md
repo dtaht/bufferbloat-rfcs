@@ -220,7 +220,7 @@ There are no IANA considerations.
 An adversary could inappropriately set SCE marks at middleboxes he controls to slow
 down SCE-aware flows, eventually reaching a minimum congestion window.  However,
 the same threat already exists with respect to inappropriately setting CE marks on
-Classic ECN flows, and this would have a greater impact per mark.  Therefore no new
+normal ECN flows, and this would have a greater impact per mark.  Therefore no new
 threat is exposed by SCE in practice.
 
 An adversary could also simply ignore SCE marks at the receiver, or ignore SCE
