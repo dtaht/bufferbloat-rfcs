@@ -145,7 +145,7 @@ Actually, CUBIC incorporates two window functions, one of which is very similar 
 
 	K = cubic_root(W_max*(1-beta_cubic)/C)
 
-In the above, W_max is normally the cwnd at which a congestion signal was last received, t is the time since that event, and K is designed to produce a multiplicative decrease immediately following that event (beta_cubic = 0.7); C can be considered an "aggression constant" for which the recommended value is 0.4.
+In the above, W_max is normally the cwnd at which a congestion signal was last received, t is the time since that event, and K is designed to produce a multiplicative decrease immediately following that event (beta_cubic = 0.7); C can be considered an "aggression constant" for which the recommended value is 0.4*MSS.
 
 However, special treatment is defined for W_max and K if performing an early exit from slow-start, ie. for reasons other than detecting a packet loss or CE mark.  In that case, W_max is set to the cwnd on exit of slow-start, and K is set to zero, with t counting from the time of exiting.
 
@@ -153,11 +153,11 @@ It should be noted that unlike CE, a single SCE mark does not signify that the c
 
 We must still define a reasonable response to intermittent and continuous SCE marks after that point, however, which converges on a 50% SCE ratio from either side.  To assist with this, we define a time T which is initialised to the time of exiting slow-start, and to (now+K) when a loss or CE mark occurs; this is the inflection point of the cubic curve.  We can then replace (t-K) in the W_cubic(t) formula with (now-T), to obtain a new function W_cubic(now).
 
-Whenever new SCE-marked data arrives (or is acknowledged), take the number of payload bytes as S_bytes and the current value of W_cubic(now) in bytes as W.  Then calculate a reduction factor R = S_bytes/W.  Update T += R*(now-T) to reduce the slope of the cubic function, then update W_max += W - W_cubic(now) to restore continuity.  Also perform a Reno-linear decrement: W_max -= S_bytes/W_max (preserving the remainder to apply to the next such decrement).
+Whenever new SCE-marked data arrives (or is acknowledged), take the number of payload bytes as S_bytes and the current value of W_cubic(now) in bytes as W.  Then calculate a reduction factor R = S_bytes/W.  Update T += R*(now-T) to reduce the slope of the cubic function, then update W_max += W - W_cubic(now) to restore continuity.  Also perform a Reno-linear decrement: W_max -= (S_bytes/W_max)*MSS (preserving the remainder to apply to the next such decrement).
 
 At the 50% SCE setpoint, T should settle in the mildly convex phase, some constant interval in the past, so the W_cubic function applies slight upward pressure on W_max with every SCE update.  This is balanced by the Reno-linear decrement of W_max as long as the RTT doesn't grow unreasonably large.
 
-The actual ratio at which CUBIC-SCE becomes stable will depend on the RTT, such that longer RTTs will stabilise at higher ratios (possibly above 50%) and shorter RTTs will stabilise at lower ratios.  Simulations should be able to predict which RTTs correspond to which ratios.
+The actual ratio at which CUBIC-SCE becomes stable will depend on the RTT, such that longer RTTs will stabilise at higher ratios (possibly above 50%) and shorter RTTs will stabilise at lower ratios.  Simulations should be able to predict which RTTs correspond to which ratios and check that the operational range is reasonable.
 
 If the RTT becomes too long for SCE to sufficiently control growth, a CE mark will eventually arrive to sort things out; fewer CE marks should be needed than for standard CUBIC, and the maximum upward excursion of cwnd should also be reduced, so SCE is still beneficial even if it doesn't fully settle.
 
