@@ -162,3 +162,12 @@ The actual ratio at which CUBIC-SCE becomes stable will depend on the RTT, such 
 If the RTT becomes too long for SCE to sufficiently control growth, a CE mark will eventually arrive to sort things out; fewer CE marks should be needed than for standard CUBIC, and the maximum upward excursion of cwnd should also be reduced, so SCE is still beneficial even if it doesn't fully settle.
 
 Conversely, if the RTT is very short, the cubic function will descend below the 50% ratio because the upward pressure is not as strong as the Reno-linear decrement, and the NewReno-SCE algorithm will then grow to take over control and stabilise at exactly 50% SCE ratio.
+
+---
+
+Single-Queue Stability
+======================
+
+The above suggestions aim for a roughly 50% SCE setpoint by using Reno-linear cwnd shrinkage functions in response to SCE.  This AIAD behaviour, however, does not necessarily converge to RTT-fairness as conventional TCPs do, and may limit SCE's application to middleboxes implementing flow-isolating AQMs.
+
+If we accept a lower and more variable setpoint, where stability occurs at a relatively small fraction of SCE-marked bytes, then RTT fairness can be achieved with single-queue AQMs by implementing a shrinkage function which scales with cwnd more aggressively than the growth function.  One candidate for such a function is that used by DCTCP (but applied to SCE markings instead of CE), or we could modify the Reno-linear function directly by multiplying the bytes subtracted by sqrt(cwnd).
