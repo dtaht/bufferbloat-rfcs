@@ -137,3 +137,21 @@ These adaptations retain traditional AIMD behaviour in a CE-marking environment,
 CUBIC-SCE
 =========
 
+TCP CUBIC is very widely deployed, as it has been the default TCP congestion control in Linux for several years, and has generally proved its worth by scaling up cleanly to today's Internet path capacities.  It has the highly desirable property of pausing its growth near the cwnd which most recently triggered a congestion signal, putting it halfway along the path to settling at the ideal BDP.  However, without SCE awareness, it will eventually probe upwards from that ideal point until a harsher signal is again received.
+
+Actually, CUBIC incorporates two window functions, one of which is very similar to NewReno and can be modified similarly as above, and a cubic function over time (rather than RTTs), with the higher of the two calculations actually taking effect.  In RFC-8312, the cubic function is defined as:
+
+	W_cubic(t) = C*(t-K)^3 + W_max
+
+	K = cubic_root(W_max*(1-beta_cubic)/C)
+
+In the above, W_max is normally the cwnd at which a congestion signal was last received, t is the time since that event, and K is designed to produce a multiplicative decrease immediately following that event (beta_cubic = 0.7); C can be considered an "aggression constant" for which the recommended value is 0.4.
+
+However, special treatment is defined for W_max and K if performing an early exit from slow-start, ie. for reasons other than detecting a packet loss or CE mark.  In that case, W_max is set to the cwnd on exit of slow-start, and K is set to zero, with t counting from the time of exiting.
+
+It should be noted that unlike CE, a single SCE mark does not signify that the cwnd has reached a point where further cwnd growth cannot be permitted.  However, it does signify that the slow-start phase should be exited immediately and a more cautious probe initiated.  The existing mechanism for exiting slow-start early does that nicely.
+
+We must still define a reasonable response to intermittent and continuous SCE marks after that point, however, which converges on a 50% SCE ratio from either side.  To assist with this, we define a time T which is initialised to the time of exiting slow-start, and to (now+K) when a loss or CE mark occurs; this is the inflection point of the cubic curve.  We can then replace (t-K) in the W_cubic(t) formula with (now-T), to obtain a new function W_cubic(now).  We also maintain a new variable W_frac, initialised to zero whenever T is reinitialised.
+
+Whenever new SCE-marked data arrives (or is acknowledged), take the number of payload bytes as S_bytes and the current value of W_cubic(now) in bytes as W.  Then calculate a reduction factor R = S_bytes/W.  Update T += R*(now-T) to reduce the slope of the cubic function, then update W_max += W - W_cubic(now) to restore continuity.  If T is in the past relative to now, then also perform a Reno-linear decrement of W_max by subtracting S_bytes from W_frac and carrying into W_max.
+
