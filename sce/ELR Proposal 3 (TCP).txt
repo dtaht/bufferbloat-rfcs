@@ -29,6 +29,8 @@ This memo outlines three potential methods of informing the sender about SCE sig
 
  - Replacing TCP Timestamps with a new TCP option incorporating SCE data.
 
+ - Adapting AccECN to primarily carry SCE data instead of focusing on CE.
+
 
 TCP Receive Window
 ------------------
@@ -104,6 +106,17 @@ SCE Feedback (SCEF) keeps congestion control in the sender as traditionally, but
 +---------------+---------------+---------------+---------------+
 | TSecr                                                         |
 +---------------+---------------+---------------+---------------+
+
+
+Change AccECN to prioritise SCE
+-------------------------------
+
+The Accurate ECN draft describes a new TCP Option and new uses of some TCP flags by which detailed ECN feedback can be returned to the sender.  The TCP option includes wrapping counters of ECT(0), CE and ECT(1) packets received, in that order; the later fields can be omitted by simply truncating the option.
+
+From the SCE perspective, this draft mostly has the advantage of traction in conjunction with L4S.  It is relatively inefficient for conveying SCE information because SCE marks would be reflected in the last of the three fields, necessitating a maximum-length option and thus a relatively large ack packet.  Space would unnecessarily be devoted to CE information which is already adequately conveyed (in standard TCP-ECN) by the ECE and CWR flags.  By comparison, SCEF and reusing NS would each typically require no extra packet space and most likely no additional handshake details.
+
+To better adapt AccECN to SCE rather than L4S, the order of fields in the TCP option should be rearranged so that SCE comes first.  The redefinition of ECE/CWR/NS into the ACE field, which counts CE marks that should be less common with SCE than without, is acceptable but unnecessary.
+
 
 These options are presented for discussion and further development, not as working specifications.
 

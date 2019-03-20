@@ -178,6 +178,20 @@ sooner than they produce CE markings, when the level of congestion increases.
 
 # Examples of use
 
+## TCP Fast Open
+
+If the three-way handshake is conducted using ECT-marked packets, it would become
+feasible to detect a congested link on the path before slow-start even begins, and
+pre-emptively disable behaviour which would likely exacerbate that congestion.  In
+particular, senders should consider choosing a smaller Initial Window and/or going
+straight into Congestion Avoidance mode instead of Slow Start, if SCE or CE is
+signalled during the handshake.
+
+Since ECE is already set for the SYN/ACK packet as part of ECN negotiation, other
+means must be used to convey reception of a CE mark on the SYN packet.  This could
+take the form of a small initial Receive Window, the NS bit additionally being set, or
+the provision of an explicit ECN feedback option if the SYN endpoint indicated support.
+
 ## Cubic
 
 Consider a TCP transport implementing a CUBIC-like congestion control.  This
