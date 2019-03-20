@@ -137,11 +137,13 @@ The cwnd reduction on detecting congestion is generally implemented by subtracti
 
 Extending the above behaviour to include SCE is straightforward:
 
-Slow-start growth is terminated as soon as the first SCE mark is detected (in addition to all other valid reasons).  This generally occurs sooner than CE, so the likelihood of a major overshoot of the cwnd value is reduced.
+Slow-start growth is terminated as soon as the first SCE mark is detected (in addition to all other valid reasons).  This generally occurs sooner than CE, so the likelihood of a major overshoot of the cwnd value is reduced (especially on short-RTT paths).
 
-Reno-linear growth occurs for every MSS segment with ECT or Not-ECT marking, but an analogous Reno-linear shrink of the cwnd occurs for every MSS segment with SCE marking.  With an equal number of ECT and SCE segments, the cwnd will thus remain steady.  A preponderance of SCE markings will shrink the cwnd smoothly.
+Reno-linear growth occurs for every segment with ECT or Not-ECT marking as normal, by adding the newly acked bytes to the counter and carrying into the cwnd.
 
-Additionally, if a CE marked packet immediately follows an SCE marked packet, it is appropriate to implement a reduced congestion backoff by terminating the cwnd reduction steps when the new cwnd equals four times the reduction in cwnd since the congestion signal arrived.  This results in the new cwnd being 80% of the prior value, instead of only 50%.  Restricting this modification to cases where SCE is observed in conjunction with the CE ensures that the traditional behaviour is retained in response to legacy AQM action.
+A shrink of the cwnd occurs for every segment with SCE marking; the newly acked bytes are multiplied by sqrt(cwnd/MSS) before subtracting them from the growth counter; if this would result in a negative value in the counter, a borrow is taken from the cwnd.  This should result in RTT-fair convergence with other SCE-aware flows, as well as smooth evolution towards a steady state with a minority of SCE marks.
+
+Additionally, if a CE marked packet immediately follows an SCE marked packet, or SCE is received during the following RTT, it is appropriate to implement a reduced congestion backoff by terminating the cwnd reduction steps when the new cwnd is at most four times the reduction in cwnd since the congestion signal arrived.  This results in the new cwnd being 80% of the prior value, instead of only 50%.  Restricting this modification to cases where SCE is observed in conjunction with the CE ensures that the traditional behaviour is retained in response to legacy AQM action.
 
 These adaptations retain traditional AIMD behaviour in a CE-marking environment, but adopt an AIAD behaviour when SCE signals are detected.  AIAD is stable, but does not converge to fairly sharing the path when multiple SCE-aware flows are involved, and will tend to defer to legacy SCE-ignorant flows because the latter continue to grow cwnd in the face of SCE signals.  The latter effect is explicitly countered by reducing the multiplicative congestion backoff when SCE is observed in conjunction with CE, but achieving fairness with other SCE-aware flows remains a challenge.
 
@@ -152,7 +154,7 @@ CUBIC-SCE
 
 TCP CUBIC is very widely deployed, as it has been the default TCP congestion control in Linux for several years, and has generally proved its worth by scaling up cleanly to today's Internet path capacities.  It has the highly desirable property of pausing its growth near the cwnd which most recently triggered a congestion signal, putting it halfway along the path to settling at the ideal BDP.  However, without SCE awareness, it will eventually probe upwards from that ideal point until a harsher signal is again received.
 
-Actually, CUBIC incorporates two window functions, one of which is very similar to NewReno and can be modified similarly as above, and a cubic function over time (rather than RTTs), with the higher of the two calculations actually taking effect.  In RFC-8312, the cubic function is defined as:
+Actually, CUBIC incorporates two window functions, one of which is essentially NewReno and can be modified as above, and a cubic function over time (rather than RTTs), with the higher of the two calculations actually taking effect.  In RFC-8312, the cubic function is defined as:
 
 	W_cubic(t) = C*(t-K)^3 + W_max
 
@@ -166,21 +168,36 @@ It should be noted that unlike CE, a single SCE mark does not signify that the c
 
 We must still define a reasonable response to intermittent and continuous SCE marks after that point, however, which converges on a 50% SCE ratio from either side.  To assist with this, we define a time T which is initialised to the time of exiting slow-start, and to (now+K) when a loss or CE mark occurs; this is the inflection point of the cubic curve.  We can then replace (t-K) in the W_cubic(t) formula with (now-T), to obtain a new function W_cubic(now).
 
-Whenever new SCE-marked data arrives (or is acknowledged), take the number of payload bytes as S_bytes and the current value of W_cubic(now) in bytes as W.  Then calculate a reduction factor R = S_bytes/W.  Update T += R*(now-T) to reduce the slope of the cubic function, then update W_max += W - W_cubic(now) to restore continuity.  Also perform a Reno-linear decrement: W_max -= (S_bytes/W_max)*MSS (preserving the remainder to apply to the next such decrement).
+Whenever new SCE-marked data arrives (or is acknowledged), take the number of payload bytes as S_bytes and the current value of W_cubic(now) in bytes as W.  Then calculate a reduction factor R = S_bytes/W.  Update T += R*(now-T) to reduce the slope of the cubic function, then update W_max += W - W_cubic(now) to restore continuity.  Also perform a decrement to W_max in the same manner as for NewReno-SCE's cwnd: W_max -= (S_bytes / sqrt(cwnd/MSS)) / cwnd, remembering remainder for the next reduction.
 
-At the 50% SCE setpoint, T should settle in the mildly convex phase, some constant interval in the past, so the W_cubic function applies slight upward pressure on W_max with every SCE update.  This is balanced by the Reno-linear decrement of W_max as long as the RTT doesn't grow unreasonably large.
+Eventually, T should settle in the mildly convex phase, some constant interval in the past, so the W_cubic function applies slight upward pressure on W_max with every SCE update.  This is balanced by the decrement of W_max as long as the RTT doesn't grow unreasonably large.
 
-The actual ratio at which CUBIC-SCE becomes stable will depend on the RTT, such that longer RTTs will stabilise at higher ratios (possibly above 50%) and shorter RTTs will stabilise at lower ratios.  Simulations should be able to predict which RTTs correspond to which ratios and check that the operational range is reasonable.
+The actual marking ratio at which CUBIC-SCE becomes stable will depend on both the RTT and BDP, such that longer RTTs will stabilise at higher ratios (possibly above 50%) and shorter RTTs will stabilise at lower ratios, but this is partially balanced by larger cwnds requiring a lower SCE ratio due to the backoff rule.  Simulations should be able to predict which RTTs correspond to which ratios and check that the operational range is reasonable.
 
 If the RTT becomes too long for SCE to sufficiently control growth, a CE mark will eventually arrive to sort things out; fewer CE marks should be needed than for standard CUBIC, and the maximum upward excursion of cwnd should also be reduced, so SCE is still beneficial even if it doesn't fully settle.
 
-Conversely, if the RTT is very short, the cubic function will descend below the 50% ratio because the upward pressure is not as strong as the Reno-linear decrement, and the NewReno-SCE algorithm will then grow to take over control and stabilise at exactly 50% SCE ratio.
+As with NewReno-SCE, the response to CE may be softened if received in association with SCE marks, by using an alternative value of K calculated from a higher value of beta_cubic, say 0.8.  This should help to avoid starvation in competition with SCE-ignorant CUBIC flows.
+
+---
+
+DCTCP-SCE
+=========
+
+RFC-8257 states: "A DCTCP sender grows its congestion window in the same way as conventional TCP."  The differences in DCTCP are therefore limited to its response to CE, which is essentially to apply a cwnd halving over an RTT, but only pro-rata to the number of CE marks actually received versus the total number of data-carrying packets.  This behaviour is incompatible with conventional ECN-Capable TCPs.
+
+DCTCP can be rehabilitated by causing this new function to respond to SCE instead of CE, and restore a normal, RFC-3168 compliant response to CE.  This is easily implemented as a modification of NewReno by immediately subtracting half the SCE-marked bytes from the cwnd (without indirecting them through a carry counter as the growth function does).  Additionally, SCE should cause an immediate exit of slow-start.
 
 ---
 
 Single-Queue Stability
 ======================
 
-The above suggestions aim for a roughly 50% SCE setpoint by using Reno-linear cwnd shrinkage functions in response to SCE.  This AIAD behaviour, however, does not necessarily converge to RTT-fairness as conventional TCPs do, and may limit SCE's application to middleboxes implementing flow-isolating AQMs.
+The first versions of this document aimed for a roughly 50% SCE setpoint by using Reno-linear cwnd shrinkage functions in response to SCE.  This AIAD behaviour, however, does not reliably converge to RTT-fairness as conventional TCPs do, and may have limited SCE's application to middleboxes implementing flow-isolating AQMs.
 
-If we accept a lower and more variable setpoint, where stability occurs at a relatively small fraction of SCE-marked bytes, then RTT fairness can be achieved with single-queue AQMs by implementing a shrinkage function which scales with cwnd more aggressively than the growth function.  One candidate for such a function is that used by DCTCP (but applied to SCE markings instead of CE), or we could modify the Reno-linear function directly by multiplying the bytes subtracted by sqrt(cwnd).
+By accepting a lower and more variable setpoint, where stability occurs at a relatively small fraction of SCE-marked bytes, RTT fairness can be achieved with single-queue AQMs by implementing a shrinkage function which scales with cwnd more aggressively than the growth function.  One candidate for such a function is that used by DCTCP (but applied to SCE markings instead of CE), or we could modify the Reno-linear function directly by multiplying the bytes subtracted by sqrt(cwnd).  The above descriptions take the latter option as it is less drastic.
+
+---
+
+Small Congestion Windows and Pacing are Recommended
+===================================================
+
