@@ -130,9 +130,9 @@ This permits middleboxes implementing AQM to signal incipient
 congestion, below the threshold required to justify setting CE, by
 converting some proportion of ECT codepoints to SCE ("SCE marking").
 Existing [@RFC3168] compliant receivers MUST transparently ignore this new
-signal, and both existing and SCE-aware middleboxes MAY convert SCE to
-CE in the same circumstances as for ECT, thus ensuring backwards
-compatibility with [@RFC3168] ECN endpoints.
+signal with respect to congestion control, and both existing and SCE-aware
+middleboxes MAY convert SCE to CE in the same circumstances as for ECT, thus
+ensuring backwards compatibility with [@RFC3168] ECN endpoints.
 
 Permitted ECN codepoint packet transitions by middleboxes are:
 
@@ -163,11 +163,15 @@ sequence of ECT codepoints, and those resulting from a CE codepoint.  The
 ratio of ECT and SCE codepoints received indicates the relative severity
 of such congestion, such that 100% SCE is very close to the threshold of
 CE marking, 100% ECT indicates that the bottleneck link may not be fully
-utilised, and a 1:1 balance of ECT and SCE codepoints indicates that the
+utilised, and some mixture of ECT and SCE codepoints indicates that the
 present send rate is a good match to the bottleneck link.
 
 Details of how to implement SCE awareness at the transport layer will
-be left to additional Internet Drafts yet to be submitted.
+be left to additional Internet Drafts yet to be submitted.  To ensure
+RTT-fair convergence with single-queue SCE AQMs, transports SHOULD stabilise
+at higher SCE ratios for higher BDPs, and MAY reduce their response to CE
+marks IFF they are responding to SCE signals received at around the same time
+(eg. in adjacent packets, or at least during the same RTT) in the same flow.
 
 To maximise the benefit of SCE, middleboxes SHOULD produce SCE markings
 sooner than they produce CE markings, when the level of congestion increases.
@@ -182,14 +186,16 @@ polynomial cwnd growth in steady-state, and multiplicative decrease
 upon detecting a single CE marking or packet loss in one RTT cycle.
 
 With SCE awareness, it might exit slow-start upon detecting a single
-SCE marking, switch from polynomial to Reno-linear cwnd growth when
-the SCE:ECT ratio exceeds 1:2, halt cwnd growth entirely when it
-exceeds 1:1, and implement a Reno-linear decline when it exceeds 2:1,
-in addition to retaining the sharp 40% decrease on detecting CE.
+SCE marking, reduce the slope of its growth function slightly for each
+SCE mark received, and implement a square-root decline using a variant
+of the Reno-linear formula when growth is essentially halted by high enough SCE rates.
+On detecting CE in isolation, the existing 30% or 40% sharp reduction is retained,
+but a smaller 10% or 20% reduction might be implemented when CE is accompanied by SCE
+to retain overall throughput in competition with SCE-ignorant flows.
 
 In ideal circumstances, the above behaviour would result in the send
-rate stabilising at a level which produces between 50% and 66% SCE
-marking at some bottleneck on the path.  The middlebox performing
+rate stabilising at a level which produces SCE marking but not CE marking
+at some bottleneck on the path.  The middlebox performing
 this marking can thus control the send rate smoothly to an ideal value,
 maximising throughput with minimum average queue length.
 
@@ -199,8 +205,9 @@ SCE can potentially be handled entirely by the receiver, and thus be
 entirely independent of any of the dozens of [@RFC3168] compliant
 congestion control algorithms on the sender side.
 
-Alternatively, some mechanism may be defined to feed back SCE signals
-to the sender explicitly.  Details of this are left to future I-Ds.
+Alternatively, some mechanism may be defined to feed back SCE signals to the sender
+explicitly.  Details of this are left to future I-Ds covering TCP in detail;
+use could be made of the redundant NS bit in the TCP header.
 
 ## Other
 
