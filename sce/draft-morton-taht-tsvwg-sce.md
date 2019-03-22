@@ -33,6 +33,21 @@ organization = "Bufferbloat.net"
   code = "31520"
   country = "FINLAND"
 [[author]]
+initials = "D.P."
+surname = "Reed"
+fullname = "David Reed"
+#role = "editor"
+organization = "DeepPlum Research"
+  [author.address]
+  email = "dpreed.ietf@teklibre.net"
+  phone = "+18312059740"
+  [author.address.postal]
+  street = "20600 Aldercroft Heights Rd"
+  city = "Los Gatos"
+  region = "Ca"
+  code = "95033"
+  country = "USA"
+[[author]]
 initials = "D."
 surname = "Täht"
 fullname = "David M. Täht"
