@@ -201,3 +201,6 @@ By accepting a lower and more variable setpoint, where stability occurs at a rel
 Small Congestion Windows and Pacing are Recommended
 ===================================================
 
+TCPs implementing SCE should consider allowing the cwnd to fall below the Initial Window to some implementation-defined minimum.  Sub-MSS cwnds can efficiently be supported by TCP Pacing, as a natural extension of the inter-packet scheduling formula dT = MSS*RTT/cwnd.
+
+This allows flows to maintain their fair share of a severely congested bottleneck without driving its queue into tail-drop.
