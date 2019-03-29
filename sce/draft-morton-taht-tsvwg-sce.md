@@ -240,8 +240,10 @@ use could be made of the redundant NS bit in the TCP header.
 
 ## Other
 
-New transports under development such as QUIC SHOULD implement a
+New transports under development, such as QUIC, should implement a
 multi-bit, sub-RTT, and finer grained signal back to the sender based on SCE.
+QUIC itself appears to have this sort of feedback already (counting ECT(0), ECT(1)
+and CE packets received), and the data should be made available for congestion control.
 
 # Related Work
 
