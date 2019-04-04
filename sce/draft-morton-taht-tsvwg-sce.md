@@ -193,55 +193,72 @@ sooner than they produce CE markings, when the level of congestion increases.
 
 # Examples of use
 
-## TCP Fast Open
+## Codel-type AQMs
 
-If the three-way handshake is conducted using ECT-marked packets, it would become
-feasible to detect a congested link on the path before slow-start even begins, and
-pre-emptively disable behaviour which would likely exacerbate that congestion.  In
-particular, senders should consider choosing a smaller Initial Window and/or going
-straight into Congestion Avoidance mode instead of Slow Start, if SCE or CE is
-signalled during the handshake.
+A simple and natural way to implement SCE in a Codel-type AQM is to mark all
+ECT packets as SCE if they are over half the Codel target sojourn time, and not
+marked CE by Codel itself.  This threshold function does not necessarily
+produce the best performance, but is very easy to implement and provides useful
+information to SCE-aware flows, often sufficient to avoid receiving CE marks
+whilst still efficiently using available capacity.
 
-Since ECE is already set for the SYN/ACK packet as part of ECN negotiation, other
-means must be used to convey reception of a CE mark on the SYN packet.  This could
-take the form of a small initial Receive Window, the NS bit additionally being set, or
-the provision of an explicit ECN feedback option if the SYN endpoint indicated support.
+For a more sophisticated approach avoiding even small-scale oscillation, a
+stochastic ramp function may be implemented with 100% marking at the Codel
+target, falling to 0% marking at or above zero sojourn time.  The lower point
+of the ramp should be chosen so that SCE is not accidentally signalled due to
+CPU scheduling latencies or serialisation delays of single packets.  Absent
+rigorous analysis of these factors, setting the lower limit at half the Codel
+target should be safe in many cases.
 
-## Cubic
+The default configuration of Codel is 100ms interval, 5ms target.  A typical
+ramp function for these parameters might cease marking below 2.5ms sojourn
+time, increase marking probability linearly to 100% at 5ms, and mark at 100%
+for sojourn times above 5ms (in which CE marking is also possible).
 
-Consider a TCP transport implementing a CUBIC-like congestion control.  This
-presently exhibits exponential cwnd growth during slow-start,
-polynomial cwnd growth in steady-state, and multiplicative decrease
-upon detecting a single CE marking or packet loss in one RTT cycle.
+Flow-isolating AQMs should avoid signalling SCE to flows classified as "sparse"
+in order to encourage the fastest possible convergence to the fair share.
 
-With SCE awareness, it might exit slow-start upon detecting a single
-SCE marking, reduce the slope of its growth function slightly for each
-SCE mark received, and implement a square-root decline using a variant
-of the Reno-linear formula when growth is essentially halted by high enough SCE rates.
-On detecting CE in isolation, the existing 30% or 40% sharp reduction is retained,
-but a smaller 10% or 20% reduction might be implemented when CE is accompanied by SCE
-to retain overall throughput in competition with SCE-ignorant flows.
+For the avoidance of doubt, a decision to mark CE or to drop a packet always
+takes precedence over SCE marking.
 
-In ideal circumstances, the above behaviour would result in the send
-rate stabilising at a level which produces SCE marking but not CE marking
-at some bottleneck on the path.  The middlebox performing
-this marking can thus control the send rate smoothly to an ideal value,
-maximising throughput with minimum average queue length.
+## RED-type AQMs (including PIE)
 
-## TCP receiver side handling
+There are several reasonable methods of producing SCE signals in a RED-type AQM.
 
-SCE can potentially be handled entirely by the receiver, and thus be
-entirely independent of any of the dozens of [@RFC3168] compliant
-congestion control algorithms on the sender side.
+The simplest would be a threshold function, giving a hard boundary in queue depth
+between 0% and 100% SCE marking.  This could be a sensible option for limited
+hardware implementations.  The threshold should be set below the point at which
+a growing queue might trigger CE marking or packet drops.
 
-Alternatively, some mechanism may be defined to feed back SCE signals to the sender
+Another option would be to implement a second marking probability function,
+occupying a queue-depth space just below that occupied by the main marking
+probability function.  This should be arranged so that high marking rates
+(ideally 100%) are achieved at or before the point at which CE marking or
+packet drops begin.
+
+For PIE specifically, a second marking probability function could be added with
+the same parameters as the main marking probability function, except for a lower
+QDELAY_REF value.  This would result in the SCE marking probability remaining
+strictly higher than the CE marking probability for ECT flows.
+
+## TCP
+
+Some mechanism should be defined to feed back SCE signals to the sender
 explicitly.  Details of this are left to future I-Ds covering TCP in detail;
-use could be made of the redundant NS bit in the TCP header.
+use could be made of the redundant NS bit in the TCP header, which was formerly
+associated with ECT(1) in the Nonce Sum specification.
+
+Alternatively, SCE can potentially be handled entirely by the receiver, and
+thus be entirely independent of any of the dozens of [@RFC3168] compliant
+congestion control algorithms on the sender side.  This would be done
+by adjusting the Receive Window, which has been a standard part of TCP
+from its inception.  This alternative therefore requires the minimum amount
+of protocol changes on the wire.
 
 ## Other
 
-New transports under development, such as QUIC, should implement a
-multi-bit, sub-RTT, and finer grained signal back to the sender based on SCE.
+New transports under development, such as QUIC, may implement a fine-grained
+signal back to the sender based on SCE.
 QUIC itself appears to have this sort of feedback already (counting ECT(0), ECT(1)
 and CE packets received), and the data should be made available for congestion control.
 

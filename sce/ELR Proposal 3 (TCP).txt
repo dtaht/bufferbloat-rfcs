@@ -201,6 +201,48 @@ By accepting a lower and more variable setpoint, where stability occurs at a rel
 Small Congestion Windows and Pacing are Recommended
 ===================================================
 
-TCPs implementing SCE should consider allowing the cwnd to fall below the Initial Window to some implementation-defined minimum.  Sub-MSS cwnds can efficiently be supported by TCP Pacing, as a natural extension of the inter-packet scheduling formula dT = MSS*RTT/cwnd.
+TCPs implementing SCE should consider allowing the cwnd to fall below the Initial Window to some implementation-defined minimum.  Sub-MSS cwnds can efficiently be supported by TCP Pacing, as a natural extension of the inter-packet scheduling formula dT = MSS*RTT/cwnd.  This allows flows to maintain their fair share of a severely congested bottleneck without driving its queue into tail-drop.
 
-This allows flows to maintain their fair share of a severely congested bottleneck without driving its queue into tail-drop.
+The ideal moment to signal exit of slow-start is one RTT before the cwnd actually reaches the BDP, so that the 1-RTT-delayed response occurs when cwnd approximately equals BDP, and only minor adjustments are then needed to converge on the BDP.  However, it is difficult for a middlebox to offer SCE signalling that starts before the queue shows any occupancy, without risking excessive signalling that would prevent a flow from reaching the BDP entirely.
+
+An answer to this conundrum is offered by pacing.  The sender should scale its pacing rate during slow-start so that the short-term delivery rate corresponds to "even" pacing advanced by 1 RTT at the slow-start growth rate.  For a typical Appropriate Byte Counting TCP, the growth rate is a doubling per RTT, so a 2x pacing multiplier is correct.  This will cause queue growth and SCE signalling to begin one RTT early, as required.  Upon exit from slow-start into congestion avoidance, the pacing rate should be restored to produce even pacing of the cwnd across each RTT.
+
+
+---
+
+(Material cut from SCE draft)
+
+## TCP Handshake
+
+If the three-way handshake is conducted using ECT-marked packets, it would become
+feasible to detect a congested link on the path before slow-start even begins, and
+pre-emptively disable behaviour which would likely exacerbate that congestion.  In
+particular, senders should consider choosing a smaller Initial Window and/or going
+straight into Congestion Avoidance mode instead of Slow Start, if SCE or CE is
+signalled during the handshake.
+
+Since ECE is already set for the SYN/ACK packet as part of ECN negotiation, other
+means must be used to convey reception of a CE mark on the SYN packet.  This could
+take the form of a small initial Receive Window, the NS bit additionally being set, or
+the provision of an explicit ECN feedback option if the SYN endpoint indicated support.
+
+## Cubic
+
+Consider a TCP transport implementing a CUBIC-like congestion control.  This
+presently exhibits exponential cwnd growth during slow-start,
+polynomial cwnd growth in steady-state, and multiplicative decrease
+upon detecting a single CE marking or packet loss in one RTT cycle.
+
+With SCE awareness, it might exit slow-start upon detecting a single
+SCE marking, reduce the slope of its growth function slightly for each
+SCE mark received, and implement a square-root decline using a variant
+of the Reno-linear formula when growth is essentially halted by high enough SCE rates.
+On detecting CE in isolation, the existing 30% or 40% sharp reduction is retained,
+but a smaller 10% or 20% reduction might be implemented when CE is accompanied by SCE
+to retain overall throughput in competition with SCE-ignorant flows.
+
+In ideal circumstances, the above behaviour would result in the send
+rate stabilising at a level which produces SCE marking but not CE marking
+at some bottleneck on the path.  The middlebox performing
+this marking can thus control the send rate smoothly to an ideal value,
+maximising throughput with minimum average queue length.
