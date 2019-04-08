@@ -6,9 +6,9 @@ Transport Working Group                                        J. Morton
 Internet-Draft                                           Bufferbloat.net
 Updates: 3168, 8311 (if approved)                                D. Reed
 Intended status: Standards Track                       DeepPlum Research
-Expires: September 23, 2019                                     D. Taeht
+Expires: October 10, 2019                                       D. Taeht
                                                                 TekLibre
-                                                          March 22, 2019
+                                                           April 8, 2019
 
 
              The Some Congestion Experienced ECN Codepoint
@@ -31,14 +31,14 @@ Status of This Memo
    Internet-Drafts are working documents of the Internet Engineering
    Task Force (IETF).  Note that other groups may also distribute
    working documents as Internet-Drafts.  The list of current Internet-
-   Drafts is at http://datatracker.ietf.org/drafts/current/.
+   Drafts is at https://datatracker.ietf.org/drafts/current/.
 
    Internet-Drafts are draft documents valid for a maximum of six months
    and may be updated, replaced, or obsoleted by other documents at any
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on September 23, 2019.
+   This Internet-Draft will expire on October 10, 2019.
 
 Copyright Notice
 
@@ -47,15 +47,15 @@ Copyright Notice
 
    This document is subject to BCP 78 and the IETF Trust's Legal
    Provisions Relating to IETF Documents
-   (http://trustee.ietf.org/license-info) in effect on the date of
+   (https://trustee.ietf.org/license-info) in effect on the date of
    publication of this document.  Please review these documents
    carefully, as they describe your rights and restrictions with respect
 
 
 
-Morton, et al.         Expires September 23, 2019               [Page 1]
+Morton, et al.          Expires October 10, 2019                [Page 1]
 
-Internet-Draft                    sceb                        March 2019
+Internet-Draft                    sceb                        April 2019
 
 
    to this document.  Code Components extracted from this document must
@@ -70,18 +70,18 @@ Table of Contents
    3.  Background  . . . . . . . . . . . . . . . . . . . . . . . . .   2
    4.  Some Congestion Experienced . . . . . . . . . . . . . . . . .   3
    5.  Examples of use . . . . . . . . . . . . . . . . . . . . . . .   5
-     5.1.  TCP Fast Open . . . . . . . . . . . . . . . . . . . . . .   5
-     5.2.  Cubic . . . . . . . . . . . . . . . . . . . . . . . . . .   5
-     5.3.  TCP receiver side handling  . . . . . . . . . . . . . . .   6
+     5.1.  Codel-type AQMs . . . . . . . . . . . . . . . . . . . . .   5
+     5.2.  RED-type AQMs (including PIE) . . . . . . . . . . . . . .   5
+     5.3.  TCP . . . . . . . . . . . . . . . . . . . . . . . . . . .   6
      5.4.  Other . . . . . . . . . . . . . . . . . . . . . . . . . .   6
    6.  Related Work  . . . . . . . . . . . . . . . . . . . . . . . .   6
-   7.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   6
-   8.  Security Considerations . . . . . . . . . . . . . . . . . . .   6
+   7.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   7
+   8.  Security Considerations . . . . . . . . . . . . . . . . . . .   7
    9.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .   7
    10. References  . . . . . . . . . . . . . . . . . . . . . . . . .   7
      10.1.  Normative References . . . . . . . . . . . . . . . . . .   7
-     10.2.  Informative References . . . . . . . . . . . . . . . . .   7
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .   8
+     10.2.  Informative References . . . . . . . . . . . . . . . . .   8
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .   9
 
 1.  Terminology
 
@@ -109,9 +109,9 @@ Table of Contents
 
 
 
-Morton, et al.         Expires September 23, 2019               [Page 2]
+Morton, et al.          Expires October 10, 2019                [Page 2]
 
-Internet-Draft                    sceb                        March 2019
+Internet-Draft                    sceb                        April 2019
 
 
    Binary Keyword References
@@ -165,9 +165,9 @@ Internet-Draft                    sceb                        March 2019
 
 
 
-Morton, et al.         Expires September 23, 2019               [Page 3]
+Morton, et al.          Expires October 10, 2019                [Page 3]
 
-Internet-Draft                    sceb                        March 2019
+Internet-Draft                    sceb                        April 2019
 
 
     00     Not-ECT (Not ECN-Capable Transport)     [@RFC3168]
@@ -221,9 +221,9 @@ Internet-Draft                    sceb                        March 2019
 
 
 
-Morton, et al.         Expires September 23, 2019               [Page 4]
+Morton, et al.          Expires October 10, 2019                [Page 4]
 
-Internet-Draft                    sceb                        March 2019
+Internet-Draft                    sceb                        April 2019
 
 
    stabilise at higher SCE ratios for higher BDPs, and MAY reduce their
@@ -237,74 +237,106 @@ Internet-Draft                    sceb                        March 2019
 
 5.  Examples of use
 
-5.1.  TCP Fast Open
+5.1.  Codel-type AQMs
 
-   If the three-way handshake is conducted using ECT-marked packets, it
-   would become feasible to detect a congested link on the path before
-   slow-start even begins, and pre-emptively disable behaviour which
-   would likely exacerbate that congestion.  In particular, senders
-   should consider choosing a smaller Initial Window and/or going
-   straight into Congestion Avoidance mode instead of Slow Start, if SCE
-   or CE is signalled during the handshake.
+   A simple and natural way to implement SCE in a Codel-type AQM is to
+   mark all ECT packets as SCE if they are over half the Codel target
+   sojourn time, and not marked CE by Codel itself.  This threshold
+   function does not necessarily produce the best performance, but is
+   very easy to implement and provides useful information to SCE-aware
+   flows, often sufficient to avoid receiving CE marks whilst still
+   efficiently using available capacity.
 
-   Since ECE is already set for the SYN/ACK packet as part of ECN
-   negotiation, other means must be used to convey reception of a CE
-   mark on the SYN packet.  This could take the form of a small initial
-   Receive Window, the NS bit additionally being set, or the provision
-   of an explicit ECN feedback option if the SYN endpoint indicated
-   support.
+   For a more sophisticated approach avoiding even small-scale
+   oscillation, a stochastic ramp function may be implemented with 100%
+   marking at the Codel target, falling to 0% marking at or above zero
+   sojourn time.  The lower point of the ramp should be chosen so that
+   SCE is not accidentally signalled due to CPU scheduling latencies or
+   serialisation delays of single packets.  Absent rigorous analysis of
+   these factors, setting the lower limit at half the Codel target
+   should be safe in many cases.
 
-5.2.  Cubic
+   The default configuration of Codel is 100ms interval, 5ms target.  A
+   typical ramp function for these parameters might cease marking below
+   2.5ms sojourn time, increase marking probability linearly to 100% at
+   5ms, and mark at 100% for sojourn times above 5ms (in which CE
+   marking is also possible).
 
-   Consider a TCP transport implementing a CUBIC-like congestion
-   control.  This presently exhibits exponential cwnd growth during
-   slow-start, polynomial cwnd growth in steady-state, and
-   multiplicative decrease upon detecting a single CE marking or packet
-   loss in one RTT cycle.
+   Flow-isolating AQMs should avoid signalling SCE to flows classified
+   as "sparse" in order to encourage the fastest possible convergence to
+   the fair share.
 
-   With SCE awareness, it might exit slow-start upon detecting a single
-   SCE marking, reduce the slope of its growth function slightly for
-   each SCE mark received, and implement a square-root decline using a
-   variant of the Reno-linear formula when growth is essentially halted
-   by high enough SCE rates.  On detecting CE in isolation, the existing
-   30% or 40% sharp reduction is retained, but a smaller 10% or 20%
-   reduction might be implemented when CE is accompanied by SCE to
-   retain overall throughput in competition with SCE-ignorant flows.
+   For the avoidance of doubt, a decision to mark CE or to drop a packet
+   always takes precedence over SCE marking.
 
-   In ideal circumstances, the above behaviour would result in the send
-   rate stabilising at a level which produces SCE marking but not CE
-   marking at some bottleneck on the path.  The middlebox performing
+5.2.  RED-type AQMs (including PIE)
 
+   There are several reasonable methods of producing SCE signals in a
+   RED-type AQM.
 
 
-Morton, et al.         Expires September 23, 2019               [Page 5]
+
+
+Morton, et al.          Expires October 10, 2019                [Page 5]
 
-Internet-Draft                    sceb                        March 2019
+Internet-Draft                    sceb                        April 2019
 
 
-   this marking can thus control the send rate smoothly to an ideal
-   value, maximising throughput with minimum average queue length.
+   The simplest would be a threshold function, giving a hard boundary in
+   queue depth between 0% and 100% SCE marking.  This could be a
+   sensible option for limited hardware implementations.  The threshold
+   should be set below the point at which a growing queue might trigger
+   CE marking or packet drops.
 
-5.3.  TCP receiver side handling
+   Another option would be to implement a second marking probability
+   function, occupying a queue-depth space just below that occupied by
+   the main marking probability function.  This should be arranged so
+   that high marking rates (ideally 100%) are achieved at or before the
+   point at which CE marking or packet drops begin.
 
-   SCE can potentially be handled entirely by the receiver, and thus be
-   entirely independent of any of the dozens of [RFC3168] compliant
-   congestion control algorithms on the sender side.
+   For PIE specifically, a second marking probability function could be
+   added with the same parameters as the main marking probability
+   function, except for a lower QDELAY_REF value.  This would result in
+   the SCE marking probability remaining strictly higher than the CE
+   marking probability for ECT flows.
 
-   Alternatively, some mechanism may be defined to feed back SCE signals
-   to the sender explicitly.  Details of this are left to future I-Ds
-   covering TCP in detail; use could be made of the redundant NS bit in
-   the TCP header.
+5.3.  TCP
+
+   Some mechanism should be defined to feed back SCE signals to the
+   sender explicitly.  Details of this are left to future I-Ds covering
+   TCP in detail; use could be made of the redundant NS bit in the TCP
+   header, which was formerly associated with ECT(1) in the Nonce Sum
+   specification.
+
+   Alternatively, SCE can potentially be handled entirely by the
+   receiver, and thus be entirely independent of any of the dozens of
+   [RFC3168] compliant congestion control algorithms on the sender side.
+   This would be done by adjusting the Receive Window, which has been a
+   standard part of TCP from its inception.  This alternative therefore
+   requires the minimum amount of protocol changes on the wire.
 
 5.4.  Other
 
-   New transports under development such as QUIC SHOULD implement a
-   multi-bit, sub-RTT, and finer grained signal back to the sender based
-   on SCE.
+   New transports under development, such as QUIC, may implement a fine-
+   grained signal back to the sender based on SCE.  QUIC itself appears
+   to have this sort of feedback already (counting ECT(0), ECT(1) and CE
+   packets received), and the data should be made available for
+   congestion control.
 
 6.  Related Work
 
    [RFC8087] [RFC7567] [RFC7928] [RFC8290] [RFC8289] [RFC8033] [RFC8034]
+
+
+
+
+
+
+
+Morton, et al.          Expires October 10, 2019                [Page 6]
+
+Internet-Draft                    sceb                        April 2019
+
 
 7.  IANA Considerations
 
@@ -330,14 +362,6 @@ Internet-Draft                    sceb                        March 2019
    marks to ECT or Not-ECT codepoints, thus hiding it from the receiver.
    This has equivalent effects to ignoring SCE signals at the receiver.
    An identical threat already exists for erasing congestion information
-
-
-
-Morton, et al.         Expires September 23, 2019               [Page 6]
-
-Internet-Draft                    sceb                        March 2019
-
-
    from CE marked packets, and may be mitigated by AQMs switching to
    dropping packets from flows observed to be non-responsive to CE.
 
@@ -353,13 +377,22 @@ Internet-Draft                    sceb                        March 2019
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
-              DOI 10.17487/RFC2119, March 1997, <https://www.rfc-
-              editor.org/info/rfc2119>.
+              DOI 10.17487/RFC2119, March 1997,
+              <https://www.rfc-editor.org/info/rfc2119>.
 
    [RFC8311]  Black, D., "Relaxing Restrictions on Explicit Congestion
               Notification (ECN) Experimentation", RFC 8311,
-              DOI 10.17487/RFC8311, January 2018, <https://www.rfc-
-              editor.org/info/rfc8311>.
+              DOI 10.17487/RFC8311, January 2018,
+              <https://www.rfc-editor.org/info/rfc8311>.
+
+
+
+
+
+Morton, et al.          Expires October 10, 2019                [Page 7]
+
+Internet-Draft                    sceb                        April 2019
+
 
 10.2.  Informative References
 
@@ -384,16 +417,6 @@ Internet-Draft                    sceb                        March 2019
               Problem", RFC 8033, DOI 10.17487/RFC8033, February 2017,
               <https://www.rfc-editor.org/info/rfc8033>.
 
-
-
-
-
-
-Morton, et al.         Expires September 23, 2019               [Page 7]
-
-Internet-Draft                    sceb                        March 2019
-
-
    [RFC8034]  White, G. and R. Pan, "Active Queue Management (AQM) Based
               on Proportional Integral Controller Enhanced PIE) for
               Data-Over-Cable Service Interface Specifications (DOCSIS)
@@ -402,8 +425,8 @@ Internet-Draft                    sceb                        March 2019
 
    [RFC8087]  Fairhurst, G. and M. Welzl, "The Benefits of Using
               Explicit Congestion Notification (ECN)", RFC 8087,
-              DOI 10.17487/RFC8087, March 2017, <https://www.rfc-
-              editor.org/info/rfc8087>.
+              DOI 10.17487/RFC8087, March 2017,
+              <https://www.rfc-editor.org/info/rfc8087>.
 
    [RFC8289]  Nichols, K., Jacobson, V., McGregor, A., Ed., and J.
               Iyengar, Ed., "Controlled Delay Active Queue Management",
@@ -413,8 +436,19 @@ Internet-Draft                    sceb                        March 2019
    [RFC8290]  Hoeiland-Joergensen, T., McKenney, P., Taht, D., Gettys,
               J., and E. Dumazet, "The Flow Queue CoDel Packet Scheduler
               and Active Queue Management Algorithm", RFC 8290,
-              DOI 10.17487/RFC8290, January 2018, <https://www.rfc-
-              editor.org/info/rfc8290>.
+              DOI 10.17487/RFC8290, January 2018,
+              <https://www.rfc-editor.org/info/rfc8290>.
+
+
+
+
+
+
+
+Morton, et al.          Expires October 10, 2019                [Page 8]
+
+Internet-Draft                    sceb                        April 2019
+
 
 Authors' Addresses
 
@@ -436,18 +470,6 @@ Authors' Addresses
 
    Phone: +18312059740
    Email: dpreed.ietf@teklibre.net
-
-
-
-
-
-
-
-
-
-Morton, et al.         Expires September 23, 2019               [Page 8]
-
-Internet-Draft                    sceb                        March 2019
 
 
    David M. Taeht
@@ -479,26 +501,4 @@ Internet-Draft                    sceb                        March 2019
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Morton, et al.         Expires September 23, 2019               [Page 9]
+Morton, et al.          Expires October 10, 2019                [Page 9]
